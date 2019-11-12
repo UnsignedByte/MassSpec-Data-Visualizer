@@ -110,7 +110,7 @@ while i <= ProteinNames{end,2}
                 %run once
                 if kk == 1
                     for k = 1:length(SingleColumns)
-                        Result(j,length(UniqueColumns)*(NumFilesRead+2)+k) = table2array(TempStruct(1).dat(ind,UniqueColumns(k))); %paste data into result
+                        Result(j,length(SingleColumns)*(NumFilesRead+2)+k) = table2array(TempStruct(1).dat(ind,SingleColumns(k))); %paste data into result
                     end
                 end
             end
