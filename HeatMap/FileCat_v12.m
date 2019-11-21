@@ -35,8 +35,8 @@ tic;
 %Have a Dialog Box to ID how many files are being searched. Will later add
 %the ability to define outputs here as well, for instance NSAF, or unique
 %only
-NumFilesRead = inputdlg('How Many .xlsx Files?'); 
-NumFilesRead = str2num(NumFilesRead{1}); 
+NumFilesRead = inputdlg('How Many .xlsx Files?');
+NumFilesRead = str2num(NumFilesRead{1});
 
 %This is where you set the number of files to be read. Currently set up to
 %allow you to select all the files at once for time savings. Added a
