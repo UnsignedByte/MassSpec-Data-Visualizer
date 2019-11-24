@@ -221,5 +221,7 @@ function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctio
     fid = fopen([filename '.json'], 'w');
     fprintf(fid, jsonencode(FinalFileOut,'ConvertInfAndNaN', false));
     fclose(fid);
+    output = table2struct(FinalFileOut);
+    save('output.mat', 'output', '-v7.3');
     toc;
 end
