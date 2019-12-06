@@ -112,14 +112,14 @@ UniModList = unique(UniModList);
 % this to search based on related masses for wild cards, but will save that
 % for later.
 
-MassHandleList = cell(length(UniModList),2);
-for i = 1:length(UniModList(:,1))
-    tempHandle = strsplit(UniModList{i},' / ');
-    MassHandleList{i,1} = tempHandle{:,1};
-    if strfind(MassHandleList{i,1},'Trioxidation' 
-    tempHandleMass = tempHandle{:,2};
-    MassHandleList{i,2} = tempHandleMass(1:end-1);
-end;
+% MassHandleList = cell(length(UniModList),2);
+% for i = 1:length(UniModList(:,1))
+%     tempHandle = strsplit(UniModList{i},' / ');
+%     MassHandleList{i,1} = tempHandle{:,1};
+%     if strfind(MassHandleList{i,1},'Trioxidation' 
+%     tempHandleMass = tempHandle{:,2};
+%     MassHandleList{i,2} = tempHandleMass(1:end-1);
+% end;
 
 % Now I'll build the output structure, which is called sequence longform
 % initially.

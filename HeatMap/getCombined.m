@@ -110,9 +110,8 @@ function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctio
         j = j + 1;
     end
 
-    sortOrd = [size(ClassResult,2)-1, NumFilesRead+1, NumFilesRead+2];
-    sortDirs = {'ascend', 'descend', 'descend'};
-    ClassResult = sortrows(ClassResult, sortOrd, sortDirs);
+    sortOrd = [size(ClassResult,2), -NumFilesRead-3, -NumFilesRead-4];
+    ClassResult = sortrows(ClassResult, [size(ClassResult,2)-1, -NumFilesRead-1, -NumFilesRead-2]);
 
     Result = num2cell(Result);
     Result = [Result(:,end) ProteinNames(:, 1) Result(:,1:end-1)];
@@ -124,9 +123,12 @@ function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctio
 
     for i = 1:size(ClassResult,1)
         CombinedRes(realI,:) = [i ClassResult(i,2:end) 1];
-        found = Result(cell2mat(Result(:,1))==ClassResult{i,1},:);
-        found = sortrows(found, sortOrd, sortDirs);
+        found = Result(cell2mat(Result(:,1))==ClassResult{i,1},:); %get rows in class
+        fnames = found(:,2); %take out names
         found = found(:,2:end);
+        found(:,1) = num2cell(1:size(found,1));
+        found = num2cell(sortrows(cell2mat(found), sortOrd)); %sort by rows
+        found(:,1) = fnames(cell2mat(found(:,1))); %replace names
         CombinedRes(realI+1:realI+size(found,1),2:end-1) = found;
         CombinedRes(realI+1:realI+size(found,1),1) = {i};
         CombinedRes(realI+1:realI+size(found,1),end) = {0};
@@ -193,7 +195,7 @@ function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctio
         %label by dataset
         for j = 1:length(UniqueColumns)
             tval = [TempStruct(1).dat.Properties.VariableNames{UniqueColumns(j)} '_' CleanedFileName];
-            HeaderFileString{2+(j-1)*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+i} = tval(1:63);
+            HeaderFileString{2+(j-1)*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+i} = tval(1:min(63,end));
         end
     end
 

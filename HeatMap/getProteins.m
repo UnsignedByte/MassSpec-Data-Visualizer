@@ -1,8 +1,8 @@
 clear all;
 %% Preference variables
-UniqueColumns = [7, 10]; %Columns to take from each dataset (sorted by max and sum of first elem)
-UniqueCombineFunctions = {{@max, @nansum}, {@max, @nanmean}}; %combined functions across datasets used
-UniqueClassFunctions = {@nansum, @nanmean}; %functions to use for each dataset when combining into class
+UniqueColumns = [7]; %Columns to take from each dataset (sorted by max and sum of first elem)
+UniqueCombineFunctions = {{@max, @nansum}}; %combined functions across datasets used
+UniqueClassFunctions = {@nansum}; %functions to use for each dataset when combining into class
 %Will save max and sum as well as values from the datasets
 SingleColumns = [11]; %Columns equal across all datasets (will only take one column)
 SingleClassFunctions = {@nansum}; %functions to use for each dataset when combining into class
