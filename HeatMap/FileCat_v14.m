@@ -61,6 +61,10 @@ for i = 1 : NumFilesRead
     [~, TempName, ~] = fileparts(TempFile{i});
     datasetnames{i} = TempName;
     datasets{i} = readtable(TempFile{i}, 'Sheet', XcelSheet);
+    disp(['File ' num2str(i) ' read']);
+    toc;
 end
 
 getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions);
+
+toc;

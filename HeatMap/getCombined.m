@@ -1,5 +1,5 @@
 function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions) 
-    NumFilesRead = length(datasets); 
+    NumFilesRead = length(datasets);
     ProteinNames = []; %all protein names
 
     %Building the main data structure here. All data is read in and retained.
@@ -14,23 +14,26 @@ function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctio
     end
 
     ProteinNames = unique(ProteinNames); %get only unique
-
-    %Get all unique proteins over all datasets
-    ProteinNames(:,2) = num2cell(1:length(ProteinNames)); %Maps protein name to a unique ID
+    ProteinNamesMap = containers.Map(ProteinNames, 1:length(ProteinNames));
+    ProteinRanks = [1:length(ProteinNames)];
 
     %Match ids if proteins are in groups
     for i = 1:NumFilesRead
-        for j = 1:TempStruct(i).dat.ProteinRank(end) %loop through all ranks in dataset
-            %find ids of a "class" of proteins (proteins with the same rank)
-            ids = cell2mat(cellfun(@(x) find(ismember(ProteinNames(:,1),x)), TempStruct(i).dat.Description(find(TempStruct(i).dat.ProteinRank==j)), 'UniformOutput', false));
-            locs = [];
-            for k = 1:numel(ids)
-                locs = [locs find([ProteinNames{:,2}]==ids(k))];
+        j = 1;
+        jstart = 1;
+        for jreal = 2:size(TempStruct(i).dat,1) %loop through all ranks in dataset
+            j = TempStruct(i).dat.ProteinRank(jreal);
+            if TempStruct(i).dat.ProteinRank(jstart) ~= j %if rank changed
+                %find ids of a "class" of proteins (proteins with the same rank)
+                ids = cell2mat(cellfun(@(x) ProteinNamesMap(x), TempStruct(i).dat.Description(jstart:jreal-1), 'UniformOutput', false));
+                ProteinRanks(ids) = min(ProteinRanks(ids));
+                jstart = jreal;
             end
-            ProteinNames(locs,2) = {min(cell2mat(ProteinNames(locs,2)))};
         end
     end
-
+    
+    ProteinNames(:,2) = num2cell(ProteinRanks); 
+    
     ProteinNames = sortrows(ProteinNames,2); %sort names by id
 
     toc;
@@ -195,7 +198,7 @@ function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctio
         %label by dataset
         for j = 1:length(UniqueColumns)
             tval = [TempStruct(1).dat.Properties.VariableNames{UniqueColumns(j)} '_' CleanedFileName];
-            HeaderFileString{2+(j-1)*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+i} = tval(1:min(63,end));
+            HeaderFileString{2+(j-1)*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+i} = matlab.lang.makeValidName(tval);
         end
     end
 
