@@ -1,4 +1,4 @@
-function getPeptideMap(proteinName, dat, summarydat, fastaFile)
+function getPeptideMap(proteinName, dat, summarydat, fastaFile, filename)
     modlistStart = find(contains(summarydat.Var2, '%Fixed and variable modifications:'))+1; %index of start of list of mods
     modlistEnd = find(contains(summarydat.Var2, '% Custom modification text below'))-1; %index of end of list of mods
     modlist = summarydat.Var2(modlistStart:modlistEnd); %get list of mods
@@ -57,31 +57,29 @@ function getPeptideMap(proteinName, dat, summarydat, fastaFile)
     dqueue = sortrows(dqueue);
 
     for i = 1:length(proteinSequence)
-        lastSlice = resTable(max(i-1,1),3);
-        while dqueue(1,1) == i
-            lastSlice.Total_Peptides(1) = lastSlice.Total_Peptides(1)+dqueue(1,3);
-            for j = 1:size(peps{2,dqueue(1,2)},1)
-    %             disp(peps{2,dqueue(1,2)});
-                if dqueue(1,3) == 1
-                    resTable.(peps{2,dqueue(1,2)}{j,1})(i+peps{2, dqueue(1,2)}{j,2}-3) = resTable.(peps{2,dqueue(1,2)}{j,1})(i+peps{2, dqueue(1,2)}{j,2}-3) + 1;
+        if size(dqueue,1) > 0
+            lastSlice = resTable(max(i-1,1),3);
+            while dqueue(1,1) == i
+                lastSlice.Total_Peptides(1) = lastSlice.Total_Peptides(1)+dqueue(1,3);
+                for j = 1:size(peps{2,dqueue(1,2)},1)
+        %             disp(peps{2,dqueue(1,2)});
+                    if dqueue(1,3) == 1
+                        resTable.(peps{2,dqueue(1,2)}{j,1})(i+peps{2, dqueue(1,2)}{j,2}-3) = resTable.(peps{2,dqueue(1,2)}{j,1})(i+peps{2, dqueue(1,2)}{j,2}-3) + 1;
+                    end
+        %             lastSlice.(peps{2,dqueue(1,2)}{j,1})(1) = lastSlice.(peps{2,dqueue(1,2)}{j,1})(1)+dqueue(1,3);
                 end
-    %             lastSlice.(peps{2,dqueue(1,2)}{j,1})(1) = lastSlice.(peps{2,dqueue(1,2)}{j,1})(1)+dqueue(1,3);
+                dqueue(1,:) = [];
+                if size(dqueue,1) == 0
+                    break;
+                end
             end
-            dqueue(1,:) = [];
-            if size(dqueue,1) == 0
-                break;
-            end
+            resTable(i,3) = lastSlice;
         end
     %     disp(lastSlice);
         resTable.Position(i) = i;
         resTable.AA{i} = proteinSequence(i);
-        resTable(i,3) = lastSlice;
-        if size(dqueue,1) == 0
-            break;
-        end
     end
 
-    filename = 'modformat';
     writetable(resTable,[filename '.csv']);
 
     function matches = parseStarts(str) %parse list of starting positions into regex matching string
