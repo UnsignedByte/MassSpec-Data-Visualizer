@@ -59,11 +59,9 @@ function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctio
                         Result(j,(k-1)*NumFilesRead+totUniqueFuncs(k)-length(UniqueCombineFunctions{k})+kk) = table2array(TempStruct(kk).dat(ind,UniqueColumns(k))); %paste data into result
                     end
                     %unique columns should be equal across all datasets, so only
-                    %run once
-                    if kk == 1
-                        for k = 1:length(SingleColumns)
-                            Result(j,length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k) = table2array(TempStruct(1).dat(ind,SingleColumns(k))); %paste data into result
-                        end
+                    %run for all
+                    for k = 1:length(SingleColumns)
+                        Result(j,length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k) = max(Result(j,length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k), TempStruct(kk).dat{ind, SingleColumns(k)}); %paste data into result
                     end
                 end
             end
