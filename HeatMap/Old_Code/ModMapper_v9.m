@@ -17,7 +17,7 @@ modlist(:,1) = arrayfun(@(x) matlab.lang.makeValidName([modlist{x,1} '_' modlist
 TempFastaFile = uigetfile('.fasta','Choose Datafile');
 fastaFile = struct2table(fastaread(TempFastaFile));
 
-proteinName = '>sp|P14873|MAP1B_MOUSE Microtubule-associated protein 1B OS=Mus musculus OX=10090 GN=Map1b PE=1 SV=2'; %desired rank for protein to analyze
+proteinName = '>sp|P35802|GPM6A_MOUSE Neuronal membrane glycoprotein M6-a OS=Mus musculus OX=10090 GN=Gpm6a PE=1 SV=1'; %desired name for protein to analyze
 Istart = 0;
 
 for j = 1:size(dat, 1) %get range of rows with specified protein rank
@@ -52,8 +52,8 @@ peps = cell(2,Iend-Istart+1);
 
 for i = Istart:Iend
     [pep, mods] = formatPeptide(dat.Peptide_ProteinMetricsConfidential_{i}, modlist);
-    peps{1,i} = pep;
-    peps{2,i} = mods;
+    peps{1,i-Istart+1} = pep;
+    peps{2,i-Istart+1} = mods;
     dqueue((i-Istart)*2+(1:2),:) = [dat.StartingPosition(i), i-Istart+1, 1; dat.StartingPosition(i)+length(pep)-4, i-Istart+1, -1];
 end
 dqueue = sortrows(dqueue);
@@ -65,7 +65,7 @@ for i = 1:length(proteinSequence)
         for j = 1:size(peps{2,dqueue(1,2)},1)
 %             disp(peps{2,dqueue(1,2)});
             if dqueue(1,3) == 1
-                resTable.(peps{2,dqueue(1,2)}{j,1})(i+peps{2, dqueue(1,2)}{j,2}-3) = resTable.(peps{2,dqueue(1,2)}{j,1})(i+peps{2, dqueue(1,2)}{j,2}-3) + 1;
+                resTable.(peps{2,dqueue(1,2)}{j,1})(max(i+peps{2, dqueue(1,2)}{j,2}-3,1)) = resTable.(peps{2,dqueue(1,2)}{j,1})(max(i+peps{2, dqueue(1,2)}{j,2}-3,1)) + 1;
             end
 %             lastSlice.(peps{2,dqueue(1,2)}{j,1})(1) = lastSlice.(peps{2,dqueue(1,2)}{j,1})(1)+dqueue(1,3);
         end

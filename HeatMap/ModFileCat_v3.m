@@ -5,7 +5,7 @@ UniqueCombineFunctions = {{@max, @nansum}}; %combined functions across datasets 
 UniqueClassFunctions = {@nansum}; %functions to use for each dataset when combining into class
 %Will save max and sum as well as values from the datasets
 SingleColumns = [11]; %Columns equal across all datasets (will only take one column)
-SingleClassFunctions = {@nansum}; %functions to use for each dataset when combining into class
+SingleClassFunctions = {@max}; %functions to use for each dataset when combining into class
 
 %%
 

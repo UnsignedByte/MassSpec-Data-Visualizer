@@ -1,4 +1,4 @@
-function getPeptideMap(proteinName, dat, summarydat, fastaFile, filename)
+function getPeptideMap(proteinName, dat, summarydat, fastaFile, filename, sheetname)
     modlistStart = find(contains(summarydat.Var2, '%Fixed and variable modifications:'))+1; %index of start of list of mods
     modlistEnd = find(contains(summarydat.Var2, '% Custom modification text below'))-1; %index of end of list of mods
     modlist = summarydat.Var2(modlistStart:modlistEnd); %get list of mods
@@ -50,8 +50,8 @@ function getPeptideMap(proteinName, dat, summarydat, fastaFile, filename)
 
     for i = Istart:Iend
         [pep, mods] = formatPeptide(dat.Peptide_ProteinMetricsConfidential_{i}, modlist);
-        peps{1,i} = pep;
-        peps{2,i} = mods;
+        peps{1,i-Istart+1} = pep;
+        peps{2,i-Istart+1} = mods;
         dqueue((i-Istart)*2+(1:2),:) = [dat.StartingPosition(i), i-Istart+1, 1; dat.StartingPosition(i)+length(pep)-4, i-Istart+1, -1];
     end
     dqueue = sortrows(dqueue);
@@ -64,7 +64,7 @@ function getPeptideMap(proteinName, dat, summarydat, fastaFile, filename)
                 for j = 1:size(peps{2,dqueue(1,2)},1)
         %             disp(peps{2,dqueue(1,2)});
                     if dqueue(1,3) == 1
-                        resTable.(peps{2,dqueue(1,2)}{j,1})(i+peps{2, dqueue(1,2)}{j,2}-3) = resTable.(peps{2,dqueue(1,2)}{j,1})(i+peps{2, dqueue(1,2)}{j,2}-3) + 1;
+                        resTable.(peps{2,dqueue(1,2)}{j,1})(max(i+peps{2, dqueue(1,2)}{j,2}-3,1)) = resTable.(peps{2,dqueue(1,2)}{j,1})(max(i+peps{2, dqueue(1,2)}{j,2}-3,1)) + 1;
                     end
         %             lastSlice.(peps{2,dqueue(1,2)}{j,1})(1) = lastSlice.(peps{2,dqueue(1,2)}{j,1})(1)+dqueue(1,3);
                 end
@@ -79,8 +79,15 @@ function getPeptideMap(proteinName, dat, summarydat, fastaFile, filename)
         resTable.Position(i) = i;
         resTable.AA{i} = proteinSequence(i);
     end
+    todel = [];
+    for i = 4:size(resTable,2)
+        if ~any(table2array(resTable(:,i)))
+            todel(end+1) = i;
+        end
+    end
+    resTable(:,todel) = [];
 
-    writetable(resTable,[filename '.csv']);
+    writetable(resTable,[filename '.xlsx'], 'Sheet', sheetname);
 
     function matches = parseStarts(str) %parse list of starting positions into regex matching string
         matches = regexp(str, '(?<=\s|^)([a-zA-Z\s]+)(?=,|$)', 'match'); %match each starting pos
