@@ -50,12 +50,17 @@ tic;
 %warning for cases where you give it a mismatched number of files and
 %selected number of files.
 
-TempFile = uigetfile('.xlsx','Choose First Datafile','MultiSelect','on');
+TempFile = uigetfile('.xlsx','Choose Datafiles','MultiSelect','on');
 
 NumFilesRead = length(TempFile);
 
 datasets = cell(NumFilesRead,1);
 datasetnames = cell(NumFilesRead,1);
+resfolder = fullfile('Results', getResultFolder(TempFile{1}), 'HeatMap');
+
+if ~isfolder(resfolder)
+    mkdir(resfolder);
+end
 
 for i = 1 : NumFilesRead
     [~, TempName, ~] = fileparts(TempFile{i});
@@ -65,6 +70,6 @@ for i = 1 : NumFilesRead
     toc;
 end
 
-getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions);
+getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions, fullfile(resfolder, 'All_Mods'));
 
 toc;

@@ -1,4 +1,4 @@
-function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions) 
+function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions, filename) 
     NumFilesRead = length(datasets);
     ProteinNames = []; %all protein names
 
@@ -219,12 +219,11 @@ function getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctio
     FinalFileOut = cell2table(FileOutFinalDeComma);
     FinalFileOut.Properties.VariableNames = HeaderFileString;
 
-    filename = 'tableformat';
     writetable(FinalFileOut,[filename '.csv']);
-    fid = fopen([filename '.json'], 'w');
-    fprintf(fid, jsonencode(FinalFileOut,'ConvertInfAndNaN', false));
-    fclose(fid);
-    output = table2struct(FinalFileOut);
-    save('output.mat', 'output', '-v7.3');
+%     fid = fopen([filename '.json'], 'w');
+%     fprintf(fid, jsonencode(FinalFileOut,'ConvertInfAndNaN', false));
+%     fclose(fid);
+%     output = table2struct(FinalFileOut);
+%     save('output.mat', 'output', '-v7.3');
     toc;
 end

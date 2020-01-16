@@ -10,21 +10,19 @@ SingleClassFunctions = {@max}; %functions to use for each dataset when combining
 %%
 
 tic;
-wantedMods = {'+80'};
-wantedLocs = {'*'}; %locations wanted, * = all. If multiple, list together
-%I.E. MS. = M, S, or .
 
-
-wantedRegs = cell(length(wantedMods),1);
-for i = 1:length(wantedMods)
-    %get regex match pattern
-    wantedRegs{i} = [strrep(regexptranslate('escape', wantedLocs{i}), '\*', '.') '\[' regexptranslate('escape', wantedMods{i}) '\]'];
-end
+wantedMod = 'Phospho';
 
 %read datafiles
 TempFile = uigetfile('.xlsx','Choose Data Files','MultiSelect','on');
 
 NumFilesRead = length(TempFile);
+
+resfolder = fullfile('Results', getResultFolder(TempFile{1}), 'HeatMap');
+
+if ~isfolder(resfolder)
+    mkdir(resfolder);
+end
 
 datasets = cell(NumFilesRead,1);
 datasetnames = cell(NumFilesRead,1);
@@ -36,15 +34,13 @@ datasetnames = cell(NumFilesRead,1);
 for i = 1 : NumFilesRead
     [~, TempName, ~] = fileparts(TempFile{i});
     datasetnames{i} = TempName;
+    sumdat = readtable(TempFile{i}, 'Sheet', 'Summary');
     sdat = readtable(TempFile{i}, 'Sheet', 'Spectra');
     pdat = readtable(TempFile{i}, 'Sheet', 'Proteins');
+    modlist = getAllMods(sumdat);
 %    dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
     TempStruct(i).sdat = sdat;
-    TempStruct(i).modMatches = zeros(size(sdat,1),length(wantedMods)+1);
-    for j = 1:length(wantedMods)
-        TempStruct(i).modMatches(:,j) = cellfun(@(x) length(regexp(x,wantedRegs{j})),TempStruct(i).sdat.ModificationType_s_);
-    end
-    TempStruct(i).modMatches(:,end) = sum(TempStruct(i).modMatches,2);
+    TempStruct(i).modMatches = cellfun(@(x) length(regexp(x,#######)),TempStruct(i).sdat.Peptide_ProteinMetricsConfidential_);
     
     curRank = TempStruct(i).sdat.ProteinRank(1);
     curI = 1;
