@@ -12,7 +12,7 @@ function getPeptideMap(proteinName, dat, summarydat, fastaFile, filename, sheetn
     end
 
     proteinSequence = NaN;
-    
+
     for i = 1:size(fastaFile,1) %find protein sequence from fasta
         if strcmp(fastaFile.Header{i},proteinName(2:end)) %2:end used to ignore the preceding >
             proteinSequence = fastaFile.Sequence{i};
@@ -77,6 +77,34 @@ function getPeptideMap(proteinName, dat, summarydat, fastaFile, filename, sheetn
         end
     end
     resTable(:,todel) = [];
+    
+    
+    resTable.Properties.VariableNames{2} = matlab.lang.makeValidName(['AA_' proteinName]);
+    resTable.Properties.VariableNames{3} = matlab.lang.makeValidName(['Total_Peptides_' sheetname]);
+    for i = 4:size(resTable,2)
+        resTable.Properties.VariableNames{i} = matlab.lang.makeValidName([resTable.Properties.VariableNames{i} '_' sheetname]);
+    end
 
-    writetable(resTable,[filename '.xlsx'], 'Sheet', sheetname);
+    if isfile([filename '.xlsx'])
+        tSum = readtable([filename '.xlsx'], 'Sheet', 'Summary');
+        if ismember(proteinName, tSum.Protein_Name)
+            sheetID = tSum.SheetNumber(contains(tSum.Protein_Name,proteinName));
+            tSum.Filenames{1} = [tSum.Filenames{1} ', ' sheetname];
+            resTable = [readtable([filename '.xlsx'], 'Sheet', num2str(sheetID)) resTable(:,3:end)];
+        else
+            sheetID = size(tSum, 1)+1;
+            tSum = [tSum;{sheetID, sheetname, proteinName}];
+        end
+        writetable(tSum,[filename '.xlsx'], 'Sheet', 'Summary');
+    else
+        defaultTable = table('Size', [1,3], 'VariableTypes', {'uint32', 'char', 'char'}, 'VariableNames', {'SheetNumber', 'Filenames', 'Protein_Name'});
+        defaultTable.SheetNumber(1) = 1;
+        defaultTable.Filenames{1} = sheetname;
+        defaultTable.Protein_Name{1} = proteinName;
+        writetable(defaultTable,[filename '.xlsx'], 'Sheet', 'Summary');
+        sheetID = 1;
+    end
+    
+    
+    writetable(resTable,[filename '.xlsx'], 'Sheet', num2str(sheetID));
 end
