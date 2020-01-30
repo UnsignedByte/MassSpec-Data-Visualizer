@@ -7,6 +7,18 @@
   background-color: #808080;
 } */
 
+:root {
+  --bg-color: white;
+  --header-bg-color: lightgrey;
+  --row-bg-color-light: whitesmoke;
+}
+
+th, td {
+  text-align: center !important;
+  padding-right: 10px !important;
+  padding-left: 10px !important;
+}
+
 .trclass ~ .trchild {
   display: none;
 }
@@ -18,7 +30,20 @@
 }
 
 .trclass:nth-child(even) {
-  background-color: #f2f2f2;
+  background-color: var(--row-bg-color-light);
+}
+
+.basicTable tr:nth-of-type(2n+3) { 
+  background-color: var(--row-bg-color-light);
+}
+
+.trheader {
+  background-color: var(--header-bg-color);
+}
+
+.trheader th {
+    overflow-wrap: break-word;
+    max-width: 150px;
 }
 
 tbody {
@@ -129,18 +154,41 @@ $('table').on('click', 'tr.trclass .fa-chevron-down', function(){
   $(this).closest('tbody').toggleClass('tropen');
 });
 
-data = "$datainput$";
-
-data.allProteins.all
+data = `$$datainput$$`;
 
 /* Data Structure
-root
-- allProteins -- data for protein tab
--- all -- all mods
--- <Mod name> -- protein tab with only specific mod
-- singleProtein -- data for each protein (modmapper)
--- <protein name> -- modmapper data for protein
+{
+  ModMapper:[
+    {
+      Summary:
+    }
+  ]
+}
 */
+
+data = JSON.parse(data);
+
+function createTable(dat){
+  let table = $('<table class="basicTable"></table>');
+  headers = Object.keys(dat[0]);
+  let hrow = $('<tr class="trheader"></tr>');
+  for(let i = 0; i < headers.length; i++){
+    hrow.append(`<th>${headers[i]}</th>`);
+  }
+  table.append(hrow);
+
+  for(let i = 0; i < dat.length; i++){
+    let row = $('<tr></tr>');
+    for(let j = 0; j < headers.length; j++){
+      row.append(`<td>${dat[i][headers[j]]}</td>`);
+    }
+    table.append(row);
+  }
+
+  return table;
+}
+
+$('.container').append(createTable(data.ModMapper[0].Sheets[0]));
 
   </script>
 </body>

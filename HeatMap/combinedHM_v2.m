@@ -60,6 +60,7 @@ for kk = 1:NumFilesRead
             resTables{i} = struct;
             resTables{i}.Summary = table('Size', [1,3], 'VariableTypes', {'uint32', 'char', 'char'}, 'VariableNames', {'SheetNumber', 'Filenames', 'Protein_Name'});
             resTables{i}.Sheets = {};
+            resTables{i}.Name = wantedGenes{i};
         end
         proteinName = getProteinName(wantedGenes{i}, proteindat.Description, 3);
         if isempty(proteinName)
@@ -99,9 +100,9 @@ for i = 1:length(wantedGenes)
         writetable(resTables{i}.Sheets{j},[filename '.xlsx'], 'Sheet', num2str(j));
     end
 end
-fid = fopen([fullfile(resfolder, 'ModMapper') '.json'], 'w');
-fprintf(fid, jsonencode(resTables,'ConvertInfAndNaN', false));
-fclose(fid);
+% fid = fopen([fullfile(resfolder, 'ModMapper') '.json'], 'w');
+% fprintf(fid, jsonencode(resTables,'ConvertInfAndNaN', false));
+% fclose(fid);
 
 resfolder = fullfile('Results', getResultFolder(TempFiles{1}), 'HeatMap');
 
@@ -110,6 +111,9 @@ if ~isfolder(resfolder)
 end
 
 wantedMods = splitlines(fileread('wantedMods.txt'));
+
+rt2s = cell(1,numel(wantedMods));
+
 for j = 1:numel(wantedMods)
     
     wantedMod = wantedMods{j};
@@ -148,5 +152,17 @@ for j = 1:numel(wantedMods)
     end
     toc;
 
-    getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions, fullfile(resfolder, wantedMod));
+    rt2s{j} = struct;
+    rt2s{j}.Data = getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions, fullfile(resfolder, wantedMod));
+    rt2s{j}.Name = wantedMod;
 end
+
+Output = struct;
+Output.ModMapper = resTables;
+Output.HeatMap = rt2s;
+fid = fopen([fullfile('Results', getResultFolder(TempFile), 'output') '.json'], 'w');
+fprintf(fid, jsonencode(Output));
+fclose(fid);
+
+disp('Done.');
+toc;
