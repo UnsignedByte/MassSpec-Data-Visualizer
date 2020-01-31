@@ -39,6 +39,8 @@ for i = 1 : NumFilesRead
     origpdats{i} = readtable(TempFiles{i}, 'Sheet', 'Proteins');
     origsumdats{i} = readtable(TempFiles{i}, 'Sheet', 'Summary');
     modlists{i} = getAllMods(origsumdats{i});
+    disp(['Read File ' num2str(i)]);
+    toc;
 end
 
 resTables = cell(1, length(wantedGenes));
@@ -112,7 +114,7 @@ end
 
 wantedMods = splitlines(fileread('wantedMods.txt'));
 
-rt2s = cell(1,numel(wantedMods));
+rt2s = cell(numel(wantedMods), 1);
 
 for j = 1:numel(wantedMods)
     
@@ -162,6 +164,18 @@ Output.ModMapper = resTables;
 Output.HeatMap = rt2s;
 fid = fopen([fullfile('Results', getResultFolder(TempFile), 'output') '.json'], 'w');
 fprintf(fid, jsonencode(Output));
+fclose(fid);
+
+fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'wantedGenes.txt'),'w');
+for i = 1 : numel(wantedGenes)
+    fprintf(fid, '%s\n', wantedGenes{i});
+end
+fclose(fid);
+
+fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'wantedMods.txt'),'w');
+for i = 1 : numel(wantedMods)
+    fprintf(fid, '%s\n', wantedMods{i});
+end
 fclose(fid);
 
 disp('Done.');

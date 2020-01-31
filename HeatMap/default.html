@@ -3,14 +3,17 @@
 <head>
   <title>Viewer</title>
   <style>
-/* body {
-  background-color: #808080;
-} */
 
 :root {
   --bg-color: white;
   --header-bg-color: lightgrey;
   --row-bg-color-light: whitesmoke;
+}
+
+body {
+  width:100%;
+  height:100%;
+  background-color: var(--bg-color);
 }
 
 th, td {
@@ -33,15 +36,15 @@ th, td {
   background-color: var(--row-bg-color-light);
 }
 
-.basicTable tr:nth-of-type(2n+3) { 
+.basicTable tbody tr:nth-of-type(even) { 
   background-color: var(--row-bg-color-light);
 }
 
-.trheader {
+thead tr{
   background-color: var(--header-bg-color);
 }
 
-.trheader th {
+thead tr th {
     overflow-wrap: break-word;
     max-width: 150px;
 }
@@ -72,7 +75,7 @@ tbody {
   </style>
 </head>
 <body>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script>$$JQUERY$$</script>
   <!-- Latest compiled and minified CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -168,27 +171,32 @@ data = `$$datainput$$`;
 
 data = JSON.parse(data);
 
-function createTable(dat){
-  let table = $('<table class="basicTable"></table>');
+function basicTableCreate(dat){
+  let table = $('<table/>', {class:'basicTable'});
   headers = Object.keys(dat[0]);
-  let hrow = $('<tr class="trheader"></tr>');
-  for(let i = 0; i < headers.length; i++){
-    hrow.append(`<th>${headers[i]}</th>`);
-  }
-  table.append(hrow);
+  addRow($('<tr/>'), 'th', [...Array(headers.length).keys()], headers).wrap('<thead/>').parent().appendTo(table);
 
+  let body = $('<tbody/>').appendTo(table);
   for(let i = 0; i < dat.length; i++){
-    let row = $('<tr></tr>');
-    for(let j = 0; j < headers.length; j++){
-      row.append(`<td>${dat[i][headers[j]]}</td>`);
-    }
-    table.append(row);
+    addRow($('<tr/>'), 'td', headers, dat[i]).appendTo(body);
   }
 
   return table;
 }
 
-$('.container').append(createTable(data.ModMapper[0].Sheets[0]));
+function classTableCreate(dat){
+  let table = $('<table/>');
+  headers = Object.keys(dat[0]);
+}
+
+function addRow(row, type, headers, dat){
+  for(let i = 0; i < headers.length; i++){
+    $(`<${type}/>`, {text:dat[headers[i]]}).appendTo(row);
+  }
+  return row
+}
+
+$('.container').append(basicTableCreate(data.ModMapper[0].Sheets[0]));
 
   </script>
 </body>
