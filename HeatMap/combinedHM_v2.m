@@ -116,9 +116,9 @@ wantedMods = splitlines(fileread('wantedMods.txt'));
 
 rt2s = cell(numel(wantedMods), 1);
 
-for j = 1:numel(wantedMods)
+for kk = 1:numel(wantedMods)
     
-    wantedMod = wantedMods{j};
+    wantedMod = wantedMods{kk};
 
     %Building the main data structure here. All data is read in and retained.
     %This should make it flexible to do alternative readouts on the fly. Should
@@ -154,9 +154,9 @@ for j = 1:numel(wantedMods)
     end
     toc;
 
-    rt2s{j} = struct;
-    rt2s{j}.Data = getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions, fullfile(resfolder, wantedMod));
-    rt2s{j}.Name = wantedMod;
+    rt2s{kk} = struct;
+    rt2s{kk}.Data = getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions, fullfile(resfolder, wantedMod));
+    rt2s{kk}.Name = wantedMod;
 end
 
 Output = struct;
