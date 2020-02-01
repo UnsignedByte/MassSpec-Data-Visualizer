@@ -183,7 +183,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
 
     HeaderFileString = cell(size(CombinedRes,2), 1);
     HeaderFileString(1:2) = {'Rank_Number'; 'Protein_Name'};
-    HeaderFileString{end-1} = 'Containment';
+    HeaderFileString{end-1} = 'Contaminant';
     HeaderFileString{end} = 'Row_Type';
 
     for i = 1 : NumFilesRead

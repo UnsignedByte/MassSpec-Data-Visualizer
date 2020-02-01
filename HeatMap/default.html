@@ -52,6 +52,11 @@ thead tr th {
 tbody {
   color: #212121;
 }
+
+.classTable tbody.odd .trclass{
+  background-color: var(--row-bg-color-light);
+}
+
 .tropen {
   background-color: #e6e6e6;
 }
@@ -132,6 +137,7 @@ function classTableCreate(dat){
     // console.log(dat[i].Row_Type);
     if (dat[i].Row_Type){ //is a class
       headerRow = $('<tr/>', {class:'trclass'}).addRow('td', headers, dat[i]).prepend($('<td><i class="fa fa-chevron-down"></i></td>')).wrap('<tbody/>').parent().appendTo(table);
+      if (table.children().length%2 == 1) headerRow.addClass('odd');
     }else{
       $('<tr/>', {class:'trchild'}).addRow('td', headers, dat[i]).prepend($('<td/>')).appendTo(headerRow);
     }
