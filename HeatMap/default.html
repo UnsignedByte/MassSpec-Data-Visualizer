@@ -22,17 +22,23 @@ th, td {
   padding-left: 10px !important;
 }
 
-.trclass ~ .trchild {
-  display: none;
+.classTable .trchild td div{
+  max-height: 0;
+  padding: 0 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: max-height 0.3s, padding 0.3s;
+  display:block;
+  text-align: center;
 }
-.tropen .trclass ~ .trchild {
+.classTable .trchild.tropen td div{
+  max-height: 200px;
+  padding: 10px 10px;
+  transition: max-height 0.6s, padding 0.6s;
   display: table-row;
 }
-.trclass {
-  cursor: pointer;
-}
 
-.trclass:nth-child(even) {
+.classTable:nth-child(even) {
   background-color: var(--row-bg-color-light);
 }
 
@@ -52,24 +58,25 @@ thead tr th {
 tbody {
   color: #212121;
 }
-.tropen {
+.trclass.tropen {
   background-color: #e6e6e6;
 }
 
-.tropen .trchild {
+.trchild.tropen {
   background-color: #999;
   color: white;
 }
-.trclass > *:last-child {
+.trclass > *:first-child {
   width: 30px;
 }
 .trclass i {
+  cursor: pointer;
   transform: rotate(0deg);
   transition: transform .3s cubic-bezier(.4,0,.2,1);
   margin: -.5rem;
   padding: .5rem;
 }
-.tropen .trclass i {
+.tropen.trclass i {
   transform: rotate(180deg)
 }
   </style>
@@ -87,75 +94,8 @@ tbody {
   <link rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
   <div class="container">
-    <table>
-      <tr>
-        <th>a</th>
-        <th>b</th>
-        <th>c</th>
-        <th colspan="2">d</th>
-      </tr>
-
-      <tbody>
-      <tr class="trclass">
-        <td>100</td>
-        <td>M</td>
-        <td>Dodo</td>
-        <td>UK</td>
-        <td><i class="fa fa-chevron-down"></i></td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      </tbody>
-      <tbody>
-      <tr class="trclass">
-        <td>100</td>
-        <td>M</td>
-        <td>Dodo</td>
-        <td>UK</td>
-        <td><i class="fa fa-chevron-down"></i></td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      </tbody>
-    </table>
   </div>
   <script>
-
-$('table').on('click', 'tr.trclass .fa-chevron-down', function(){
-  $(this).closest('tbody').toggleClass('tropen');
-});
 
 data = `$$datainput$$`;
 
@@ -174,28 +114,58 @@ data = JSON.parse(data);
 function basicTableCreate(dat){
   let table = $('<table/>', {class:'basicTable'});
   headers = Object.keys(dat[0]);
-  addRow($('<tr/>'), 'th', [...Array(headers.length).keys()], headers).wrap('<thead/>').parent().appendTo(table);
+  $('<tr/>').addRow('th', [...Array(headers.length).keys()], headers).wrap('<thead/>').parent().appendTo(table);
 
   let body = $('<tbody/>').appendTo(table);
   for(let i = 0; i < dat.length; i++){
-    addRow($('<tr/>'), 'td', headers, dat[i]).appendTo(body);
+    $('<tr/>').addRow('td', headers, dat[i]).appendTo(body);
   }
 
   return table;
 }
 
+
+const slideDuration = 500; //duration of accordion in ms
 function classTableCreate(dat){
-  let table = $('<table/>');
-  headers = Object.keys(dat[0]);
-}
+  let table = $('<table/>', {class:'classTable'});
 
-function addRow(row, type, headers, dat){
-  for(let i = 0; i < headers.length; i++){
-    $(`<${type}/>`, {text:dat[headers[i]]}).appendTo(row);
+  table.on('click', 'tr.trclass .fa-chevron-down', function(){
+    headrow = $(this).closest('tr');
+    $.each(headrow.siblings(), (i,e) => {
+      $(e).toggleClass('tropen');
+    });
+  });
+
+  headers = Object.keys(dat[0]).slice(0,-1);
+  $('<tr/>').addRow('th', [...Array(headers.length).keys()], headers).prepend($('<th/>')).wrap('<thead/>').parent().appendTo(table);
+
+  let headerRow = null;
+  for(let i = 0; i < dat.length; i++){
+    // console.log(dat[i].Row_Type);
+    if (dat[i].Row_Type){ //is a class
+      headerRow = $('<tr/>', {class:'trclass'}).addRow('td', headers, dat[i]).prepend($('<td><i class="fa fa-chevron-down"></i></td>')).wrap('<tbody/>').parent().appendTo(table);
+    }else{
+      $('<tr/>', {class:'trchild'}).addRow('td', headers, dat[i]).prepend($('<td/>')).appendTo(headerRow);
+    }
   }
-  return row
+  return table;
 }
 
+$.fn.extend({addRow: function(type, headers, dat) {
+  for(let i = 0; i < headers.length; i++){
+    $('<div/>', {text:dat[headers[i]]}).wrap($(`<${type}/>`)).parent().appendTo(this);
+  }
+  return this;
+}});
+
+// function addRow(row, type, headers, dat){
+//   for(let i = 0; i < headers.length; i++){
+//     $(`<${type}/>`, {text:dat[headers[i]]}).appendTo(row);
+//   }
+//   return row
+// }
+
+$('.container').append(classTableCreate(data.HeatMap[0].Data));
 $('.container').append(basicTableCreate(data.ModMapper[0].Sheets[0]));
 
   </script>

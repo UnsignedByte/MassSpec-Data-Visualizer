@@ -166,7 +166,7 @@ fid = fopen([fullfile('Results', getResultFolder(TempFile), 'output') '.json'], 
 fprintf(fid, jsonencode(Output));
 fclose(fid);
 
-fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'wantedGenes.txt'),'w');
+fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'wantedProteins.txt'),'w');
 for i = 1 : numel(wantedGenes)
     fprintf(fid, '%s\n', wantedGenes{i});
 end
