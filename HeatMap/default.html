@@ -87,69 +87,6 @@ tbody {
   <link rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
   <div class="container">
-    <table class="classTable">
-      <tr>
-        <th>a</th>
-        <th>b</th>
-        <th>c</th>
-        <th colspan="2">d</th>
-      </tr>
-
-      <tbody>
-      <tr class="trclass">
-        <td>100</td>
-        <td>M</td>
-        <td>Dodo</td>
-        <td>UK</td>
-        <td><i class="fa fa-chevron-down"></i></td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      </tbody>
-      <tbody>
-      <tr class="trclass">
-        <td>100</td>
-        <td>M</td>
-        <td>Dodo</td>
-        <td>UK</td>
-        <td><i class="fa fa-chevron-down"></i></td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      <tr class="trchild">
-        <td>10</td>
-        <td>M</td>
-        <td>Child</td>
-        <td colspan="2">UK</td>
-      </tr>
-      </tbody>
-    </table>
   </div>
   <script>
 
@@ -186,7 +123,7 @@ function classTableCreate(dat){
   table.on('click', 'tr.trclass .fa-chevron-down', function(){
     $(this).closest('tbody').toggleClass('tropen');
   });
-  
+
   headers = Object.keys(dat[0]).slice(0,-1);
   $('<tr/>').addRow('th', [...Array(headers.length).keys()], headers).prepend($('<th/>')).wrap('<thead/>').parent().appendTo(table);
 
