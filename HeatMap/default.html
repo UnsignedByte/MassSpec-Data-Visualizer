@@ -8,12 +8,25 @@
   --bg-color: white;
   --header-bg-color: lightgrey;
   --row-bg-color-light: whitesmoke;
+  --menu-button-unselected: green;
+  --menu-button-selected: darkgreen;
+  --submenu-button-unselected: forestgreen;
+  --submenu-button-selected: forestgreen;
 }
 
 body {
   width:100%;
   height:100%;
   background-color: var(--bg-color);
+}
+
+#tables {
+  width:100%;
+}
+
+table {
+  table-layout: fixed;
+  width: 100%;
 }
 
 th, td {
@@ -77,10 +90,58 @@ tbody {
 .tropen .trclass i {
   transform: rotate(180deg)
 }
+
+input, select, #submenu > div, #menu > div{
+  border: none;
+  min-width: 100px;
+  height: 100%;
+  outline:none;
+}
+
+#menu {
+  background-color:var(--menu-button-unselected);
+  height: 50px;
+  padding-left:25px;
+}
+
+#menu input {
+  background-color:var(--menu-button-unselected);
+  font-size: 18px !important;
+  padding: 10px;
+}
+
+#menu input.selected, #menu input:hover{
+  background-color:var(--menu-button-selected);
+}
+
+#submenu {
+  background-color:var(--submenu-button-unselected);
+  height: 30px;
+  padding-left:30px;
+}
+
+#submenu > * {
+  display:inline;
+  padding:5px;
+  background-color:var(--submenu-button-unselected);
+}
+
+#submenu select {
+  font-size: 14px !important;
+  -webkit-appearance: none;
+  -webkit-border-radius: 0px;
+  text-align-last: center;
+}
+
+#submenu select:hover, #submenu input:hover {
+  background-color:var(--menu-button-selected);
+}
+
   </style>
 </head>
 <body>
   <script>$$JQUERY$$</script>
+  <script>$$JQUERYUI$$</script>
   <!-- Latest compiled and minified CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -91,8 +152,9 @@ tbody {
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
   <link rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
-  <div class="container">
-  </div>
+  <div id="menu"></div>
+  <div id="submenu"></div>
+  <div id="tables"></div>
   <script>
 
 data = `$$datainput$$`;
@@ -159,8 +221,46 @@ $.fn.extend({addRow: function(type, headers, dat) {
 //   return row
 // }
 
-$('.container').append(classTableCreate(data.HeatMap[0].Data));
-$('.container').append(basicTableCreate(data.ModMapper[0].Sheets[0]));
+
+
+// $('#tables').append(classTableCreate(data.HeatMap[0].Data));
+// $('#tables').append(basicTableCreate(data.ModMapper[0].Sheets[0]));
+
+  // <input type="radio" name="tabletype" value="HeatMap"> HeatMap
+  // <input type="radio" name="tabletype" value="Modmapper"> Modmapper
+
+function createGenerator(button, type){
+  if (!button.hasClass('selected')){
+    $('#menu input.selected').removeClass('selected');
+    button.addClass('selected');
+    let submenu = $('#submenu');
+    submenu.empty();
+    if (type === 'HeatMap'){
+      $('<div/>', {text:"Selected Modification"}).appendTo(submenu);
+      let sel = $('<select/>', {name:"mod"}).appendTo(submenu);
+      for(let i = 0; i < data.HeatMap.length; i++){
+        $('<option/>', {value:i, text:data.HeatMap[i].Name}).appendTo(sel);
+      }
+       $('<input/>', {type:"button", value:"Generate Table"}).click(
+        function(){
+          $("#tables").empty().append(classTableCreate(data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data));
+        }).appendTo(submenu);
+      // .selectmenu().selectmenu( "menuWidget" ).addClass( "overflow" )
+    }else if(type === 'ModMapper'){
+    }
+  }
+}
+
+var menu = $('#menu');
+$('<input/>', {
+  type:"button",
+  value:"HeatMap"
+  }).click(function(){createGenerator($(this), this.value)}).appendTo(menu);
+$('<input/>', {
+  type:"button",
+  value:"ModMapper"
+  }).click(function(){createGenerator($(this), this.value)}).appendTo(menu);
+
 
   </script>
 </body>
