@@ -25,3 +25,8 @@ octave-workspace
 
 ensembledat.mat
 noises.mat
+
+*.xlsx
+*.csv
+*.json
+*.fasta
