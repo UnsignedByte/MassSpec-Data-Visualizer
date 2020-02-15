@@ -137,6 +137,32 @@ input, select, #submenu > div, #menu > div{
   background-color:var(--menu-button-selected);
 }
 
+#sheet #sheetbar {
+  background-color: var(--row-bg-color-light);
+  height: 30px;
+}
+
+#sheet #sheetbar input {
+  background:none;
+  font-size: 14px !important;
+  padding: 5px;
+}
+
+#sheet #sheetbar input.selected, #sheet #sheetbar input:hover{
+  background-color:var(--header-bg-color);
+}
+
+#sheet #tables div.container.selected {
+  display: block;
+}
+
+#sheet #tables div.container {
+  display: none;
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+}
+
   </style>
 </head>
 <body>
@@ -154,22 +180,47 @@ input, select, #submenu > div, #menu > div{
       href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
   <div id="menu"></div>
   <div id="submenu"></div>
-  <div id="tables"></div>
+  <div id="sheet">
+    <div id="sheetbar"></div>
+    <div id="tables"></div>
+  </div>
   <script>
 
 data = `$$datainput$$`;
 
-/* Data Structure
-{
-  ModMapper:[
-    {
-      Summary:
-    }
-  ]
-}
-*/
-
 data = JSON.parse(data);
+
+//-------------------------------------------------------- USED FOR GENERATING SHEETS FROM DATA ----------------------------------------------------------
+
+
+function generateSheet(datas, names, types){
+  let sheetbar = $("#sheet #sheetbar").empty();
+  let tables = $("#sheet #tables").empty();
+  for(let i = 0; i < datas.length; i++){
+    $("<input/>", {type:"button", value:names[i]}).click(
+      function(){
+        $("#sheet #sheetbar input.selected").removeClass('selected');
+        $(this).addClass('selected');
+        $("#sheet #tables div.container.selected").removeClass('selected');
+        $("#sheet #tables div.container").eq($(this).index()).addClass('selected');
+      }).appendTo(sheetbar);
+
+    let cont = $("<div/>", {class:"container"}).appendTo(tables);
+    switch (types[i]){
+      case 'basic':
+        basicTableCreate(datas[i]).appendTo(cont);
+        break;
+      case 'class':
+        classTableCreate(datas[i]).appendTo(cont);
+        break;
+      default:
+        break;
+    }
+  }
+  sheetbar.children().first().addClass('selected');
+  tables.children().first().addClass('selected');
+}
+
 
 function basicTableCreate(dat){
   let table = $('<table/>', {class:'basicTable'});
@@ -241,12 +292,26 @@ function createGenerator(button, type){
       for(let i = 0; i < data.HeatMap.length; i++){
         $('<option/>', {value:i, text:data.HeatMap[i].Name}).appendTo(sel);
       }
-       $('<input/>', {type:"button", value:"Generate Table"}).click(
-        function(){
-          $("#tables").empty().append(classTableCreate(data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data));
-        }).appendTo(submenu);
+      $('<input/>', {type:"button", value:"Generate Sheet"}).click(function(){
+        // $("#tables").empty().append(classTableCreate(data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data));
+        $("#tables").empty().append(generateSheet([data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data], [1], ['class']));
+      }).appendTo(submenu);
       // .selectmenu().selectmenu( "menuWidget" ).addClass( "overflow" )
     }else if(type === 'ModMapper'){
+      $('<div/>', {text:"Selected Gene"}).appendTo(submenu);
+      let sel = $('<select/>', {name:"gene"}).appendTo(submenu);
+      for(let i = 0; i < data.ModMapper.length; i++){
+        $('<option/>', {value:i, text:data.ModMapper[i].Name}).appendTo(sel);
+      }
+      $('<input/>', {type:"button", value:"Generate Sheet"}).click(function(){
+        let index = $('#submenu select[name="gene"] option:selected').val(); // index of selected gene
+        $("#tables").empty().append(
+          generateSheet(
+            [data.ModMapper[index].Summary, ...data.ModMapper[index].Sheets],
+            ['Summary', ...[...Array(data.ModMapper[index].Sheets.length).keys()].map(x => ++x)],
+            fillArray('basic', data.ModMapper[index].Sheets.length+1)) // all basic sheets
+        );
+      }).appendTo(submenu);
     }
   }
 }
@@ -261,6 +326,16 @@ $('<input/>', {
   value:"ModMapper"
   }).click(function(){createGenerator($(this), this.value)}).appendTo(menu);
 
+
+//---------------------------------------------------------------- MISC UTILITY FUNCTIONS ----------------------------------------------------------------
+
+function fillArray(v, n) {
+  let a = [];
+  for (let i = 0; i < n; i++) {
+    a.push(v);
+  }
+  return a;
+}
 
   </script>
 </body>
