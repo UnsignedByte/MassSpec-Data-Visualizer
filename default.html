@@ -69,15 +69,24 @@ tbody {
 .classTable tbody.odd .trclass{
   background-color: var(--row-bg-color-light);
 }
-
+/*
 .tropen {
   background-color: #e6e6e6;
-}
+}*/
 
-.tropen .trchild {
+/*.tropen .trchild {
   background-color: #999;
   color: white;
+}*/
+
+.tropen.odd {
+    background-color: var(--row-bg-color-light);
 }
+/*
+.tropen:not(.odd) {
+    background-color: #e6e6e6;
+}*/
+
 .trclass > *:first-child {
   width: 30px;
 }
