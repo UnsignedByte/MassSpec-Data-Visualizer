@@ -167,7 +167,7 @@ input, select, #submenu > div, #menu > div{
 </head>
 <body>
   <script>$$JQUERY$$</script>
-  <script>$$JQUERYUI$$</script>
+  <!-- <script>$$JQUERYUI$$</script> -->
   <!-- Latest compiled and minified CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -298,13 +298,13 @@ function createGenerator(button, type){
       }).appendTo(submenu);
       // .selectmenu().selectmenu( "menuWidget" ).addClass( "overflow" )
     }else if(type === 'ModMapper'){
-      $('<div/>', {text:"Selected Gene"}).appendTo(submenu);
-      let sel = $('<select/>', {name:"gene"}).appendTo(submenu);
+      $('<div/>', {text:"Selected Protein"}).appendTo(submenu);
+      let sel = $('<select/>', {name:"protein"}).appendTo(submenu);
       for(let i = 0; i < data.ModMapper.length; i++){
         $('<option/>', {value:i, text:data.ModMapper[i].Name}).appendTo(sel);
       }
       $('<input/>', {type:"button", value:"Generate Sheet"}).click(function(){
-        let index = $('#submenu select[name="gene"] option:selected').val(); // index of selected gene
+        let index = $('#submenu select[name="protein"] option:selected').val(); // index of selected gene
         $("#tables").empty().append(
           generateSheet(
             [data.ModMapper[index].Summary, ...data.ModMapper[index].Sheets],
