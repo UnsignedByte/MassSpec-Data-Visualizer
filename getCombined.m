@@ -56,12 +56,12 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
                 ind = find(ismember(TempStruct(kk).dat.Description, ProteinNames{j,1})); %find index of peptide
                 if ~isempty(ind)
                     for k = 1:length(UniqueColumns)
-                        Result(j,(k-1)*NumFilesRead+totUniqueFuncs(k)-length(UniqueCombineFunctions{k})+kk) = table2array(TempStruct(kk).dat(ind,UniqueColumns(k))); %paste data into result
+                        Result(j,(k-1)*NumFilesRead+totUniqueFuncs(k)-length(UniqueCombineFunctions{k})+kk) = nansum(table2array(TempStruct(kk).dat(ind,UniqueColumns(k))), 1); %paste data into result
                     end
                     %unique columns should be equal across all datasets, so only
                     %run for all
                     for k = 1:length(SingleColumns)
-                        Result(j,length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k) = max(Result(j,length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k), TempStruct(kk).dat{ind, SingleColumns(k)}); %paste data into result
+                        Result(j,length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k) = nansum(max(Result(j,length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k), TempStruct(kk).dat{ind, SingleColumns(k)}), 1); %paste data into result
                     end
                 end
             end

@@ -20,10 +20,10 @@ if numel(wantedGenes) > 0
 end
 
 
-NumFilesRead = length(TempFiles);
-if NumFilesRead == 1
+if isa(TempFiles, 'char')
     TempFiles = {TempFiles};
 end
+NumFilesRead = length(TempFiles);
 
 datasetnames = cell(NumFilesRead,1);
 
@@ -165,6 +165,10 @@ Output.HeatMap = rt2s;
 fid = fopen([fullfile('Results', getResultFolder(TempFile), 'output') '.json'], 'w');
 fprintf(fid, jsonencode(Output));
 fclose(fid);
+
+if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Params'))
+    mkdir(fullfile('Results', getResultFolder(TempFile), 'Params'));
+end
 
 fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'wantedProteins.txt'),'w');
 for i = 1 : numel(wantedGenes)
