@@ -269,6 +269,7 @@ function generateSheet(datas, names, types){
   for(let i = 0; i < datas.length; i++){
     $("<input/>", {type:"button", value:names[i]}).click(
       function(){
+        footerElems.isColoured = false;
         $("#sheet #sheetbar input.selected").removeClass('selected');
         $(this).addClass('selected');
         $("#sheet #tables div.container.selected").removeClass('selected');
