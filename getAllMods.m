@@ -1,8 +1,12 @@
 function modlist = getAllMods(summarydat)
-    modlistStart = find(contains(summarydat.Var2, '%Fixed and variable modifications:'))+1; %index of start of list of mods
-    modlistEnd = find(contains(summarydat.Var2, '% Custom modification text below'))-1; %index of end of list of mods
-    modlist = summarydat.Var2(modlistStart:modlistEnd); %get list of mods
     modReg = '(.+)\s\/\s(\+|-)([0-9.]+)\s@\s([A-Za-z.,\s\-]+)\s\|\s(.+)'; %regex used to parse mod
+    modlistStart = find(contains(summarydat.Var2, '%Fixed and variable modifications:'))+1; %index of start of list of mods
+    if (numel(regexp(summarydat.Var2{modlistStart}, modReg, 'tokens')) == 0)
+        modlistStart = modlistStart+1;
+    end
+    modlistEnd = modlistStart-1+find(contains(summarydat.Var2(modlistStart:end), '% Custom modification text below'))-1; %index of end of list of mods
+    modlist = summarydat.Var2(modlistStart:modlistEnd); %get list of mods
+    
     modlist = cellfun(@(x) regexp(x, modReg, 'tokens'), modlist); %split mod strings into chunks
     modlist = vertcat(modlist{:}); %convert to 2d
     modlist(:,3) = num2cell(cellfun(@(x) round(str2double(x),3), modlist(:,3))); %truncate masses to 3 decimals
