@@ -30,24 +30,27 @@
 }
 html {
   height:100%;
+  overflow: hidden;
 }
 
 body {
   width:100%;
   height:100%;
+  overflow: auto;
   margin: 0;
   background-color: var(--bg-color);
 }
 
 table {
   table-layout: fixed;
-  width: 100%;
+  min-width: 100%;
 }
 
 th, td {
   text-align: center !important;
   padding-right: 10px !important;
   padding-left: 10px !important;
+  min-width:150px;
 }
 
 .trclass ~ .trchild {
@@ -74,7 +77,7 @@ thead tr{
 
 thead tr th {
     overflow-wrap: break-word;
-    max-width: 150px;
+    max-width: 200px;
 }
 
 tbody {
@@ -226,21 +229,17 @@ input, select, #submenu > div, #menu > div{
 .box .row.footer {
   flex: 0 0 auto;
   padding:10px;
-}
-
-.colourPicker {
-  min-width:30px;
-  /*height:30px;*/
-  margin-right:10px;
-  border-radius: 10px;
-  padding:7px;
+  background-color: var(--header-bg-color);
 }
 
 .box .row.footer > * {
   display: inline-block;
+  min-width:30px;
   /*height:100%;*/
   vertical-align: middle;
   margin-right: 10px;
+  border-radius: 10px;
+  padding:7px;
 }
 
   </style>
@@ -256,6 +255,7 @@ input, select, #submenu > div, #menu > div{
     <div class="row footer"></div>
   </div>
   <script>
+const INF = 1e15;
 
 data = `$$datainput$$`;
 
@@ -291,19 +291,19 @@ function generateSheet(datas, names, types){
   tables.children().first().addClass('selected');
 }
 
-const initColourStr = "#7289DA";
-function addPickr(parent){
+// const initColourStr = "#7289DA";
+function addPickr(parent, colourDefault){
   let trigger = document.createElement('button');
   trigger.classList.add('colourPicker');
   trigger.title = 'Set Colour';
-  trigger.setAttribute("style", `background-color: ${initColourStr};`);
+  trigger.setAttribute("style", `background-color: ${colourDefault};`);
   parent.append(trigger);
   // $('<button/>', {class:"colorPicker", title:"Set colour", style:`{backgroundColor:${initColourStr}}`})
-  return new Pickr({
+  let ret = new Pickr({
           el: trigger,
           theme: 'monolith',
           useAsButton: true,
-          default: initColourStr,
+          default: colourDefault,
           position: 'top-middle',
           components: {
             preview: true,
@@ -318,15 +318,18 @@ function addPickr(parent){
         }).on('changestop', instance => {
           instance._colourValue = parseInt(instance.getColor().toHEXA().toString().slice(1), 16)
           // if (window.onChange) window.onChange()
-        }).on('clear', () => {
-          trigger.style.backgroundColor = initColourStr
-          instance._colourValue = parseInt(initColourStr.slice(1), 16)
+        }).on('clear', instance => {
+          trigger.style.backgroundColor = instance.options.default;
+          instance._colourValue = parseInt(instance.options.default.slice(1), 16)
         })
+  ret._colourValue = parseInt(colourDefault.slice(1), 16);
+  return ret;
 }
 
 function basicTableCreate(dat){
   let table = $('<table/>', {class:'basicTable'});
   headers = Object.keys(dat[0]);
+  $('<tr/>').addRow('th', [...Array(headers.length).keys()], ["Row Numbers", ...[...Array(headers.length).keys()].slice(1)]).wrap('<thead/>').parent().appendTo(table);
   $('<tr/>').addRow('th', [...Array(headers.length).keys()], headers).wrap('<thead/>').parent().appendTo(table);
 
   let body = $('<tbody/>').appendTo(table);
@@ -345,6 +348,8 @@ function classTableCreate(dat){
   });
 
   headers = Object.keys(dat[0]).slice(0,-1);
+  $('<tr/>').addRow('th', [...Array(headers.length).keys()], ["Row Numbers", ...[...Array(headers.length).keys()].slice(1)])
+        .prepend($('<th/>')).wrap('<thead/>').parent().appendTo(table);
   $('<tr/>').addRow('th', [...Array(headers.length).keys()], headers).prepend($('<th/>')).wrap('<thead/>').parent().appendTo(table);
 
   let headerRow = null;
@@ -418,6 +423,59 @@ function createGenerator(button, type){
   }
 }
 
+function colorTable(color){
+  if (color){
+    let max = 0;
+    let min = INF;
+    let rlowi = -1, rhighi = -1;
+    $('#sheet #tables div.container.selected table tr').each(function(index){
+      if (index == 0){
+        $(this).find('th').each(function(ind){
+          let txt = $(this).text();
+          if ($.isNumeric(txt)){
+            // console.log(txt);
+            if(rlowi == -1 && txt === $('input[placeholder="Row Low"]').val()) rlowi = ind;
+            if (rhighi == -1 && (txt === $('input[placeholder="Row High"]').val() || $(this).is(':last-child'))) rhighi = ind;
+          }
+        });
+      }else if (index > 1){
+        $(this).find('td').each(function(ind){
+          if (rlowi <= ind && ind <= rhighi){
+            let txt = $(this).text();
+            if ($.isNumeric(txt)){
+              max = Math.max(max, parseInt(txt));
+              min = Math.min(min, parseInt(txt));
+            }
+          }
+        });
+      }
+    })
+    // console.log(rlowi, rhighi, max, min);
+
+    $('#sheet #tables div.container.selected table tr').each(function(index){
+      if (index > 1){
+        $(this).find('td').each(function(ind){
+          if (rlowi <= ind && ind <= rhighi){
+            let txt = $(this).text();
+            if ($.isNumeric(txt)){
+              // console.log(Math.floor((footerElems.pickrHigh._colourValue - footerElems.pickrLow._colourValue)*(parseInt(txt)-min)/max));
+              $(this).css('background-color', `#${(Math.floor((footerElems.pickrHigh._colourValue - footerElems.pickrLow._colourValue)*(parseInt(txt)-min)/max)+footerElems.pickrLow._colourValue).toString(16)}`)
+            }
+          }
+        });
+      }
+    })
+  }else{
+    $('#sheet #tables div.container.selected table tr').each(function(index){
+      if (index > 1){
+        $(this).find('td').each(function(ind){
+          $(this).css('background-color', '');
+        });
+      }
+    });
+  }
+}
+
 var menu = $('#menu');
 $('<input/>', {
   type:"button",
@@ -430,13 +488,39 @@ $('<input/>', {
 
 var footer = $('.box .row.footer');
 
-let footerElems = {};
+var footerElems = {
+  isColoured:false
+};
 
 
-footerElems.pickrLow = addPickr(footer);
+footerElems.pickrLow = addPickr(footer, "#FFFFFF");
 footerElems.pickrLow._root.button.textContent = 'Low Color';
-footerElems.pickrHigh = addPickr(footer);
+footerElems.pickrHigh = addPickr(footer, "#FF0000");
 footerElems.pickrHigh._root.button.textContent = 'High Color';
+$('<input/>', {
+  type:"number",
+  min:"0",
+  placeholder:"Row Low"
+  }).change(function(){
+    this.value = Math.max(1, Math.floor(this.value));
+    footerElems.isColoured = false;
+  }).appendTo(footer);
+$('<input/>', {
+  type:"number",
+  min:"0",
+  placeholder:"Row High"
+  }).change(function(){
+    this.value = Math.max(1, Math.floor(this.value));
+    footerElems.isColoured = false;
+  }).appendTo(footer);
+$('<input/>', {
+  type:"button",
+  value:"Color Table"
+  }).click(function(){
+    // console.log("colorTable", footerElems.isColoured);
+    footerElems.isColoured = !footerElems.isColoured;
+    colorTable(footerElems.isColoured);
+  }).appendTo(footer);
 
 //----------------------------------------------------------- MISC UTILITY FUNCTIONS -----------------------------------------------------------
 
