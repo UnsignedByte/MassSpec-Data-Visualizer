@@ -320,7 +320,7 @@ function addPickr(parent, colourDefault){
           }
         }).on('change', colour => {
           trigger.style.backgroundColor = colour.toRGBA()
-        }).on('changestop', instance => {
+        }).on('hide', instance => {
           instance._colourValue = parseInt(instance.getColor().toHEXA().toString().slice(1), 16)
           // if (window.onChange) window.onChange()
         }).on('clear', instance => {
@@ -492,7 +492,7 @@ function colorTable(color){
               $(this).css('background-color', `#${
                 pickGradient( footerElems.pickrHigh._colourValue, 
                               footerElems.pickrLow._colourValue, 
-                              percentiles[parseInt(txt)]/pnum).toString(16)
+                              percentiles[parseInt(txt)]/pnum).toString(16).padStart(6, '0')
               }`);
             }
           }
