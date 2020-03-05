@@ -8,6 +8,11 @@
   <script>$$PICKRJS$$</script>
 
   <style>$$PICKRCSS$$</style>
+
+  <script>$$BOOTSTRAPJS$$</script>
+  <style>$$BOOTSTRAPCSS$$</style>
+  <style>$$BOOTSTRAPTHEMECSS$$</style>
+
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
   <!-- Optional theme -->
@@ -164,26 +169,26 @@ input, select, #submenu > div, #menu > div{
   background-color:var(--menu-button-selected);
 }
 
-#sheet #sheetbar {
+#sheetbar {
   background-color: var(--row-bg-color-light);
   height: 30px;
 }
 
-#sheet #sheetbar input {
+#sheetbar input {
   background:none;
   font-size: 14px !important;
   padding: 5px;
 }
 
-#sheet #sheetbar input.selected, #sheet #sheetbar input:hover{
+#sheetbar input.selected, #sheetbar input:hover{
   background-color:var(--header-bg-color);
 }
 
-#sheet #tables div.container.selected {
+#tables div.container.selected {
   display: block;
 }
 
-#sheet #tables div.container {
+#tables div.container {
   display: none;
   margin: 0px;
   padding: 0px;
@@ -192,7 +197,7 @@ input, select, #submenu > div, #menu > div{
   height: 100%;
 }
 
-#sheet #tables {
+#tables {
   width:100%;
   height: 100%;
 }
@@ -248,10 +253,8 @@ input, select, #submenu > div, #menu > div{
       <div id="menu"></div>
       <div id="submenu"></div>
     </div>
-    <div id="sheet" class="row content">
-      <div id="sheetbar"></div>
-      <div id="tables"></div>
-    </div>
+    <div id="sheetbar" class="row header"></div>
+    <div id="tables" class="row content"></div>
     <div class="row footer"></div>
   </div>
   <script>
@@ -264,16 +267,17 @@ data = JSON.parse(data);
 //---------------------------------------------------- USED FOR GENERATING SHEETS FROM DATA ----------------------------------------------------
 
 function generateSheet(datas, names, types){
-  let sheetbar = $("#sheet #sheetbar").empty();
-  let tables = $("#sheet #tables").empty();
+  footerElems.isColoured = false;
+  let sheetbar = $("#sheetbar").empty();
+  let tables = $("#tables").empty();
   for(let i = 0; i < datas.length; i++){
     $("<input/>", {type:"button", value:names[i]}).click(
       function(){
         footerElems.isColoured = false;
-        $("#sheet #sheetbar input.selected").removeClass('selected');
+        $("#sheetbar input.selected").removeClass('selected');
         $(this).addClass('selected');
-        $("#sheet #tables div.container.selected").removeClass('selected');
-        $("#sheet #tables div.container").eq($(this).index()).addClass('selected');
+        $("#tables div.container.selected").removeClass('selected');
+        $("#tables div.container").eq($(this).index()).addClass('selected');
       }).appendTo(sheetbar);
 
     let cont = $("<div/>", {class:"container"}).appendTo(tables);
@@ -380,7 +384,19 @@ $.fn.extend({addRow: function(type, headers, dat) {
 //   return row
 // }
 
+function pickGradient(color1, color2, weight) {
+    var w1 = weight;
+    var w2 = 1 - w1;
 
+    return (Math.round((color1>>16) * w1 + (color2>>16) * w2)<<16)
+        + (Math.round((color1>>8)%256 * w1 + (color2>>8)%256 * w2)<<8)
+        + Math.round(color1%256 * w1 + color2%256 * w2);
+    // return rghex(rgb);
+}
+
+function rghex(col){
+  return (col[0]<<16)+(col[1]<<8)+col[2];
+}
 
 // $('#tables').append(classTableCreate(data.HeatMap[0].Data));
 // $('#tables').append(basicTableCreate(data.ModMapper[0].Sheets[0]));
@@ -426,10 +442,9 @@ function createGenerator(button, type){
 
 function colorTable(color){
   if (color){
-    let max = 0;
-    let min = INF;
+    let nums = [];
     let rlowi = -1, rhighi = -1;
-    $('#sheet #tables div.container.selected table tr').each(function(index){
+    $('#tables div.container.selected table tr').each(function(index){
       if (index == 0){
         $(this).find('th').each(function(ind){
           let txt = $(this).text();
@@ -444,30 +459,48 @@ function colorTable(color){
           if (rlowi <= ind && ind <= rhighi){
             let txt = $(this).text();
             if ($.isNumeric(txt)){
-              max = Math.max(max, parseInt(txt));
-              min = Math.min(min, parseInt(txt));
+              nums.push(parseInt(txt));
             }
           }
         });
       }
     })
+    nums.sort((a, b) => a - b)
+    // console.log(nums);
+    let pnum = 0; // total number of unique items
+    let percentiles = {};
+    for(let i = 0; i < nums.length; i++){
+      if (!(nums[i] in percentiles)){
+        percentiles[nums[i]] = pnum;
+        pnum++;
+      }
+    }
+    pnum--;
+    // console.log(percentiles);
     // console.log(rlowi, rhighi, max, min);
 
-    $('#sheet #tables div.container.selected table tr').each(function(index){
+    $('#tables div.container.selected table tr').each(function(index){
       if (index > 1){
         $(this).find('td').each(function(ind){
+          // console.log(rlowi, rhighi);
           if (rlowi <= ind && ind <= rhighi){
             let txt = $(this).text();
             if ($.isNumeric(txt)){
+              // this.innerHTML = ind;
+              // pickGradient(footerElems.pickrLow._colourValue, footerElems.pickrHigh._colourValue, (parseInt(txt)-min)/max);
               // console.log(Math.floor((footerElems.pickrHigh._colourValue - footerElems.pickrLow._colourValue)*(parseInt(txt)-min)/max));
-              $(this).css('background-color', `#${(Math.floor((footerElems.pickrHigh._colourValue - footerElems.pickrLow._colourValue)*(parseInt(txt)-min)/max)+footerElems.pickrLow._colourValue).toString(16)}`)
+              $(this).css('background-color', `#${
+                pickGradient( footerElems.pickrHigh._colourValue, 
+                              footerElems.pickrLow._colourValue, 
+                              percentiles[parseInt(txt)]/pnum).toString(16)
+              }`);
             }
           }
         });
       }
     })
   }else{
-    $('#sheet #tables div.container.selected table tr').each(function(index){
+    $('#tables div.container.selected table tr').each(function(index){
       if (index > 1){
         $(this).find('td').each(function(ind){
           $(this).css('background-color', '');
