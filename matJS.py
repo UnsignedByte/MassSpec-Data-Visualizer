@@ -2,7 +2,7 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 17:04:54, 03-Mar-2020
+# @Last Modified time: 16:41:11, 05-Mar-2020
 
 import json
 import os.path
@@ -40,6 +40,12 @@ with open(os.path.join(root, 'bootstrap-theme.min.css')) as f:
 
 with open(os.path.join(root, 'bootstrap.min.css')) as f:
 	default = default.replace("$$BOOTSTRAPCSS$$", f.read())
+
+with open(os.path.join(root, 'clusterize.min.js')) as f:
+	default = default.replace("$$CLUSTERIZEJS$$", f.read())
+
+with open(os.path.join(root, 'clusterize.css')) as f:
+	default = default.replace("$$CLUSTERIZECSS$$", f.read())
 
 # with open(os.path.join(root, 'jquery-ui.min.js')) as f:
 # 	jqueryui = f.read()
