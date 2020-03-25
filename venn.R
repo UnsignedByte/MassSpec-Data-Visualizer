@@ -16,6 +16,7 @@ compareNA <- function(cond) {
 }
 
 library(VennDiagram)
+library(RColorBrewer)
 
 futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger");
 
@@ -45,6 +46,7 @@ cutoff <- 0.8; # the proportion of the max in the test groups at which it cuts o
 fids <- read.csv("fileIDs.csv");
 
 dataset.groupids <- unique(fids$Test_Group) #unique test groups
+palette <- brewer.pal(length(dataset.groupids), "Pastel2")
 # if (length(dataset.groupids) == 1){
 # 	print("Not enough test groups to compare!")
 # 	stopQuietly();
@@ -77,9 +79,33 @@ for(hm in hms){
 	# sets = sets==TRUE;
 	dir.create("VennDiagram", showWarnings = FALSE)
 	venn.diagram(
-	  x = sets,
-	  category.names = paste("Testgroup_", dataset.groupids, sep=""),
-	  filename = file.path("VennDiagram", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".")),
-	  output=TRUE
+		x = sets,
+		category.names = paste("Testgroup_", dataset.groupids, sep=""),
+		filename = file.path("VennDiagram", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".")),
+		output=TRUE,
+
+		# Output features
+		imagetype="png",
+		height = 1800,
+		width = 1800,
+		resolution = 300,
+		compression = "lzw",
+		units = 'px',
+
+		# Circles
+        lwd = 2,
+        lty = 'blank',
+        fill = palette,
+        
+        # Numbers
+        cex = 0.6,
+        fontface = "bold",
+        fontfamily = "sans",
+        
+        # Set names
+        cat.cex = 0.6,
+        cat.fontface = "bold",
+        cat.fontfamily = "sans",
+        cat.default.pos = "outer"
 	)
 }
