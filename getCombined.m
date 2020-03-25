@@ -1,4 +1,4 @@
-function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions, filename) 
+function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions) 
     NumFilesRead = length(datasets);
     ProteinNames = []; %all protein names
 
@@ -189,15 +189,11 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     HeaderFileString{end} = 'Row_Type';
 
     for i = 1 : NumFilesRead
-
-        CleanedFileName = strrep(TempStruct(i).NameForFile, '.raw_20', '_');
-        CleanedFileName = strrep(CleanedFileName, '_Byonic','');
-        CleanedFileName = strrep(CleanedFileName, '_Elite','');
-        CleanedFileName = strrep(CleanedFileName, '_control',''); %Remove after I'm done with Janos' dataset
-        CleanedFileName = strrep(CleanedFileName, '25fmol_ul_6x5spike_',''); %Remove after I'm done with Janos' dataset
+%         CleanedFileName = strrep(CleanedFileName, '_control',''); %Remove after I'm done with Janos' dataset
+%         CleanedFileName = strrep(CleanedFileName, '25fmol_ul_6x5spike_',''); %Remove after I'm done with Janos' dataset
         %label by dataset
         for j = 1:length(UniqueColumns)
-            tval = [TempStruct(1).dat.Properties.VariableNames{UniqueColumns(j)} '_' CleanedFileName];
+            tval = [TempStruct(1).dat.Properties.VariableNames{UniqueColumns(j)} '_' TempStruct(i).NameForFile];
             HeaderFileString{2+(j-1)*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+i} = matlab.lang.makeValidName(tval);
         end
     end
@@ -221,7 +217,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     FinalFileOut = cell2table(FileOutFinalDeComma);
     FinalFileOut.Properties.VariableNames = HeaderFileString;
 
-    writetable(FinalFileOut,[filename '.csv']);
+    
 %     fid = fopen([filename '.json'], 'w');
 %     fprintf(fid, jsonencode(FinalFileOut,'ConvertInfAndNaN', false));
 %     fclose(fid);

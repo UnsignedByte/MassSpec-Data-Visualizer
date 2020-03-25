@@ -13,7 +13,7 @@ tic;
 
 TempFiles = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
 
-wantedGenes = splitlines(fileread('wantedProteins.txt'));
+wantedGenes = splitlines(fileread(fullfile('Params', 'proteins.txt')));
 if numel(wantedGenes) > 0
     TempFastaFile = uigetfile('.fasta','Choose Fasta File');
     fastaFile = struct2table(fastaread(TempFastaFile));
@@ -34,7 +34,7 @@ modlists = cell(NumFilesRead, 1);
 
 for i = 1 : NumFilesRead
     [~, TempName, ~] = fileparts(TempFiles{i});
-    datasetnames{i} = TempName;
+    datasetnames{i} = cleanFileName(TempName);
     origsdats{i} = readtable(TempFiles{i}, 'Sheet', 'Spectra');
     origpdats{i} = readtable(TempFiles{i}, 'Sheet', 'Proteins');
     origsumdats{i} = readtable(TempFiles{i}, 'Sheet', 'Summary');
@@ -42,6 +42,10 @@ for i = 1 : NumFilesRead
     disp(['Read File ' num2str(i)]);
     toc;
 end
+
+fileidtable = table([1:NumFilesRead]', datasetnames, [1:NumFilesRead]', 'VariableNames', {'ID', 'Filename', 'Test_Group'});
+
+writetable(fileidtable,fullfile('Results', getResultFolder(TempFiles{1}), 'fileIDs.csv'));
 
 resTables = cell(1, length(wantedGenes));
 
@@ -112,7 +116,7 @@ if ~isfolder(resfolder)
     mkdir(resfolder);
 end
 
-wantedMods = splitlines(fileread('wantedMods.txt'));
+wantedMods = splitlines(fileread(fullfile('Params', 'mods.txt')));
 
 rt2s = cell(numel(wantedMods), 1);
 
@@ -155,13 +159,15 @@ for kk = 1:numel(wantedMods)
     toc;
 
     rt2s{kk} = struct;
-    rt2s{kk}.Data = getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions, fullfile(resfolder, wantedMod));
+    rt2s{kk}.Data = getCombined(datasets, cellstr(num2str([1:NumFilesRead]')), UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions);
     rt2s{kk}.Name = wantedMod;
+    writetable(rt2s{kk}.Data,fullfile(resfolder, [wantedMod '.csv']));
 end
 
 Output = struct;
 Output.ModMapper = resTables;
 Output.HeatMap = rt2s;
+Output.fileIDs = fileidtable;
 fid = fopen([fullfile('Results', getResultFolder(TempFile), 'output') '.json'], 'w');
 fprintf(fid, jsonencode(Output));
 fclose(fid);
@@ -170,13 +176,13 @@ if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Params'))
     mkdir(fullfile('Results', getResultFolder(TempFile), 'Params'));
 end
 
-fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'wantedProteins.txt'),'w');
+fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'proteins.txt'),'w');
 for i = 1 : numel(wantedGenes)
     fprintf(fid, '%s\n', wantedGenes{i});
 end
 fclose(fid);
 
-fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'wantedMods.txt'),'w');
+fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'mods.txt'),'w');
 for i = 1 : numel(wantedMods)
     fprintf(fid, '%s\n', wantedMods{i});
 end

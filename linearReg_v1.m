@@ -1,7 +1,7 @@
 name = input('Dataset Name:', 's');
 file = str2double(input('Number for Base File:', 's'));
 
-wantedMods = splitlines(fileread(fullfile('Results', name, 'Params', 'wantedMods.txt')));
+wantedMods = splitlines(fileread(fullfile('Results', name, 'Params', 'mods.txt')));
 wantedMods = wantedMods(~cellfun('isempty', wantedMods)); %remove empty
 
 if ~isfolder(fullfile('Results', name))
