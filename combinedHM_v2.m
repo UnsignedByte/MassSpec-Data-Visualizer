@@ -78,7 +78,9 @@ for kk = 1:NumFilesRead
         filename = fullfile(resfolder, wantedGenes{i});
         sheetname = makeValidSheetName(getResultFile(TempFile));
         resTable = getPeptideMap(proteinName, dat, summarydat, fastaFile, sheetname);
-        
+        if isnan(resTable)
+            continue;
+        end
         if ~isempty(resTables{i}.Sheets)
             if ismember(proteinName, resTables{i}.Summary.Protein_Name)
                 sheetID = resTables{i}.Summary.SheetNumber(contains(resTables{i}.Summary.Protein_Name,proteinName));

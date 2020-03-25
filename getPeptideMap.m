@@ -22,6 +22,7 @@ function resTable = getPeptideMap(proteinName, dat, summarydat, fastaFile, sheet
     
     if isnan(proteinSequence)
         disp(['protein ' proteinName ' not found']);
+        resTable = NaN;
         return;
     end
 
