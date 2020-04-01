@@ -13,7 +13,7 @@ tic;
 
 TempFiles = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
 
-wantedGenes = splitlines(fileread(fullfile('Params', 'proteins.txt')));
+wantedGenes = splitlines(strtrim(fileread(fullfile('Params', 'proteins.txt'))));
 if numel(wantedGenes) > 0
     TempFastaFile = uigetfile('.fasta','Choose Fasta File');
     fastaFile = struct2table(fastaread(TempFastaFile));
@@ -73,23 +73,26 @@ for kk = 1:NumFilesRead
             continue;
         end
         proteinName = proteinName{1};
-        disp(['Processing Gene ' wantedGenes{i}]);
-        toc;
         filename = fullfile(resfolder, wantedGenes{i});
         sheetname = makeValidSheetName(getResultFile(TempFile));
+        disp(['Processing Gene ' wantedGenes{i} ' for file ' sheetname]);
+        toc;
         resTable = getPeptideMap(proteinName, dat, summarydat, fastaFile, sheetname);
-        if isnan(resTable)
+        if numel(resTable)==0
             continue;
         end
         if ~isempty(resTables{i}.Sheets)
             if ismember(proteinName, resTables{i}.Summary.Protein_Name)
                 sheetID = resTables{i}.Summary.SheetNumber(contains(resTables{i}.Summary.Protein_Name,proteinName));
-                resTables{i}.Summary.Filenames{1} = [resTables{i}.Summary.Filenames{1} ', ' sheetname];
+                resTables{i}.Summary.Filenames{sheetID} = [resTables{i}.Summary.Filenames{sheetID} ', ' sheetname];
                 resTable = [resTables{i}.Sheets{sheetID} resTable(:,3:end)];
             else
                 sheetID = size(resTables{i}.Summary, 1)+1;
                 resTables{i}.Summary = [resTables{i}.Summary;{sheetID, sheetname, proteinName}];
+                disp(resTables{i}.Summary)
             end
+%             disp(sheetID);
+%             disp(sheetname);
         else
             resTables{i}.Summary.SheetNumber(1) = 1;
             resTables{i}.Summary.Filenames{1} = sheetname;
@@ -118,7 +121,7 @@ if ~isfolder(resfolder)
     mkdir(resfolder);
 end
 
-wantedMods = splitlines(fileread(fullfile('Params', 'mods.txt')));
+wantedMods = splitlines(strtrim(fileread(fullfile('Params', 'mods.txt'))));
 
 rt2s = cell(numel(wantedMods), 1);
 

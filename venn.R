@@ -56,6 +56,7 @@ hms <- list.files(path="HeatMap"); #All heatmaps generated
 
 for(hm in hms){
 	f <- read.csv(file.path("HeatMap", hm));
+	f <- f[f$Row_Type==1,];
 	groups <- matrix(0L, nrow=NROW(f),ncol=length(dataset.groupids)); # get final test groups averaged
 	for(x in 1:length(dataset.groupids)){
 		fnames <- fids$ID[fids$Test_Group==dataset.groupids[x]] # get file ids in this group
@@ -94,7 +95,7 @@ for(hm in hms){
 
 		# Circles
         lwd = 2,
-        lty = 'blank',
+        lty = 'solid',
         fill = palette,
         
         # Numbers

@@ -22,7 +22,7 @@ function resTable = getPeptideMap(proteinName, dat, summarydat, fastaFile, sheet
     
     if isnan(proteinSequence)
         disp(['protein ' proteinName ' not found']);
-        resTable = NaN;
+        resTable = table();
         return;
     end
 
@@ -78,7 +78,6 @@ function resTable = getPeptideMap(proteinName, dat, summarydat, fastaFile, sheet
         end
     end
     resTable(:,todel) = [];
-    
     
     resTable.Properties.VariableNames{2} = matlab.lang.makeValidName(['AA_' proteinName]);
     resTable.Properties.VariableNames{3} = matlab.lang.makeValidName(['Total_Peptides_' sheetname]);
