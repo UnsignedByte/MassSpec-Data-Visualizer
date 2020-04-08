@@ -134,9 +134,9 @@ for(hm in hms){
 	for(i in 1:length(dataset.groupids)){
 		cnames <- c(cnames, recursiveBinary(i,length(dataset.groupids)));
 	}
-	cnames <- sapply(cnames, function(x){substrRight(dec2bin(x),length(dataset.groupids))})
+	cnames <- sapply(cnames, function(x){substrRight(dec2bin(x),length(dataset.groupids))});
 	names(overlap) <- cnames;
-	max_l <- max(lengths(overlap))
-	overlapdf <- rapply(overlap, function(x) 'length<-'(x, max_l), how="list")
-	write.csv(overlapdf, file=file.path("VennDiagram", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "csv", sep=".")))
+	max_l <- max(lengths(overlap));
+	overlapdf <- rapply(overlap, function(x) 'length<-'(x, max_l), how="list");
+	write.csv(overlapdf, file=file.path("VennDiagram", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "csv", sep=".")));
 }
