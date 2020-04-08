@@ -10,9 +10,9 @@ function modlist = getAllMods(summarydat)
     modlist = cellfun(@(x) regexp(x, modReg, 'tokens'), modlist); %split mod strings into chunks
     modlist = vertcat(modlist{:}); %convert to 2d
     modlist(:,3) = num2cell(cellfun(@(x) round(str2double(x),3), modlist(:,3))); %truncate masses to 3 decimals
-    modlist(:,4) = cellfun(@parseStarts, modlist(:,4), 'UniformOutput', false);
+    modlist(:,7) = cellfun(@parseStarts, modlist(:,4), 'UniformOutput', false);
     modlist(:,6) = modlist(:,1);
-    modlist(:,1) = arrayfun(@(x) matlab.lang.makeValidName([modlist{x,1} '_' modlist{x,5}]),  1:size(modlist, 1),  'UniformOutput',  false);
+    modlist(:,1) = arrayfun(@(x) matlab.lang.makeValidName([modlist{x,1} '_' modlist{x,4} '_' modlist{x,5}]),  1:size(modlist, 1),  'UniformOutput',  false);
     
     function matches = parseStarts(str) %parse list of starting positions into regex matching string
         matches = regexp(str, '(?<=\s|^)([a-zA-Z\s\-]+)(?=,|$)', 'match'); %match each starting pos

@@ -15,6 +15,23 @@ compareNA <- function(cond) {
 	return(cond)
 }
 
+recursiveBinary <- function(n, l) { #Finds binary numbers in string form given length l and n on bits (n<=l)
+	# print(paste(n, " ", l))
+	if (n==0){
+		return(0);
+	}else if (n == l){
+		return(bitwShiftL(1,l)-1);
+	}else{
+		return(c(recursiveBinary(n,l-1), bitwShiftL(1,l-1)+recursiveBinary(n-1,l-1)));
+	}
+}
+
+dec2bin <- function(x) paste(as.integer(rev(intToBits(x))), collapse = "") # decimal to binary string
+
+substrRight <- function(x, n){ #Substring from right
+  substr(x, nchar(x)-n+1, nchar(x))
+}
+
 library(VennDiagram)
 library(RColorBrewer)
 
@@ -79,7 +96,8 @@ for(hm in hms){
 	# sets <- lapply(sets, function(x) find(x));
 	# sets = sets==TRUE;
 	dir.create("VennDiagram", showWarnings = FALSE)
-	venn.diagram(
+
+	v <- venn.diagram(
 		x = sets,
 		category.names = paste("Testgroup_", dataset.groupids, sep=""),
 		filename = file.path("VennDiagram", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".")),
@@ -109,4 +127,16 @@ for(hm in hms){
         cat.fontfamily = "sans",
         cat.default.pos = "outer"
 	)
+
+	overlap <- calculate.overlap(sets);
+	cnames <- c();
+
+	for(i in 1:length(dataset.groupids)){
+		cnames <- c(cnames, recursiveBinary(i,length(dataset.groupids)));
+	}
+	cnames <- sapply(cnames, function(x){substrRight(dec2bin(x),length(dataset.groupids))})
+	names(overlap) <- cnames;
+	max_l <- max(lengths(overlap))
+	overlapdf <- rapply(overlap, function(x) 'length<-'(x, max_l), how="list")
+	write.csv(overlapdf, file=file.path("VennDiagram", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "csv", sep=".")))
 }

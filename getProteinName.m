@@ -1,3 +1,4 @@
+
 function inds = getProteinName(name, proteins, wantedparam) %get all proteins with same gene name
     proteins = parseProteins(proteins);
     inds = {};

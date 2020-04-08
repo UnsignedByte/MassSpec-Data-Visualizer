@@ -140,10 +140,15 @@ for kk = 1:numel(wantedMods)
             sdat = origsdats{i};
             modlist = modlists{i};
             modlist = modlist(strcmp(modlist(:,6),wantedMod),:);
-
-        %    dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
+            
             TempStruct(i).sdat = sdat;
-            TempStruct(i).modMatches = cellfun(@(x) contains(x, ['[' modlist{1,2} num2str(modlist{1,3}) ']']),TempStruct(i).sdat.Peptide_ProteinMetricsConfidential_);
+            if numel(modlist) == 0
+                TempStruct(i).modMatches = zeros(size(TempStruct(i).sdat.Peptide_ProteinMetricsConfidential_));
+            else
+
+            %    dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
+                TempStruct(i).modMatches = cellfun(@(x) contains(x, ['[' modlist{1,2} num2str(modlist{1,3}) ']']),TempStruct(i).sdat.Peptide_ProteinMetricsConfidential_);
+            end
 
             curRank = TempStruct(i).sdat.ProteinRank(1);
             curI = 1;

@@ -34,7 +34,7 @@ function [pep, mods] = formatPeptide(pep, modlist)
         for jj = 1:size(modlist,1)
             if   modlist{jj,3} == modspecs{ii,2} ...%same daltons
               && strcmp(modlist{jj,2}, modspecs{ii,1}) ...%same +/-
-              && any(cellfun(@(x) isMatch(locs(ii), x), modlist{jj,4}))
+              && any(cellfun(@(x) isMatch(locs(ii), x), modlist{jj,7}))
                 mods{ii,1} = modlist{jj,1};
                 mods{ii,2} = locs(ii)-ii;
             end
