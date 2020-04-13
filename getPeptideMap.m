@@ -5,6 +5,7 @@ function resTable = getPeptideMap(proteinName, dat, summarydat, fastaFile, sheet
     for j = 1:size(dat, 1) %get range of rows with specified protein rank
         if strcmp(dat.ProteinName(j), proteinName) && Istart == 0
             Istart = j;
+            Iend= j;
         elseif ~strcmp(dat.ProteinName(j), proteinName) && Istart ~= 0
             Iend = j-1;
             break;
