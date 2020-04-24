@@ -111,26 +111,27 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
         j = j + 1;
     end
 
-    sortOrd = [size(ClassResult,2), -NumFilesRead-3, -NumFilesRead-4];
+    sortOrd = [size(ClassResult,2), -NumFilesRead-4, -NumFilesRead-5];
     ClassResult = sortrows(ClassResult, [size(ClassResult,2)-1, -NumFilesRead-1, -NumFilesRead-2]);
 
     Result = num2cell(Result);
     Result = [Result(:,end) ProteinNames(:, 1) Result(:,1:end-1)];
     ClassResult = num2cell(ClassResult);
-    ClassResult = [ClassResult(:,end) cell(size(ClassResult,1),1) ClassResult(:,1:end-1)];
+    ClassResult = [ClassResult(:,end) cell(size(ClassResult,1),2) ClassResult(:,1:end-1)];
 
-    CombinedRes = cell(size(ClassResult,1)+size(Result,1), size(Result,2)+1);
+    CombinedRes = cell(size(ClassResult,1)+size(Result,1), size(ClassResult,2)+1);
     realI = 1;
 
     for i = 1:size(ClassResult,1)
         CombinedRes(realI,:) = [i ClassResult(i,2:end) 1];
         found = Result(cell2mat(Result(:,1))==ClassResult{i,1},:); %get rows in class
         fnames = found(:,2); %take out names
-        found = found(:,2:end);
-        found(:,1) = num2cell(1:size(found,1));
-        found = num2cell(sortrows(cell2mat(found), sortOrd)); %sort by rows
         pnames = parseProteins(fnames);
-        CombinedRes{realI,2} = strjoin(unique(pnames(~cellfun('isempty',pnames(:,3)),3)), '|'); %name of class
+        found = [found(:,2) pnames(:,9) found(:,3:end)];
+        found(:,1) = num2cell(1:size(found,1));
+        found = sortrows(found, sortOrd); %sort by rows
+        CombinedRes{realI,2} = strjoin(unique(pnames(~cellfun('isempty',pnames(:,3)),3)), '/'); %name of class
+        CombinedRes{realI,3} = strjoin(unique(pnames(~cellfun('isempty',pnames(:,9)),9)), '/'); %name of class
         found(:,1) = fnames(cell2mat(found(:,1))); %replace names
         CombinedRes(realI+1:realI+size(found,1),2:end-1) = found;
         CombinedRes(realI+1:realI+size(found,1),1) = {i};
@@ -184,7 +185,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     %possible.
 
     HeaderFileString = cell(size(CombinedRes,2), 1);
-    HeaderFileString(1:2) = {'Rank_Number'; 'Protein_Name'};
+    HeaderFileString(1:3) = {'Rank_Number'; 'Protein_Name'; 'Gene_Name'};
     HeaderFileString{end-1} = 'Contaminant';
     HeaderFileString{end} = 'Row_Type';
 
@@ -194,19 +195,19 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
         %label by dataset
         for j = 1:length(UniqueColumns)
             tval = [TempStruct(1).dat.Properties.VariableNames{UniqueColumns(j)} '_' TempStruct(i).NameForFile];
-            HeaderFileString{2+(j-1)*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+i} = matlab.lang.makeValidName(tval);
+            HeaderFileString{3+(j-1)*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+i} = matlab.lang.makeValidName(tval);
         end
     end
 
     %label single columns
     for j = 1:length(SingleColumns)
-        HeaderFileString{2+length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+j} = TempStruct(1).dat.Properties.VariableNames{SingleColumns(j)};
+        HeaderFileString{3+length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+j} = TempStruct(1).dat.Properties.VariableNames{SingleColumns(j)};
     end
 
     %label max and sum
     for j = 1:length(UniqueColumns)
         for jj = 1:length(UniqueCombineFunctions{j})
-            HeaderFileString{2+j*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+jj} = [func2str(UniqueCombineFunctions{j}{jj}) '_' TempStruct(1).dat.Properties.VariableNames{UniqueColumns(j)}];
+            HeaderFileString{3+j*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+jj} = [func2str(UniqueCombineFunctions{j}{jj}) '_' TempStruct(1).dat.Properties.VariableNames{UniqueColumns(j)}];
         end
     end
 
