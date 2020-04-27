@@ -1,64 +1,19 @@
-stopQuietly <- function() {
-  opt <- options(show.error.messages = FALSE)
-  on.exit(options(opt))
-  stop()
-}
-
-gDims <- function(a) {
-	return(c(NROW(a),NCOL(a)));
-}
-
-compareNA <- function(cond) {
-	# This function returns TRUE wherever elements are the same, including NA's,
-	# and false everywhere else.
-	cond[is.na(cond)] <- FALSE
-	return(cond)
-}
-
-recursiveBinary <- function(n, l) { #Finds binary numbers in string form given length l and n on bits (n<=l)
-	# print(paste(n, " ", l))
-	if (n==0){
-		return(0);
-	}else if (n == l){
-		return(bitwShiftL(1,l)-1);
-	}else{
-		return(c(recursiveBinary(n,l-1), bitwShiftL(1,l-1)+recursiveBinary(n-1,l-1)));
-	}
-}
-
-dec2bin <- function(x) paste(as.integer(rev(intToBits(x))), collapse = "") # decimal to binary string
-
-substrRight <- function(x, n){ #Substring from right
-  substr(x, nchar(x)-n+1, nchar(x))
-}
-
 library(VennDiagram)
+library(gplots)
 library(RColorBrewer)
+
+source("rtools.r");
 
 futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger");
 
-fin <- file("stdin")
-open(fin)
+dataset.name <- readInput("Dataset name:");
 
-if(interactive()){
-	dataset.name <- readline("Dataset name: ")
-}else{
-	cat("Dataset name:")
-	dataset.name <- readLines(fin,1)
-}
-
-close(fin)
-
-homedir <- file.path("Results",dataset.name);
-
-if (!dir.exists(homedir)){
-	print(paste("Dataset", dataset.name, "cannot be found. Please run combinedHM to generate HeatMap data before this program is run."))
-	stopQuietly()
-}
+homedir <- fileExists(file.path("Results",dataset.name), paste("Dataset", dataset.name, "cannot be found. Please run combinedHM to generate HeatMap data before this program is run."));
 
 setwd(homedir);
 
 cutoff <- 0.8; # the proportion of the max in the test groups at which it cuts off including the other rows
+# threshold between counted/not in venn
 
 fids <- read.csv("fileIDs.csv");
 
@@ -71,13 +26,15 @@ palette <- brewer.pal(length(dataset.groupids), "Pastel2")
 
 hms <- list.files(path="HeatMap"); #All heatmaps generated
 
+imsize <- 2800
+
 for(hm in hms){
 	f <- read.csv(file.path("HeatMap", hm));
-	f <- f[f$Row_Type==1,];
+	f <- f[f$Row_Type==1,]; #remove contaminated
 	groups <- matrix(0L, nrow=NROW(f),ncol=length(dataset.groupids)); # get final test groups averaged
 	for(x in 1:length(dataset.groupids)){
 		fnames <- fids$ID[fids$Test_Group==dataset.groupids[x]] # get file ids in this group
-		colnames <- paste(rep("x_OfSpectra", length(fnames)), fnames, sep="_");
+		colnames <- paste("x_OfSpectra", fnames, sep="_");
 		selected <- f[,colnames];
 		if (NCOL(selected) > 1){
 			selected <- rowMeans(selected, na.rm=TRUE);
@@ -96,17 +53,41 @@ for(hm in hms){
 	# sets <- lapply(sets, function(x) find(x));
 	# sets = sets==TRUE;
 	dir.create("VennDiagram", showWarnings = FALSE)
+	dir.create("ClusterHeatMap", showWarnings = FALSE)
+
+	f <- f[,paste("x_OfSpectra", fids$ID,sep="_")]
+
+	colnames(groups) <- paste("Test_Group", dataset.groupids,sep="_")
+	# print(names(groups))
+
+	combinedf <- data.matrix(cbind(f, groups))
+	# combinedf <- log2(combinedf)
+	# print(combinedf)
+
+	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
+
+	png(file = file.path("ClusterHeatMap", outfname), width=imsize,height=imsize)
+	hm2 <- heatmap.2(
+		x=combinedf,
+		na.rm=TRUE,
+		# breaks=c(NCOL(combinedf)),
+		col=redblue(64),
+		Colv="NA",
+		na.color="black",
+		distfun=dist_no_na
+	)
+	dev.off()
 
 	v <- venn.diagram(
 		x = sets,
 		category.names = paste("Testgroup_", dataset.groupids, sep=""),
-		filename = file.path("VennDiagram", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".")),
+		filename = file.path("VennDiagram", outfname),
 		output=TRUE,
 
 		# Output features
 		imagetype="png",
-		height = 1800,
-		width = 1800,
+		height = imsize,
+		width = imsize,
 		resolution = 300,
 		compression = "lzw",
 		units = 'px',
