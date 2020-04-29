@@ -27,6 +27,7 @@ palette <- brewer.pal(length(dataset.groupids), "Pastel2")
 hms <- list.files(path="HeatMap"); #All heatmaps generated
 
 imsize <- 2800
+hmcount <- 64 #number of rows to take for heatmap
 
 for(hm in hms){
 	f <- read.csv(file.path("HeatMap", hm));
@@ -68,13 +69,13 @@ for(hm in hms){
 
 	png(file = file.path("ClusterHeatMap", outfname), width=imsize,height=imsize)
 	hm2 <- heatmap.2(
-		x=combinedf,
+		x=combinedf[1:hmcount,],
+		dendrogram='row',
 		na.rm=TRUE,
 		# breaks=c(NCOL(combinedf)),
-		col=redblue(64),
+		col=greenred(64),
 		Colv="NA",
-		na.color="black",
-		distfun=dist_no_na
+		na.color="black"
 	)
 	dev.off()
 
