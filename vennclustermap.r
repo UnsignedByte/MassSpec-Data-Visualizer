@@ -1,5 +1,6 @@
 library(VennDiagram)
-library(gplots)
+library(ComplexHeatmap)
+library(circlize)
 library(RColorBrewer)
 
 source("rtools.r");
@@ -28,6 +29,8 @@ hms <- list.files(path="HeatMap"); #All heatmaps generated
 
 imsize <- 2800
 hmcount <- 64 #number of rows to take for heatmap
+colors = colorRamp2(c(0, hmcount/2, hmcount), c("green", "white", "red"))(seq(0, hmcount));
+linespacing <- 1.5;
 
 for(hm in hms){
 	f <- read.csv(file.path("HeatMap", hm));
@@ -57,27 +60,54 @@ for(hm in hms){
 	dir.create("ClusterHeatMap", showWarnings = FALSE)
 
 	f <- f[,paste("x_OfSpectra", fids$ID,sep="_")]
+	colnames(f) <- fids$ID;
 
-	colnames(groups) <- paste("Test_Group", dataset.groupids,sep="_")
+	colnames(groups) <- dataset.groupids;
 	# print(names(groups))
 
 	combinedf <- data.matrix(cbind(f, groups))
+	# print(percentile(c(0,0,0,1,2,3)))
+	combinedf <- combinedf[1:hmcount,]
+	combinedf <- apply(combinedf,2,rank, na.last = "keep", ties.method = "max");
 	# combinedf <- log2(combinedf)
 	# print(combinedf)
 
-	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
+	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "pdf", sep=".");
 
-	png(file = file.path("ClusterHeatMap", outfname), width=imsize,height=imsize)
-	hm2 <- heatmap.2(
-		x=combinedf[1:hmcount,],
-		dendrogram='row',
-		na.rm=TRUE,
-		# breaks=c(NCOL(combinedf)),
-		col=greenred(64),
-		Colv="NA",
-		na.color="black"
+	rowgp <- gpar(fontsize = 7);
+	colgp <-gpar(fontsize = 7);
+
+	minwidth <- unit(6, "cm");
+
+	pdf(file = file.path("ClusterHeatMap", outfname))
+	hm2 <- Heatmap(
+		combinedf[,1:NCOL(f)],
+		name="File Id",
+		column_title="File Id",
+		row_title="Peptide Rank",
+		col=colors,
+		row_names_gp = rowgp,
+		column_names_gp = colgp,
+		width = max(max_text_height(
+	        rownames(combinedf), 
+	        gp = rowgp
+	    )*NCOL(f)*linespacing, minwidth)
+	)+Heatmap(
+		combinedf[,NCOL(f)+1:NCOL(groups)],
+		name="Test Group",
+		column_title="Test Group",
+		col=colors,
+		row_names_gp = rowgp,
+		column_names_gp = colgp,
+		width = max(max_text_height(
+	        rownames(combinedf), 
+	        gp = rowgp
+	    )*NCOL(groups)*linespacing, minwidth)
 	)
+	print(hm2)
 	dev.off()
+
+	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
 
 	v <- venn.diagram(
 		x = sets,

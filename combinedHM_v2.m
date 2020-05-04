@@ -60,7 +60,6 @@ for kk = 1:NumFilesRead
 
     dat = origsdats{kk}; %spectra tab
     summarydat = origsumdats{kk}; %summary data
-    proteindat = origpdats{kk}; %protein data
     for i = 1:length(wantedGenes)
         if kk == 1
             resTables{i} = struct;
@@ -68,7 +67,7 @@ for kk = 1:NumFilesRead
             resTables{i}.Sheets = {};
             resTables{i}.Name = wantedGenes{i};
         end
-        proteinName = getProteinName(wantedGenes{i}, proteindat.Description, 3);
+        proteinName = getProteinName(wantedGenes{i}, dat.ProteinName, 3);
         if isempty(proteinName)
             continue;
         end
