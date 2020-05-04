@@ -104,7 +104,7 @@ for(hm in hms){
 	        gp = rowgp
 	    )*NCOL(groups)*linespacing, minwidth)
 	)
-	print(hm2)
+	draw(hm2)
 	dev.off()
 
 	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
