@@ -2,6 +2,7 @@ library(VennDiagram)
 library(ComplexHeatmap)
 library(circlize)
 library(RColorBrewer)
+library(measurements)
 
 source("rtools.r");
 
@@ -31,6 +32,7 @@ imsize <- 2800
 hmcount <- 64 #number of rows to take for heatmap
 colors = colorRamp2(c(0, hmcount/2, hmcount), c("green", "white", "red"))(seq(0, hmcount));
 linespacing <- 1.5;
+mm2in <- 0.0393701;
 
 for(hm in hms){
 	f <- read.csv(file.path("HeatMap", hm));
@@ -78,8 +80,13 @@ for(hm in hms){
 	colgp <-gpar(fontsize = 7);
 
 	minwidth <- unit(6, "cm");
+	minheight <- unit(10, "cm");
 
-	pdf(file = file.path("ClusterHeatMap", outfname))
+	hmheight <- max(max_text_height(
+	        rownames(combinedf), 
+	        gp = colgp
+	    )*hmcount*linespacing, minheight)
+
 	hm2 <- Heatmap(
 		combinedf[,1:NCOL(f)],
 		name="File Id",
@@ -91,7 +98,8 @@ for(hm in hms){
 		width = max(max_text_height(
 	        rownames(combinedf), 
 	        gp = rowgp
-	    )*NCOL(f)*linespacing, minwidth)
+	    )*NCOL(f)*linespacing, minwidth),
+		height=hmheight
 	)+Heatmap(
 		combinedf[,NCOL(f)+1:NCOL(groups)],
 		name="Test Group",
@@ -102,9 +110,21 @@ for(hm in hms){
 		width = max(max_text_height(
 	        rownames(combinedf), 
 	        gp = rowgp
-	    )*NCOL(groups)*linespacing, minwidth)
+	    )*NCOL(groups)*linespacing, minwidth),
+		height=hmheight
 	)
-	draw(hm2)
+	# print(attributes(hm2))
+	plot <- draw(hm2)
+	# attr(plot, "layout")$page_size[1] <- attr(plot, "ht_list_param")$width
+
+	hmw <- as.double(ComplexHeatmap:::width(plot))*mm2in
+	hmh <- as.double(ComplexHeatmap:::height(plot))*mm2in
+	# print(hmw)
+	# print(conv_unit(303.1907, "mm", "inch"))
+	pdf(file= file.path("ClusterHeatMap", outfname), 
+		width=hmw, 
+		height=hmh)
+	print(plot)
 	dev.off()
 
 	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
