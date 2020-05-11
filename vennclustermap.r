@@ -30,7 +30,7 @@ hms <- list.files(path="HeatMap"); #All heatmaps generated
 
 imsize <- 2800
 hmcount <- 64 #number of rows to take for heatmap
-colors = colorRamp2(c(0, hmcount/2, hmcount), c("green", "white", "red"))(seq(0, hmcount));
+colors <- colorRamp2(c(0, hmcount/2, hmcount), c("blue", "white", "red"))(seq(0, hmcount));
 linespacing <- 1.5;
 mm2in <- 0.0393701;
 
