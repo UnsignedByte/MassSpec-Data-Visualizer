@@ -1,6 +1,6 @@
 clear all;
 addpath('utils')
-%% Preference variables
+%% Preference Variables
 UniqueColumns = [7]; %Columns to take from each dataset (sorted by max and sum of first elem)
 UniqueCombineFunctions = {{@max, @nansum}}; %combined functions across datasets used
 UniqueClassFunctions = {@nansum}; %functions to use for each dataset when combining into class
@@ -8,12 +8,14 @@ UniqueClassFunctions = {@nansum}; %functions to use for each dataset when combin
 SingleColumns = [11]; %Columns equal across all datasets (will only take one column)
 SingleClassFunctions = {@max}; %functions to use for each dataset when combining into class
 
-%%
+%% File Selection
 
 tic;
 
+%select data files
 TempFiles = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
 
+%read protein param file
 wantedGenes = splitlines(strtrim(fileread(fullfile('Params', 'proteins.txt'))));
 if numel(wantedGenes) > 0
     TempFastaFile = uigetfile('.fasta','Choose Fasta File');
@@ -89,7 +91,7 @@ for kk = 1:NumFilesRead
             else
                 sheetID = size(resTables{i}.Summary, 1)+1;
                 resTables{i}.Summary = [resTables{i}.Summary;{sheetID, sheetname, proteinName}];
-                disp(resTables{i}.Summary)
+%                 disp(resTables{i}.Summary)
             end
 %             disp(sheetID);
 %             disp(sheetname);
