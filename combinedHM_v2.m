@@ -1,4 +1,5 @@
 clear all;
+addpath('utils')
 %% Preference variables
 UniqueColumns = [7]; %Columns to take from each dataset (sorted by max and sum of first elem)
 UniqueCombineFunctions = {{@max, @nansum}}; %combined functions across datasets used

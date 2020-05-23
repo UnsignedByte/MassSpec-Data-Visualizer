@@ -4,7 +4,7 @@ library(circlize)
 library(RColorBrewer)
 library(measurements)
 
-source("rtools.r");
+source("utils/rtools.r");
 
 futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger");
 

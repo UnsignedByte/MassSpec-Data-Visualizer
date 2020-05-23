@@ -1,3 +1,6 @@
+clear all;
+addpath('utils')
+
 name = input('Dataset Name:', 's');
 file = str2double(input('Number for Base File:', 's'));
 
