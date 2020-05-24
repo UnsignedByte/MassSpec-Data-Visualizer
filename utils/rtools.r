@@ -4,6 +4,12 @@ stopQuietly <- function() {
   stop()
 }
 
+install_missing <- function(packages, repos='http://cran.us.r-project.org') {
+	new.packages <- packages[!(packages %in% installed.packages()[,"Package"])]
+	if(length(new.packages)) install.packages(new.packages, repos=repos) #install missing using selected mirror (default cran)
+	lapply(packages, library, character.only = TRUE) # import installed
+}
+
 gDims <- function(a) {
 	return(c(NROW(a),NCOL(a)));
 }

@@ -1,10 +1,7 @@
-library(VennDiagram)
-library(ComplexHeatmap)
-library(circlize)
-library(RColorBrewer)
-library(measurements)
-
 source("utils/rtools.r");
+
+list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "convertGraph")
+install_missing(list.packages)
 
 futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger");
 
@@ -74,7 +71,7 @@ for(hm in hms){
 	# combinedf <- log2(combinedf)
 	# print(combinedf)
 
-	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "pdf", sep=".");
+	outfname <- file.path("ClusterHeatMap", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], sep="."));
 
 	rowgp <- gpar(fontsize = 7);
 	colgp <-gpar(fontsize = 7);
@@ -121,11 +118,13 @@ for(hm in hms){
 	hmh <- as.double(ComplexHeatmap:::height(plot))*mm2in
 	# print(hmw)
 	# print(conv_unit(303.1907, "mm", "inch"))
-	pdf(file= file.path("ClusterHeatMap", outfname), 
+	pdf(file= paste(outfname, "pdf", sep="."), 
 		width=hmw, 
 		height=hmh)
 	print(plot)
 	dev.off()
+
+	convertGraph(paste(outfname, "pdf", sep="."), paste(outfname, "svg", sep="."))
 
 	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
 

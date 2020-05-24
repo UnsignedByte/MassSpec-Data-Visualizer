@@ -180,7 +180,7 @@ Output = struct;
 Output.ModMapper = resTables;
 Output.HeatMap = rt2s;
 Output.fileIDs = fileidtable;
-fid = fopen([fullfile('Results', getResultFolder(TempFile), 'output') '.json'], 'w');
+fid = fopen([fullfile('Results', getResultFolder(TempFile), 'Raws', 'combinedHM') '.json'], 'w');
 fprintf(fid, jsonencode(Output));
 fclose(fid);
 

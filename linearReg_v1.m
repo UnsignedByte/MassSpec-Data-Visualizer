@@ -2,8 +2,10 @@ clear all;
 addpath('utils')
 
 name = input('Dataset Name:', 's');
-file = str2double(input('Number for Base File:', 's'));
+% get id of base file
+file = str2double(input('ID of Base File:', 's'));
 
+% read parameters
 wantedMods = splitlines(fileread(fullfile('Results', name, 'Params', 'mods.txt')));
 wantedMods = wantedMods(~cellfun('isempty', wantedMods)); %remove empty
 
@@ -17,8 +19,11 @@ if ~isfolder(fullfile('Results', name, 'Regression'))
 end
 
 for i = 1:numel(wantedMods)
+    % read in heatmap data
     sumdat = readtable(fullfile('Results', name, 'HeatMap', [wantedMods{i} '.csv']));
-    sumdat = sumdat(((sumdat.Row_Type-sumdat.Contaminant) == 1),1:end-5); % parse out only classes with no contaminant
+    % parse out only classes with no contaminant
+    sumdat = sumdat(((sumdat.Row_Type-sumdat.Contaminant) == 1),1:end-5);
+    % save only data columns
     sumdat = sumdat(:,cellfun(@(x) startsWith(x, 'x_OfSpectra_'), sumdat.Properties.VariableNames));
     for j = 1:size(sumdat,2)
         if file == j
