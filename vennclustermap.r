@@ -1,6 +1,6 @@
 source("utils/rtools.r");
 
-list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "convertGraph")
+list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "svglite")
 install_missing(list.packages)
 
 futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger");
@@ -118,13 +118,11 @@ for(hm in hms){
 	hmh <- as.double(ComplexHeatmap:::height(plot))*mm2in
 	# print(hmw)
 	# print(conv_unit(303.1907, "mm", "inch"))
-	pdf(file= paste(outfname, "pdf", sep="."), 
+	svglite(file= paste(outfname, "svg", sep="."), 
 		width=hmw, 
 		height=hmh)
 	print(plot)
 	dev.off()
-
-	convertGraph(paste(outfname, "pdf", sep="."), paste(outfname, "svg", sep="."))
 
 	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
 
