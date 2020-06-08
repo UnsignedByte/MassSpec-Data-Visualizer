@@ -82,9 +82,9 @@ thead tr{
   background-color: var(--header-bg-color);
 }
 
-thead tr th {
+thead tr th, tbody tr td {
     overflow-wrap: break-word;
-    max-width: 200px;
+    max-width: 300px;
 }
 
 tbody {
@@ -94,15 +94,6 @@ tbody {
 .classTable tbody.odd .trclass{
   background-color: var(--row-bg-color-light);
 }
-/*
-.tropen {
-  background-color: #e6e6e6;
-}*/
-
-/*.tropen .trchild {
-  background-color: #999;
-  color: white;
-}*/
 
 .tropen.odd {
     background-color: var(--row-bg-color-light);
@@ -249,7 +240,20 @@ input, select, #submenu > div, #menu > div{
   padding:7px;
 }
 
+div#processing {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  text-align: center;
+  transform: translate(-50%,-50%);
+  -ms-transform: translate(-50%,-50%);
+}
+
   </style>
+  <div id="processing" style="visibility: hidden;">
+    <p>Loading...</p>
+    <img src="data:image/gif;base64,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" border="0" alt=" loading.gif"/>
+  </div>
   <div class="box">
     <div class="row header">
       <div id="menu"></div>
@@ -298,6 +302,7 @@ function generateSheet(datas, names, types){
   tables.children().first().addClass('selected');
 }
 
+//colour picker for highlighting
 // const initColourStr = "#7289DA";
 function addPickr(parent, colourDefault){
   let trigger = document.createElement('button');
@@ -408,38 +413,58 @@ function rghex(col){
   // <input type="radio" name="tabletype" value="HeatMap"> HeatMap
   // <input type="radio" name="tabletype" value="Modmapper"> Modmapper
 
+//buttons for time intensive operations on click (will show processing bar)
+function longButton(name, f){
+  return $('<input/>', {type:"button", value:name})
+          .on('mousedown', ()=>{
+            $('#processing').css('visibility', '')
+          }).on('mouseup', ()=>{
+            f();
+            $('#processing').css('visibility', 'hidden')
+          })
+}
+
 function createGenerator(button, type){
   if (!button.hasClass('selected')){
     $('#menu input.selected').removeClass('selected');
     button.addClass('selected');
     let submenu = $('#submenu');
     submenu.empty();
-    if (type === 'HeatMap'){
-      $('<div/>', {text:"Selected Modification"}).appendTo(submenu);
-      let sel = $('<select/>', {name:"mod"}).appendTo(submenu);
-      for(let i = 0; i < data.HeatMap.length; i++){
-        $('<option/>', {value:i, text:data.HeatMap[i].Name}).appendTo(sel);
-      }
-      $('<input/>', {type:"button", value:"Generate Sheet"}).click(function(){
-        // $("#tables").empty().append(classTableCreate(data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data));
-        $("#tables").empty()
-        generateSheet([data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data], [1], ['class'])
-      }).appendTo(submenu);
-      // .selectmenu().selectmenu( "menuWidget" ).addClass( "overflow" )
-    }else if(type === 'ModMapper'){
-      $('<div/>', {text:"Selected Protein"}).appendTo(submenu);
-      let sel = $('<select/>', {name:"protein"}).appendTo(submenu);
-      for(let i = 0; i < data.ModMapper.length; i++){
-        $('<option/>', {value:i, text:data.ModMapper[i].Name}).appendTo(sel);
-      }
-      $('<input/>', {type:"button", value:"Generate Sheet"}).click(function(){
-        let index = $('#submenu select[name="protein"] option:selected').val(); // index of selected gene
-        $("#tables").empty()
-        generateSheet(
-          [data.ModMapper[index].Summary, ...data.ModMapper[index].Sheets],
-          ['Summary', ...[...Array(data.ModMapper[index].Sheets.length).keys()].map(x => ++x)],
-          fillArray('basic', data.ModMapper[index].Sheets.length+1)) // all basic sheets
-      }).appendTo(submenu);
+    let sel;
+    switch(type){
+      case 'HeatMap':
+        $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"mod"}).appendTo(submenu);
+        for(let i = 0; i < data.HeatMap.length; i++){
+          $('<option/>', {value:i, text:data.HeatMap[i].Name}).appendTo(sel);
+        }
+        longButton("Generate Sheet", ()=>{
+          // $("#tables").empty().append(classTableCreate(data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data));
+          $("#tables").empty()
+          generateSheet([data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data], [1], ['class'])
+        }).appendTo(submenu)
+        // $('<input/>', {type:"button", value:"Generate Sheet"}).click().appendTo(submenu);
+        // .selectmenu().selectmenu( "menuWidget" ).addClass( "overflow" )
+        break;
+      case 'ModMapper':
+        $('<div/>', {text:"Selected Protein:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"protein"}).appendTo(submenu);
+        for(let i = 0; i < data.ModMapper.length; i++){
+          $('<option/>', {value:i, text:data.ModMapper[i].Name}).appendTo(sel);
+        }
+        longButton("Generate Sheet", ()=>{
+          let index = $('#submenu select[name="protein"] option:selected').val(); // index of selected gene
+          $("#tables").empty()
+          generateSheet(
+            [data.ModMapper[index].Summary, ...data.ModMapper[index].Sheets],
+            ['Summary', ...[...Array(data.ModMapper[index].Sheets.length).keys()].map(x => ++x)],
+            fillArray('basic', data.ModMapper[index].Sheets.length+1)) // all basic sheets
+        }).appendTo(submenu)
+        // $('<input/>', {type:"button", value:"Generate Sheet"}).click().appendTo(submenu);
+        break;
+      case 'VennDiagram':
+        // $('<div/>', {text:"Selected Protein"}).appendTo(submenu);
+        break;
     }
   }
 }
@@ -515,14 +540,17 @@ function colorTable(color){
 }
 
 var menu = $('#menu');
-$('<input/>', {
-  type:"button",
-  value:"HeatMap"
-  }).click(function(){createGenerator($(this), this.value)}).appendTo(menu);
-$('<input/>', {
-  type:"button",
-  value:"ModMapper"
-  }).click(function(){createGenerator($(this), this.value)}).appendTo(menu);
+
+function addGeneratorButton(name){
+  $('<input/>', {
+    type:"button",
+    value:name
+    }).click(function(){createGenerator($(this), name)}).appendTo(menu);
+}
+
+addGeneratorButton("HeatMap");
+addGeneratorButton("ModMapper");
+addGeneratorButton("VennDiagram");
 
 var footer = $('.box .row.footer');
 

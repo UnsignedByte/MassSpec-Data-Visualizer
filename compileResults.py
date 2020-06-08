@@ -2,9 +2,11 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 18:36:01, 23-May-2020
+# @Last Modified time: 17:55:08, 07-Jun-2020
 
+import csv
 import json
+import base64
 import os.path
 
 root = os.path.abspath(os.path.dirname(__file__)) # Root directory
@@ -12,14 +14,22 @@ root = os.path.abspath(os.path.dirname(__file__)) # Root directory
 
 name = input("Result Folder Name: ") # Get file to read
 
+resultsFolder = os.path.join(root, 'Results', name)
+
 with open(os.path.join(root, 'default.html')) as f:
 	default = f.read()
 
 
-with open(os.path.join(root, 'Results', name, 'output.json')) as f:
+with open(os.path.join(resultsFolder, 'Raws', 'combinedHM.json')) as f:
 	data = json.load(f)
 
+# fileIDs
 
+with open(os.path.join(resultsFolder, 'fileIDs.csv')) as f:
+	reader = csv.DictReader(f)
+	data['ids'] = []
+	for row in reader:
+		data['ids'].append(row)
 
 
 # Read in js tools
@@ -59,6 +69,6 @@ with open(os.path.join(root, 'webtools', 'clusterize.css')) as f:
 
 default = default.replace('$$datainput$$', json.dumps(data)) # Place data into html file
 
-with open(os.path.join(root, 'Results', name, f'{name}.html'), 'w') as f:
+with open(os.path.join(resultsFolder, f'{name}.html'), 'w') as f:
 	f.write(default)
 	f.close()
