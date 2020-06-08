@@ -1,6 +1,6 @@
 source("utils/rtools.r");
 
-list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "svglite")
+list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "svglite", "stringr", "rjson", "base64enc")
 install_missing(list.packages)
 
 futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger");
@@ -31,7 +31,15 @@ colors <- colorRamp2(c(0, hmcount/2, hmcount), c("blue", "white", "red"))(seq(0,
 linespacing <- 1.5;
 mm2in <- 0.0393701;
 
-for(hm in hms){
+# Disable Rplots.pdf from generating;
+pdf(NULL)
+
+jsonData <- list(VennDiagram = list(), ClusterHeatMap = list())
+
+parsedHM <- str_match(hms, "(.+)\\.csv")[,2]
+
+for(hmid in 1:2){
+	hm <- hms[hmid]
 	f <- read.csv(file.path("HeatMap", hm));
 	f <- f[f$Row_Type==1,]; #remove contaminated
 	groups <- matrix(0L, nrow=NROW(f),ncol=length(dataset.groupids)); # get final test groups averaged
@@ -83,7 +91,10 @@ for(hm in hms){
 	        rownames(combinedf), 
 	        gp = colgp
 	    )*hmcount*linespacing, minheight)
-
+	rowhmheight <- max_text_height(
+	        rownames(combinedf), 
+	        gp = rowgp
+	    )
 	hm2 <- Heatmap(
 		combinedf[,1:NCOL(f)],
 		name="File Id",
@@ -92,10 +103,7 @@ for(hm in hms){
 		col=colors,
 		row_names_gp = rowgp,
 		column_names_gp = colgp,
-		width = max(max_text_height(
-	        rownames(combinedf), 
-	        gp = rowgp
-	    )*NCOL(f)*linespacing, minwidth),
+		width = max(rowhmheight*NCOL(f)*linespacing, minwidth),
 		height=hmheight
 	)+Heatmap(
 		combinedf[,NCOL(f)+1:NCOL(groups)],
@@ -104,29 +112,25 @@ for(hm in hms){
 		col=colors,
 		row_names_gp = rowgp,
 		column_names_gp = colgp,
-		width = max(max_text_height(
-	        rownames(combinedf), 
-	        gp = rowgp
-	    )*NCOL(groups)*linespacing, minwidth),
+		width = max(rowhmheight*NCOL(groups)*linespacing, minwidth),
 		height=hmheight
 	)
-	# print(attributes(hm2))
-	plot <- draw(hm2)
+	hm2plot <- draw(hm2)
 	# attr(plot, "layout")$page_size[1] <- attr(plot, "ht_list_param")$width
 
-	hmw <- as.double(ComplexHeatmap:::width(plot))*mm2in
-	hmh <- as.double(ComplexHeatmap:::height(plot))*mm2in
+	hmw <- as.double(ComplexHeatmap:::width(hm2plot))*mm2in
+	hmh <- as.double(ComplexHeatmap:::height(hm2plot))*mm2in
 	# print(hmw)
 	# print(conv_unit(303.1907, "mm", "inch"))
-	svglite(file= paste(outfname, "svg", sep="."), 
+	outsvg <- stringSVG(print(hm2plot), 
 		width=hmw, 
 		height=hmh)
-	print(plot)
-	dev.off()
+	write(outsvg, file= paste(outfname, "svg", sep="."))
+	jsonData[['ClusterHeatMap']][[parsedHM[hmid]]] <- outsvg
 
 	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
 
-	v <- venn.diagram(
+	venn.diagram(
 		x = sets,
 		category.names = paste("Testgroup_", dataset.groupids, sep=""),
 		filename = file.path("VennDiagram", outfname),
@@ -157,6 +161,8 @@ for(hm in hms){
         cat.default.pos = "outer"
 	)
 
+	jsonData[['VennDiagram']][[parsedHM[hmid]]] <- dataURI(mime = "image/png", encoding = "base64", file = file.path("VennDiagram", outfname))
+
 	overlap <- calculate.overlap(sets);
 	cnames <- c();
 
@@ -169,3 +175,6 @@ for(hm in hms){
 	overlapdf <- rapply(overlap, function(x) 'length<-'(x, max_l), how="list");
 	write.csv(overlapdf, file=file.path("VennDiagram", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "csv", sep=".")));
 }
+
+# save json raw file
+write(toJSON(jsonData, indent=2), file=file.path("Raws", "vennclustermap.json"));
