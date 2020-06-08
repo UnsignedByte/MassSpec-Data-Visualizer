@@ -177,4 +177,4 @@ for(hmid in 1:2){
 }
 
 # save json raw file
-write(toJSON(jsonData, indent=2), file=file.path("Raws", "vennclustermap.json"));
+write(toJSON(jsonData), file=file.path("Raws", "vennclustermap.json"));
