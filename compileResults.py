@@ -2,7 +2,7 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 16:56:08, 08-Jun-2020
+# @Last Modified time: 14:55:31, 09-Jun-2020
 
 import csv
 import json
@@ -16,7 +16,7 @@ name = input("Result Folder Name: ") # Get file to read
 
 resultsFolder = os.path.join(root, 'Results', name)
 
-with open(os.path.join(root, 'default.html')) as f:
+with open(os.path.join(root, 'webdefault', 'default.html')) as f:
 	default = f.read()
 
 data = {};
@@ -67,6 +67,12 @@ with open(os.path.join(root, 'webtools', 'clusterize.min.js')) as f:
 
 with open(os.path.join(root, 'webtools', 'clusterize.css')) as f:
 	default = default.replace("$$CLUSTERIZECSS$$", f.read())
+
+with open(os.path.join(root, 'webdefault', 'default.js')) as f:
+	default = default.replace('$$DEFAULTJS$$', f.read());
+	
+with open(os.path.join(root, 'webdefault', 'default.css')) as f:
+	default = default.replace('$$DEFAULTCSS$$', f.read());
 
 # with open(os.path.join(root, 'jquery-ui.min.js')) as f:
 # 	jqueryui = f.read()
