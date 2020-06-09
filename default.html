@@ -272,6 +272,7 @@ data = $$datainput$$;
 
 //---------------------------------------------------- USED FOR GENERATING SHEETS FROM DATA ----------------------------------------------------
 
+//generate a set of tables to simulate excel with sheets
 function generateSheet(datas, names, types){
   footerElems.isColoured = false;
   let sheetbar = $("#sheetbar").empty();
@@ -338,6 +339,7 @@ function addPickr(parent, colourDefault){
   return ret;
 }
 
+//basic table
 function basicTableCreate(dat){
   let table = $('<table/>', {class:'basicTable'});
   headers = Object.keys(dat[0]);
@@ -353,6 +355,8 @@ function basicTableCreate(dat){
   return table;
 }
 
+
+//table with classes (expandable)
 function classTableCreate(dat){
   let table = $('<table/>', {class:'classTable'});
 
@@ -379,6 +383,7 @@ function classTableCreate(dat){
   return table;
 }
 
+//populate table row from data
 $.fn.extend({addRow: function(type, headers, dat) {
   for(let i = 0; i < headers.length; i++){
     $(`<${type}/>`, {text:dat[headers[i]]}).appendTo(this);
