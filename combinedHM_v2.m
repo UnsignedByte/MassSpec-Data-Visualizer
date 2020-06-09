@@ -13,13 +13,17 @@ SingleClassFunctions = {@max}; %functions to use for each dataset when combining
 tic;
 
 %select data files
-TempFiles = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
+[TempFiles, folder] = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
+
+% combine folder with basename to get full path (allows selection of files anywhere)
+TFPath = fullfile(folder, TempFiles);
 
 %read protein param file
 wantedGenes = splitlines(strtrim(fileread(fullfile('Params', 'proteins.txt'))));
 if numel(wantedGenes) > 0
-    TempFastaFile = uigetfile('.fasta','Choose Fasta File');
-    fastaFile = struct2table(fastaread(TempFastaFile));
+    % Read in fasta data if genes are wanted (modmapper)
+    [baseName, folder] = uigetfile('.fasta','Choose Fasta File');
+    fastaFile = struct2table(fastaread(fullfile(folder, baseName)));
 end
 
 
@@ -38,9 +42,9 @@ modlists = cell(NumFilesRead, 1);
 for i = 1 : NumFilesRead
     [~, TempName, ~] = fileparts(TempFiles{i});
     datasetnames{i} = cleanFileName(TempName);
-    origsdats{i} = readtable(TempFiles{i}, 'Sheet', 'Spectra');
-    origpdats{i} = readtable(TempFiles{i}, 'Sheet', 'Proteins');
-    origsumdats{i} = readtable(TempFiles{i}, 'Sheet', 'Summary');
+    origsdats{i} = readtable(TFPath{i}, 'Sheet', 'Spectra');
+    origpdats{i} = readtable(TFPath{i}, 'Sheet', 'Proteins');
+    origsumdats{i} = readtable(TFPath{i}, 'Sheet', 'Summary');
     modlists{i} = getAllMods(origsumdats{i});
     disp(['Read File ' num2str(i)]);
     toc;
@@ -66,7 +70,7 @@ for kk = 1:NumFilesRead
     for i = 1:length(wantedGenes)
         if kk == 1
             resTables{i} = struct;
-            resTables{i}.Summary = table('Size', [1,3], 'VariableTypes', {'uint32', 'char', 'char'}, 'VariableNames', {'SheetNumber', 'Filenames', 'Protein_Name'});
+            resTables{i}.Summary = table('Size', [1,3], 'VariableTypes', {'uint32', 'string', 'string'}, 'VariableNames', {'SheetNumber', 'Filenames', 'Protein_Name'});
             resTables{i}.Sheets = {};
             resTables{i}.Name = wantedGenes{i};
         end
@@ -176,6 +180,9 @@ for kk = 1:numel(wantedMods)
     writetable(rt2s{kk}.Data,fullfile(resfolder, [wantedMod '.csv']));
 end
 
+% Time of completion
+completeTime = datestr(now,'dd-mm-yyyy_HH:MM:SS');
+
 Output = struct;
 Output.ModMapper = resTables;
 Output.HeatMap = rt2s;
@@ -188,13 +195,13 @@ if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Params'))
     mkdir(fullfile('Results', getResultFolder(TempFile), 'Params'));
 end
 
-fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'proteins.txt'),'w');
+fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', ['proteins_' completeTime '.txt']),'w');
 for i = 1 : numel(wantedGenes)
     fprintf(fid, '%s\n', wantedGenes{i});
 end
 fclose(fid);
 
-fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', 'mods.txt'),'w');
+fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', ['mods_' completeTime '.txt']),'w');
 for i = 1 : numel(wantedMods)
     fprintf(fid, '%s\n', wantedMods{i});
 end
