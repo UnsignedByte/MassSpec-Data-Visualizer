@@ -1,6 +1,6 @@
 source("utils/rtools.r");
 
-list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "svglite", "stringr", "rjson", "base64enc")
+list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "svglite", "stringr", "jsonlite", "base64enc")
 install_missing(list.packages)
 
 futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger");
@@ -132,7 +132,7 @@ for(hmid in 1:length(hms)){
 		width=hmw, 
 		height=hmh)
 	write(outsvg, file= paste(outfname, "svg", sep="."))
-	jsonData[['ClusterHeatMap']][[parsedHM[hmid]]] <- outsvg
+	jsonData[['ClusterHeatMap']][[hmid]] <- list(Name=parsedHM[hmid], Data=as.character(outsvg))
 
 	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
 
@@ -177,30 +177,42 @@ for(hmid in 1:length(hms)){
 			cnames <- c(cnames, recursiveBinary(i,length(dataset.groupids)));
 		}
 		cnames <- sapply(cnames, function(x){substrRight(dec2bin(x),length(dataset.groupids))});
-		names(overlap) <- cnames;
+
+		max_l <- max(lengths(overlap));
+		overlap <- as.data.frame(matrix(unlist(lapply(overlap, 'length<-', max_l)), nrow=max_l))
+		colnames(overlap) <- cnames;
+		# print(overlap)
+		overlap <- data.frame(lapply(overlap, function(x) ifelse(is.na(x), "", x)));
+		# print(overlap)
+
+		# ifelse(v=="", "", f.geneNames[f.geneNames$Rank_Number==v,"Gene_Name"])
 
 		# convert list of IDs to names
-		overlapnames <- lapply(overlap, function(x){sapply(x, function(v) f.geneNames[f.geneNames$Rank_Number==v,"Gene_Name"])})
+		overlapnames <- data.frame(apply(overlap, c(1,2), function(v) ifelse(v=="", "", as.character(f.geneNames[f.geneNames$Rank_Number==as.numeric(v),"Gene_Name"]))))
+
+
+		# overlap <- as.data.frame(matrix(unlist(lapply(overlap, 'length<-', max_l)), nrow=max_l))
+		# overlapnames <- lapply(overlapnames, 'length<-', max_l)
 
 		# add venn diagram data to json
-		jsonData[['VennDiagram']][[parsedHM[hmid]]] <- list(
+		jsonData[['VennDiagram']][[hmid]] <- list(
+			Name=parsedHM[hmid],
 			img = paste("<img src=\"", 
 									dataURI(mime = "image/png", encoding = "base64", file = file.path("VennDiagram", outfname)), 
 									"\" class=\"vennImg\" alt=\"Venn Diagram\"/>", sep=""),
 			raw = list(
-				ids = overlap,
-				names = overlapnames
+				id=overlap,
+				name=overlapnames
 			)
 		)
 
 		#maximum length of any of the venn diagram areas (used to equalize for saving to csv)
-		max_l <- max(lengths(overlap));
 
 		# save id and name csv files
-		write.csv(lapply(overlap, 'length<-', max_l), file=file.path("VennDiagram", paste(parsedHM[hmid], "_ids.csv", sep="")), na = "");
-		write.csv(lapply(overlapnames, 'length<-', max_l), file=file.path("VennDiagram", paste(parsedHM[hmid], "_names.csv", sep="")), na = "");
+		write.csv(overlap, file=file.path("VennDiagram", paste(parsedHM[hmid], "_ids.csv", sep="")), na = "");
+		write.csv(overlapnames, file=file.path("VennDiagram", paste(parsedHM[hmid], "_names.csv", sep="")), na = "");
 	}
 }
 
 # save json raw file
-write(toJSON(jsonData), file=file.path("Raws", "vennclustermap.json"));
+write(toJSON(jsonData, pretty=2), file=file.path("Raws", "vennclustermap.json"));
