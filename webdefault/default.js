@@ -2,10 +2,8 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 14:51:46, 09-Jun-2020
+* @Last Modified time: 21:40:44, 09-Jun-2020
 */
-
-const INF = 1e15;
 
 data = $$datainput$$;
 
@@ -181,9 +179,9 @@ function createGenerator(button, type){
       case 'HeatMap':
         $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
         sel = $('<select/>', {name:"mod"}).appendTo(submenu);
-        for(let i = 0; i < data.HeatMap.length; i++){
-          $('<option/>', {value:i, text:data.HeatMap[i].Name}).appendTo(sel);
-        }
+        data.HeatMap.map((x, i)=>{
+        	$('<option/>', {value:i, text:x.Name}).appendTo(sel);
+        })
         longButton("Generate Sheet", ()=>{
           // $("#tables").empty().append(classTableCreate(data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data));
           $("#tables").empty()
@@ -195,9 +193,9 @@ function createGenerator(button, type){
       case 'ModMapper':
         $('<div/>', {text:"Selected Protein:"}).appendTo(submenu);
         sel = $('<select/>', {name:"protein"}).appendTo(submenu);
-        for(let i = 0; i < data.ModMapper.length; i++){
-          $('<option/>', {value:i, text:data.ModMapper[i].Name}).appendTo(sel);
-        }
+        data.ModMapper.map((x, i)=>{
+        	$('<option/>', {value:i, text:x.Name}).appendTo(sel);
+        })
         longButton("Generate Sheet", ()=>{
           let index = $('#submenu select[name="protein"] option:selected').val(); // index of selected gene
           $("#tables").empty()
@@ -209,7 +207,21 @@ function createGenerator(button, type){
         // $('<input/>', {type:"button", value:"Generate Sheet"}).click().appendTo(submenu);
         break;
       case 'VennDiagram':
-        // $('<div/>', {text:"Selected Protein"}).appendTo(submenu);
+        $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"mod"}).appendTo(submenu);
+        data.VennDiagram.map((x, i)=>{
+        	$('<option/>', {value:i, text:x.Name}).appendTo(sel);
+        })
+        longButton("Generate Sheet", ()=>{
+          let index = $('#submenu select[name="mod"] option:selected').val(); // index of selected gene
+          $("#tables").empty()
+
+          generateSheet(
+            [...Object.values(data.VennDiagram[0].raw)],
+            [...Object.keys(data.VennDiagram[0].raw)],
+            fillArray('basic', Object.keys(data.VennDiagram[0].raw).length)) // all basic sheets
+        }).appendTo(submenu)
+        // $('<input/>', {type:"button", value:"Generate Sheet"}).click().appendTo(submenu);
         break;
     }
   }
