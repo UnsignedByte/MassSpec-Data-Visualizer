@@ -201,8 +201,8 @@ for(hmid in 1:length(hms)){
 									dataURI(mime = "image/png", encoding = "base64", file = file.path("VennDiagram", outfname)), 
 									"\" class=\"vennImg\" alt=\"Venn Diagram\"/>", sep=""),
 			raw = list(
-				id=overlap,
-				name=overlapnames
+				Id=overlap,
+				Name=overlapnames
 			)
 		)
 
