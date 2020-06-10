@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:53:46, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 18:47:27, 09-Jun-2020
+* @Last Modified time: 00:22:20, 10-Jun-2020
 */
 
 :root {
@@ -104,7 +104,7 @@ input, select, #submenu > div, #menu > div{
 
 #menu {
   background-color:var(--menu-button-unselected);
-  height: 50px;
+  height: fit-content;
   padding-left:25px;
 }
 
@@ -112,6 +112,7 @@ input, select, #submenu > div, #menu > div{
   background-color:var(--menu-button-unselected);
   font-size: 18px !important;
   padding: 10px;
+  height:50px;
 }
 
 #menu input.selected, #menu input:hover{
@@ -167,6 +168,11 @@ input, select, #submenu > div, #menu > div{
   width: 100%;
   overflow: scroll;
   height: 100%;
+}
+
+/*fit images*/
+#tables div.container svg, #tables div.container img{
+	height:100%;
 }
 
 #tables {

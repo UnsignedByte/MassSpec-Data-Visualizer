@@ -2,7 +2,7 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 16:26:55, 09-Jun-2020
+# @Last Modified time: 23:48:36, 09-Jun-2020
 
 import csv
 import json
@@ -80,9 +80,9 @@ def insertData(name):
 
 	with open(os.path.join(resultsFolder, 'fileIDs.csv')) as f:
 		reader = csv.DictReader(f)
-		data['ids'] = []
+		data['FileIds'] = []
 		for row in reader:
-			data['ids'].append(row)
+			data['FileIds'].append(row)
 
 	# get all raws
 	rawsdir = os.fsencode(os.path.join(resultsFolder, 'Raws'))

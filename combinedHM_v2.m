@@ -24,7 +24,7 @@ TFPath = fullfile(folder, TempFiles);
 
 %read protein param file
 wantedGenes = splitlines(strtrim(fileread(fullfile('Params', 'proteins.txt'))));
-wantedGenes = wantedGenes(~cellfun('isempty',wantedGenes))
+wantedGenes = wantedGenes(~cellfun('isempty',wantedGenes));
 if numel(wantedGenes) > 0
     % Read in fasta data if genes are wanted (modmapper)
     [baseName, folder] = uigetfile('.fasta','Choose Fasta File');
@@ -197,7 +197,7 @@ completeTime = datestr(now,'dd-mm-yyyy_HH:MM:SS');
 Output = struct;
 Output.ModMapper = resTables;
 Output.HeatMap = rt2s;
-Output.fileIDs = fileidtable;
+% Output.fileIDs = fileidtable;
 
 if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Raws'))
     mkdir(fullfile('Results', getResultFolder(TempFile), 'Raws'));

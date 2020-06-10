@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 21:40:44, 09-Jun-2020
+* @Last Modified time: 00:19:07, 10-Jun-2020
 */
 
 data = $$datainput$$;
@@ -34,48 +34,15 @@ function generateSheet(datas, names, types){
       case 'class':
         classTableCreate(datas[i]).appendTo(cont);
         break;
+      case 'html': //Raw html data
+      	$(datas[i]).appendTo(cont);
+      	break;
       default:
         break;
     }
   }
   sheetbar.children().first().addClass('selected');
   tables.children().first().addClass('selected');
-}
-
-//colour picker for highlighting
-// const initColourStr = "#7289DA";
-function addPickr(parent, colourDefault){
-  let trigger = document.createElement('button');
-  trigger.classList.add('colourPicker');
-  trigger.title = 'Set Colour';
-  trigger.setAttribute("style", `background-color: ${colourDefault};`);
-  parent.append(trigger);
-  // $('<button/>', {class:"colorPicker", title:"Set colour", style:`{backgroundColor:${initColourStr}}`})
-  let ret = new Pickr({
-          el: trigger,
-          theme: 'monolith',
-          useAsButton: true,
-          default: colourDefault,
-          position: 'top-middle',
-          components: {
-            preview: true,
-            hue: true,
-            interaction: {
-              input: true,
-              clear: true
-            },
-          }
-        }).on('change', colour => {
-          trigger.style.backgroundColor = colour.toRGBA()
-        }).on('hide', instance => {
-          instance._colourValue = parseInt(instance.getColor().toHEXA().toString().slice(1), 16)
-          // if (window.onChange) window.onChange()
-        }).on('clear', instance => {
-          trigger.style.backgroundColor = instance.options.default;
-          instance._colourValue = parseInt(instance.options.default.slice(1), 16)
-        })
-  ret._colourValue = parseInt(colourDefault.slice(1), 16);
-  return ret;
 }
 
 //basic table
@@ -217,9 +184,9 @@ function createGenerator(button, type){
           $("#tables").empty()
 
           generateSheet(
-            [...Object.values(data.VennDiagram[0].raw)],
-            [...Object.keys(data.VennDiagram[0].raw)],
-            fillArray('basic', Object.keys(data.VennDiagram[0].raw).length)) // all basic sheets
+            [data.VennDiagram[index].img[0], ...Object.values(data.VennDiagram[index].raw)],
+            ["Image", ...Object.keys(data.VennDiagram[index].raw)],
+            ['html', ...fillArray('basic', Object.keys(data.VennDiagram[index].raw).length)]) // all basic sheets
         }).appendTo(submenu)
         // $('<input/>', {type:"button", value:"Generate Sheet"}).click().appendTo(submenu);
         break;
@@ -299,16 +266,12 @@ function colorTable(color){
 
 var menu = $('#menu');
 
-function addGeneratorButton(name){
-  $('<input/>', {
-    type:"button",
-    value:name
-    }).click(function(){createGenerator($(this), name)}).appendTo(menu);
+for(const x of Object.keys(data)){
+	$('<input/>', {
+	    type:"button",
+	    value:x
+	    }).click(function(){createGenerator($(this), x)}).appendTo(menu);
 }
-
-addGeneratorButton("HeatMap");
-addGeneratorButton("ModMapper");
-addGeneratorButton("VennDiagram");
 
 var footer = $('.box .row.footer');
 
@@ -354,4 +317,41 @@ function fillArray(v, n) {
     a.push(v);
   }
   return a;
+}
+
+
+//colour picker for highlighting
+// const initColourStr = "#7289DA";
+function addPickr(parent, colourDefault){
+  let trigger = document.createElement('button');
+  trigger.classList.add('colourPicker');
+  trigger.title = 'Set Colour';
+  trigger.setAttribute("style", `background-color: ${colourDefault};`);
+  parent.append(trigger);
+  // $('<button/>', {class:"colorPicker", title:"Set colour", style:`{backgroundColor:${initColourStr}}`})
+  let ret = new Pickr({
+          el: trigger,
+          theme: 'monolith',
+          useAsButton: true,
+          default: colourDefault,
+          position: 'top-middle',
+          components: {
+            preview: true,
+            hue: true,
+            interaction: {
+              input: true,
+              clear: true
+            },
+          }
+        }).on('change', colour => {
+          trigger.style.backgroundColor = colour.toRGBA()
+        }).on('hide', instance => {
+          instance._colourValue = parseInt(instance.getColor().toHEXA().toString().slice(1), 16)
+          // if (window.onChange) window.onChange()
+        }).on('clear', instance => {
+          trigger.style.backgroundColor = instance.options.default;
+          instance._colourValue = parseInt(instance.options.default.slice(1), 16)
+        })
+  ret._colourValue = parseInt(colourDefault.slice(1), 16);
+  return ret;
 }
