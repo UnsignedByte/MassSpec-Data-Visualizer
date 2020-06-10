@@ -24,7 +24,7 @@ TFPath = fullfile(folder, TempFiles);
 
 %read protein param file
 wantedGenes = splitlines(strtrim(fileread(fullfile('Params', 'proteins.txt'))));
-disp(wantedGenes)
+wantedGenes = wantedGenes(~cellfun('isempty',wantedGenes))
 if numel(wantedGenes) > 0
     % Read in fasta data if genes are wanted (modmapper)
     [baseName, folder] = uigetfile('.fasta','Choose Fasta File');
@@ -198,7 +198,12 @@ Output = struct;
 Output.ModMapper = resTables;
 Output.HeatMap = rt2s;
 Output.fileIDs = fileidtable;
-fid = fopen([fullfile('Results', getResultFolder(TempFile), 'Raws', 'combinedHM') '.json'], 'w');
+
+if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Raws'))
+    mkdir(fullfile('Results', getResultFolder(TempFile), 'Raws'));
+end
+
+fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Raws', 'combinedHM.json'), 'w');
 fprintf(fid, jsonencode(Output));
 fclose(fid);
 
