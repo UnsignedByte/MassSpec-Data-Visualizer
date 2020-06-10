@@ -1,5 +1,10 @@
 clear all;
+% allow access to utils functions
 addpath('utils')
+
+% turn off table reading warning
+warning('OFF', 'MATLAB:table:ModifiedAndSavedVarnames')
+
 %% Preference Variables
 UniqueColumns = [7]; %Columns to take from each dataset (sorted by max and sum of first elem)
 UniqueCombineFunctions = {{@max, @nansum}}; %combined functions across datasets used
@@ -10,7 +15,6 @@ SingleClassFunctions = {@max}; %functions to use for each dataset when combining
 
 %% File Selection
 
-tic;
 
 %select data files
 [TempFiles, folder] = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
@@ -20,12 +24,15 @@ TFPath = fullfile(folder, TempFiles);
 
 %read protein param file
 wantedGenes = splitlines(strtrim(fileread(fullfile('Params', 'proteins.txt'))));
+disp(wantedGenes)
 if numel(wantedGenes) > 0
     % Read in fasta data if genes are wanted (modmapper)
     [baseName, folder] = uigetfile('.fasta','Choose Fasta File');
     fastaFile = struct2table(fastaread(fullfile(folder, baseName)));
 end
 
+% Start timing
+tic;
 
 if isa(TempFiles, 'char')
     TempFiles = {TempFiles};
@@ -172,6 +179,7 @@ for kk = 1:numel(wantedMods)
         end
         datasets{i} = pdat;
     end
+    disp(['Mod ' wantedMod ' finished.'])
     toc;
 
     rt2s{kk} = struct;
@@ -179,6 +187,9 @@ for kk = 1:numel(wantedMods)
     rt2s{kk}.Name = wantedMod;
     writetable(rt2s{kk}.Data,fullfile(resfolder, [wantedMod '.csv']));
 end
+
+
+disp('Saving final files...')
 
 % Time of completion
 completeTime = datestr(now,'dd-mm-yyyy_HH:MM:SS');

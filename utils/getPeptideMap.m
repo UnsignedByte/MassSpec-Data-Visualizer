@@ -31,7 +31,7 @@ function resTable = getPeptideMap(proteinName, dat, summarydat, fastaFile, sheet
 
     alltypes    = cell(tablewidth, 1); %types of the thing
     alltypes(:) = {'uint32'};
-    alltypes{2} = 'char';
+    alltypes{2} = 'string';
     allvarnames = cell(tablewidth, 1);
     allvarnames(1:3) = {'Position', 'AA', 'Total_Peptides'};
     allvarnames(4:end) = modlist(:,1);

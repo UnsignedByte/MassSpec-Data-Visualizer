@@ -2,7 +2,7 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 16:23:27, 09-Jun-2020
+# @Last Modified time: 16:26:55, 09-Jun-2020
 
 import csv
 import json
@@ -115,5 +115,3 @@ if not name: # name is empty
 else:
 	with open(os.path.join(os.path.join(root, 'Results', name), f'{name}.html'), 'w') as f:
 			saveData(name);
-
-

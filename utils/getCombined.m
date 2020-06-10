@@ -36,8 +36,6 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     
     ProteinNames = sortrows(ProteinNames,2); %sort names by id
 
-    toc;
-
     totUniqueFuncs = zeros(length(UniqueColumns),1);
     totUniqueFuncs(1) = length(UniqueCombineFunctions{1});
     for i = 2:length(UniqueColumns)
@@ -140,7 +138,6 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     end
     %currently sorts by max then sum of spectra
 
-    toc;
     % If this search is for the Jackson Lab, use the following segment:
 
     %     for j = 1:length(craptxt(:,1))
@@ -149,7 +146,6 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     %         end;
     %     end;
     % end
-    toc;
 
     % FileOutFinalClasses = cell(FileOutFinal{end,1},size(FileOutFinal,2)); %get header classes
     % 
@@ -224,5 +220,4 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
 %     fclose(fid);
 %     output = table2struct(FinalFileOut);
 %     save('output.mat', 'output', '-v7.3');
-    toc;
 end
