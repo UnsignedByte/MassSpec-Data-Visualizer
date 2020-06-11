@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 00:19:07, 10-Jun-2020
+* @Last Modified time: 17:16:34, 10-Jun-2020
 */
 
 data = $$datainput$$;
@@ -184,11 +184,26 @@ function createGenerator(button, type){
           $("#tables").empty()
 
           generateSheet(
-            [data.VennDiagram[index].img[0], ...Object.values(data.VennDiagram[index].raw)],
+            [data.VennDiagram[index].img, ...Object.values(data.VennDiagram[index].raw)],
             ["Image", ...Object.keys(data.VennDiagram[index].raw)],
             ['html', ...fillArray('basic', Object.keys(data.VennDiagram[index].raw).length)]) // all basic sheets
         }).appendTo(submenu)
-        // $('<input/>', {type:"button", value:"Generate Sheet"}).click().appendTo(submenu);
+        break;
+      case 'ClusterHeatMap':
+	      $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"mod"}).appendTo(submenu);
+        data.VennDiagram.map((x, i)=>{
+        	$('<option/>', {value:i, text:x.Name}).appendTo(sel);
+        })
+        longButton("Generate Sheet", ()=>{
+          let index = $('#submenu select[name="mod"] option:selected').val(); // index of selected gene
+          $("#tables").empty()
+
+          generateSheet(
+            [data.ClusterHeatMap[index].Data],
+            ["Heatmap"],
+            ['html']) // all html sheets
+        }).appendTo(submenu)
         break;
     }
   }
