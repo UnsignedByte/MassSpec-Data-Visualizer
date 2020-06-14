@@ -38,6 +38,62 @@ jsonData <- list(VennDiagram = list(), ClusterHeatMap = list())
 
 parsedHM <- str_match(hms, "(.+)\\.csv")[,2]
 
+# Function to autogen heatmap
+
+genHM.rowgp <- gpar(fontsize = 7);
+genHM.colgp <-gpar(fontsize = 7);
+
+genHM.minwidth <- unit(6, "cm");
+genHM.minheight <- unit(10, "cm");
+
+
+genHM <- function(name, data, fnum){
+
+	hmheight <- max(max_text_height(
+	    rownames(data), 
+	    gp = genHM.colgp
+	  )*hmcount*linespacing, genHM.minheight)
+	rowhmheight <- max_text_height(
+	    rownames(data), 
+	    gp = genHM.rowgp
+	  )
+
+	hm2 <- Heatmap(
+		data[,1:fnum],
+		name="File Id",
+		column_title="File Id",
+		row_title="Peptide Rank",
+		col=colors,
+		row_names_gp = genHM.rowgp,
+		column_names_gp = genHM.colgp,
+		width = max(rowhmheight*fnum*linespacing, genHM.minwidth),
+		height=hmheight
+	)+Heatmap(
+		data[,(fnum+1):NCOL(data)],
+		name="Test Group",
+		column_title="Test Group",
+		col=colors,
+		row_names_gp = genHM.rowgp,
+		column_names_gp = genHM.colgp,
+		width = max(rowhmheight*(NCOL(data)-fnum)*linespacing, genHM.minwidth),
+		height=hmheight
+	)
+	hm2plot <- draw(hm2)
+	# attr(plot, "layout")$page_size[1] <- attr(plot, "ht_list_param")$width
+
+	hmw <- as.double(ComplexHeatmap:::width(hm2plot))*mm2in
+	hmh <- as.double(ComplexHeatmap:::height(hm2plot))*mm2in
+	# print(hmw)
+	# print(conv_unit(303.1907, "mm", "inch"))
+	outfname <- file.path("ClusterHeatMap", name);
+	outsvg <- stringSVG(print(hm2plot), 
+		width=hmw, 
+		height=hmh)
+	write(outsvg, file= paste(outfname, "svg", sep="."))
+
+	return(outsvg)
+}
+
 for(hmid in 1:length(hms)){
 	hm <- hms[hmid]
 	f <- read.csv(file.path("HeatMap", hm));
@@ -76,7 +132,6 @@ for(hmid in 1:length(hms)){
 	colnames(f) <- fids$ID;
 
 	colnames(groups) <- dataset.groupids;
-	# print(names(groups))
 
 	combinedf <- data.matrix(cbind(f, groups))
 	# print(percentile(c(0,0,0,1,2,3)))
@@ -85,55 +140,10 @@ for(hmid in 1:length(hms)){
 	# combinedf <- log2(combinedf)
 	# print(combinedf)
 
-	outfname <- file.path("ClusterHeatMap", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], sep="."));
 
-	rowgp <- gpar(fontsize = 7);
-	colgp <-gpar(fontsize = 7);
-
-	minwidth <- unit(6, "cm");
-	minheight <- unit(10, "cm");
-
-	hmheight <- max(max_text_height(
-	        rownames(combinedf), 
-	        gp = colgp
-	    )*hmcount*linespacing, minheight)
-	rowhmheight <- max_text_height(
-	        rownames(combinedf), 
-	        gp = rowgp
-	    )
-	hm2 <- Heatmap(
-		combinedf[,1:NCOL(f)],
-		name="File Id",
-		column_title="File Id",
-		row_title="Peptide Rank",
-		col=colors,
-		row_names_gp = rowgp,
-		column_names_gp = colgp,
-		width = max(rowhmheight*NCOL(f)*linespacing, minwidth),
-		height=hmheight
-	)+Heatmap(
-		combinedf[,NCOL(f)+1:NCOL(groups)],
-		name="Test Group",
-		column_title="Test Group",
-		col=colors,
-		row_names_gp = rowgp,
-		column_names_gp = colgp,
-		width = max(rowhmheight*NCOL(groups)*linespacing, minwidth),
-		height=hmheight
-	)
-	hm2plot <- draw(hm2)
-	# attr(plot, "layout")$page_size[1] <- attr(plot, "ht_list_param")$width
-
-	hmw <- as.double(ComplexHeatmap:::width(hm2plot))*mm2in
-	hmh <- as.double(ComplexHeatmap:::height(hm2plot))*mm2in
-	# print(hmw)
-	# print(conv_unit(303.1907, "mm", "inch"))
-	outsvg <- stringSVG(print(hm2plot), 
-		width=hmw, 
-		height=hmh)
-	write(outsvg, file= paste(outfname, "svg", sep="."))
-	jsonData[['ClusterHeatMap']][[hmid]] <- list(Name=parsedHM[hmid], Data=as.character(outsvg))
-
+	# AAAAA unfinsihed  A A A A must set hmid
+	jsonData[['ClusterHeatMap']][[hmid]] <- list(Name=parsedHM[hmid], Data=as.character(genHM(parsedHM[hmid], combinedf, NCOL(f))))
+	
 	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
 
 	# Try to generate PWA, if fail too bad
