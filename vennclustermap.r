@@ -49,6 +49,9 @@ genHM.minheight <- unit(10, "cm");
 
 genHM <- function(name, data, fnum){
 
+	# use percentilism
+	data <- apply(data,2,rank, na.last = "keep", ties.method = "max")
+
 	hmheight <- max(max_text_height(
 	    rownames(data), 
 	    gp = genHM.colgp
@@ -91,7 +94,7 @@ genHM <- function(name, data, fnum){
 		height=hmh)
 	write(outsvg, file= paste(outfname, "svg", sep="."))
 
-	return(outsvg)
+	return(list(name=name, data=as.character(outsvg)))
 }
 
 for(hmid in 1:length(hms)){
@@ -134,15 +137,26 @@ for(hmid in 1:length(hms)){
 	colnames(groups) <- dataset.groupids;
 
 	combinedf <- data.matrix(cbind(f, groups))
-	# print(percentile(c(0,0,0,1,2,3)))
-	combinedf <- combinedf[1:hmcount,]
-	combinedf <- apply(combinedf,2,rank, na.last = "keep", ties.method = "max");
-	# combinedf <- log2(combinedf)
-	# print(combinedf)
 
+	combinedf <- combinedf[1:hmcount,]
 
 	# AAAAA unfinsihed  A A A A must set hmid
-	jsonData[['ClusterHeatMap']][[hmid]] <- list(Name=parsedHM[hmid], Data=as.character(genHM(parsedHM[hmid], combinedf, NCOL(f))))
+
+	hm.functions <- list(
+		"ranks"=function(x) x
+	)
+
+	hm.list <- list()
+
+	for(hm.name in names(hm.functions)){
+		data <- combinedf[rank(sapply(1:NROW(combinedf), hm.functions[[hm.name]]), ties.method = "first"),]
+
+		hm.list[[length(hm.list)+1]] <- genHM(paste(hm.name, 'ids', sep='_'), data, NCOL(f))
+		rownames(data) <- sapply(rownames(data), function(v) f.geneNames[f.geneNames$Rank_Number==as.numeric(v),"Gene_Name"])
+		hm.list[[length(hm.list)+1]] <- genHM(paste(hm.name, 'names', sep='_'), data, NCOL(f))
+	}
+
+	jsonData[['ClusterHeatMap']][[hmid]] <- list(name=parsedHM[hmid], sheets=hm.list);
 	
 	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
 
@@ -165,20 +179,20 @@ for(hmid in 1:length(hms)){
 			units = 'px',
 
 			# Circles
-	        lwd = 2,
-	        lty = 'solid',
-	        fill = palette,
-	        
-	        # Numbers
-	        cex = 0.6,
-	        fontface = "bold",
-	        fontfamily = "sans",
-	        
-	        # Set names
-	        cat.cex = 0.6,
-	        cat.fontface = "bold",
-	        cat.fontfamily = "sans",
-	        cat.default.pos = "outer"
+      lwd = 2,
+      lty = 'solid',
+      fill = palette,
+      
+      # Numbers
+      cex = 0.6,
+      fontface = "bold",
+      fontfamily = "sans",
+      
+      # Set names
+      cat.cex = 0.6,
+      cat.fontface = "bold",
+      cat.fontfamily = "sans",
+      cat.default.pos = "outer"
 		)
 		overlap <- calculate.overlap(sets);
 		cnames <- c();
