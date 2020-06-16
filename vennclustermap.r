@@ -47,8 +47,10 @@ genHM.minwidth <- unit(6, "cm");
 genHM.minheight <- unit(10, "cm");
 
 
-genHM <- function(name, data, fnum){
+# Helper function to generate a heatmap given name
+genHM <- function(loc, name, data, fnum){
 
+	print(paste('Generating Heatmap', name))
 	# use percentilism
 	data <- apply(data,2,rank, na.last = "keep", ties.method = "max")
 
@@ -88,7 +90,7 @@ genHM <- function(name, data, fnum){
 	hmh <- as.double(ComplexHeatmap:::height(hm2plot))*mm2in
 	# print(hmw)
 	# print(conv_unit(303.1907, "mm", "inch"))
-	outfname <- file.path("ClusterHeatMap", name);
+	outfname <- file.path("ClusterHeatMap", paste(loc, name, sep='_'));
 	outsvg <- stringSVG(print(hm2plot), 
 		width=hmw, 
 		height=hmh)
@@ -138,22 +140,23 @@ for(hmid in 1:length(hms)){
 
 	combinedf <- data.matrix(cbind(f, groups))
 
-	combinedf <- combinedf[1:hmcount,]
 
 	# AAAAA unfinsihed  A A A A must set hmid
 
 	hm.functions <- list(
-		"ranks"=function(x) x
+		"ranks"=function(i, data) i,
+		"stdev"=function(i, data) -sd(data[i,], na.rm=TRUE) # negative is used because rank() puts low number with the highest rank (lowest # rank)
 	)
 
 	hm.list <- list()
 
 	for(hm.name in names(hm.functions)){
-		data <- combinedf[rank(sapply(1:NROW(combinedf), hm.functions[[hm.name]]), ties.method = "first"),]
+		data <- combinedf[rank(sapply(1:NROW(combinedf), hm.functions[[hm.name]], combinedf), ties.method = "first"),]
+		data <- data[1:hmcount,]
 
-		hm.list[[length(hm.list)+1]] <- genHM(paste(hm.name, 'ids', sep='_'), data, NCOL(f))
+		hm.list[[length(hm.list)+1]] <- genHM(parsedHM[hmid], paste(hm.name, 'ids', sep='_'), data, NCOL(f))
 		rownames(data) <- sapply(rownames(data), function(v) f.geneNames[f.geneNames$Rank_Number==as.numeric(v),"Gene_Name"])
-		hm.list[[length(hm.list)+1]] <- genHM(paste(hm.name, 'names', sep='_'), data, NCOL(f))
+		hm.list[[length(hm.list)+1]] <- genHM(parsedHM[hmid], paste(hm.name, 'names', sep='_'), data, NCOL(f))
 	}
 
 	jsonData[['ClusterHeatMap']][[hmid]] <- list(name=parsedHM[hmid], sheets=hm.list);
@@ -214,9 +217,6 @@ for(hmid in 1:length(hms)){
 		# convert list of IDs to names
 		overlapnames <- data.frame(apply(overlap, c(1,2), function(v) ifelse(v=="", "", as.character(f.geneNames[f.geneNames$Rank_Number==as.numeric(v),"Gene_Name"]))))
 
-
-		# overlap <- as.data.frame(matrix(unlist(lapply(overlap, 'length<-', max_l)), nrow=max_l))
-		# overlapnames <- lapply(overlapnames, 'length<-', max_l)
 
 		# add venn diagram data to json
 		jsonData[['VennDiagram']][[hmid]] <- list(
