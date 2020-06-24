@@ -21,15 +21,19 @@ compareNA <- function(cond) {
 	return(cond)
 }
 
-recursiveBinary <- function(n, l) { #Finds binary numbers in string form given length l and n on bits (n<=l)
-	# print(paste(n, " ", l))
-	if (n==0){
-		return(0);
-	}else if (n == l){
-		return(bitwShiftL(1,l)-1);
-	}else{
-		return(c(recursiveBinary(n,l-1), bitwShiftL(1,l-1)+recursiveBinary(n-1,l-1)));
-	}
+# recursiveBinary <- function(n, l) { #Finds binary numbers in string form given length l and n on bits (n<=l)
+# 	# print(paste(n, " ", l))
+# 	if (n==0){
+# 		return(0);
+# 	}else if (n == l){
+# 		return(bitwShiftL(1,l)-1);
+# 	}else{
+# 		return(c(recursiveBinary(n,l-1), bitwShiftL(1,l-1)+recursiveBinary(n-1,l-1)));
+# 	}
+# }
+
+recursiveBinary <- function(l) {
+	return(sapply(1:2^l, function(x) substrRight(dec2bin(x-1), l)))
 }
 
 dec2bin <- function(x) paste(as.integer(rev(intToBits(x))), collapse = "") # decimal to binary string
