@@ -71,3 +71,7 @@ dist_no_na <- function(mat) {
     edist[which(is.na(edist)|!is.finite(edist))] <- max(edist, na.rm=TRUE) * 1.1 
     return(edist)
 }
+
+cv <- function(dat, na.rm=FALSE) {
+	return(sd(dat, na.rm=na.rm)/mean(dat, na.rm=na.rm))
+}

@@ -50,7 +50,7 @@ genHM.minheight <- unit(10, "cm");
 # Helper function to generate a heatmap given name
 genHM <- function(loc, name, data, fnum){
 
-	print(paste('Generating Heatmap', name))
+	message(paste('Generating Heatmap', name))
 	# use percentilism
 
 	outfname <- file.path("ClusterHeatMap", paste(loc, name, sep='_'));
@@ -142,16 +142,33 @@ for(hmid in 1:length(hms)){
 
 	# AAAAA unfinsihed  A A A A must set hmid
 
+	# Return TRUE if include, FALSE if not (or any other truthy/falsey value)
+	hm.prefunctions <- list(
+		"ranks"=function(i, data) TRUE, # just include all
+		"stdev"=function(i, data) i<NROW(data)/10, # top 10% by rank
+		"coeffvar"=function(i, data) i<NROW(data)/10 # same as above
+	)
+
+	# Return a value by which to sort the list (low->high)
 	hm.functions <- list(
-		"ranks"=function(i, data) i,
-		"stdev"=function(i, data) -sd(data[i,], na.rm=TRUE) # negative is used because rank() puts low number with the highest rank (lowest # rank)
+		"ranks"=function(i, data) i, # sort by rank
+		"stdev"=function(i, data) -sd(data[i,], na.rm=TRUE), # negative is used because rank() puts low number with the highest rank (lowest # rank)
+		"coeffvar"=function(i, data) -cv(data[i,], na.rm=TRUE) # same as above but with coeff of variation
 	)
 
 	hm.list <- list()
 
 	for(hm.name in names(hm.functions)){
-		data <- combinedf[rank(sapply(1:NROW(combinedf), hm.functions[[hm.name]], combinedf), ties.method = "first"),]
-		data <- data[1:hmcount,]
+		hm.func <- function(i, data){
+			if(hm.prefunctions[[hm.name]](i, data)){ # if prefunction says to include, return parsed value
+				return(hm.functions[[hm.name]](i, data))
+			}
+			return(NA) # return NA if it shouldnt be included (will be put last)
+		}
+		data <- sapply(1:NROW(combinedf), hm.func, combinedf) # get sort order first
+		data <- data[!is.na(data)] # remove NAs (things that we dont want to include)
+		data <- combinedf[rank(data, ties.method = "first"),] # convert list of sorted to actual data
+		data <- data[1:min(NROW(data), hmcount),] # take the first <hmcount> so the table isnt too big
 
 		hm.list[[length(hm.list)+1]] <- genHM(parsedHM[hmid], paste(hm.name, 'ids', sep='_'), data, NCOL(f))
 		rownames(data) <- sapply(rownames(data), function(v) f.geneNames[f.geneNames$Rank_Number==as.numeric(v),"Gene_Name"])
@@ -207,7 +224,7 @@ for(hmid in 1:length(hms)){
 	#maximum length of any of the venn diagram areas (used to equalize for saving to csv)
 
 	# save id and name csv files
-	print("Saving Venn Diagram Raws")
+	message("Saving Venn Diagram Raws")
 	write.csv(overlap, file=file.path("VennDiagram", paste(parsedHM[hmid], "_ids.csv", sep="")), na = "");
 	write.csv(overlapnames, file=file.path("VennDiagram", paste(parsedHM[hmid], "_names.csv", sep="")), na = "");
 
@@ -245,7 +262,7 @@ for(hmid in 1:length(hms)){
       cat.fontfamily = "sans",
       cat.default.pos = "outer"
 		)
-		print("Saving Venn Diagram Image")
+		message("Saving Venn Diagram Image")
 		jsonData[['VennDiagram']][[hmid]][['img']] <- paste("<img src=\"", 
 								dataURI(mime = "image/png", encoding = "base64", file = file.path("VennDiagram", outfname)), 
 								"\" class=\"vennImg\" alt=\"Venn Diagram\"/>", sep="")
@@ -253,5 +270,5 @@ for(hmid in 1:length(hms)){
 }
 
 # save json raw file
-print("Saving Final JSON Raw")
+message("Saving Final JSON Raw")
 write(toJSON(jsonData, auto_unbox=TRUE), file=file.path("Raws", "vennclustermap.json"));
