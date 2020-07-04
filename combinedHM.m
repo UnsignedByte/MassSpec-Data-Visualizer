@@ -188,7 +188,6 @@ for kk = 1:numel(wantedMods)
     writetable(rt2s{kk}.Data,fullfile(resfolder, [wantedMod '.csv']));
 end
 
-
 disp('Saving final files...')
 
 % Time of completion

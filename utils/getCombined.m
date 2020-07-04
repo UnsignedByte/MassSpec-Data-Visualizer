@@ -13,15 +13,17 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
         ProteinNames = [ProteinNames; dat.Description];
     end
 
-    ProteinNames = unique(ProteinNames); %get only unique
-    ProteinNamesMap = containers.Map(ProteinNames, 1:length(ProteinNames));
-    ProteinRanks = [1:length(ProteinNames)];
+    ProteinNames = unique(ProteinNames); % get only unique
+    ProteinNamesMap = containers.Map(ProteinNames, 1:length(ProteinNames)); % Create a map from name -> ID (arbitrary #)
+    ProteinRanks = [1:length(ProteinNames)]; % List of ranks
+
+    print(TempStruct(i).dat)
 
     %Match ids if proteins are in groups
-    for i = 1:NumFilesRead
-        j = 1;
-        jstart = 1;
-        for jreal = 2:size(TempStruct(i).dat,1) %loop through all ranks in dataset
+    for i = 1:NumFilesRead % loop each file
+        j = 1; % start at rank 1
+        jstart = 1; %Save start
+        for jreal = 2:size(TempStruct(i).dat,1) % loop through all ranks/proteins in dataset
             j = TempStruct(i).dat.ProteinRank(jreal);
             if TempStruct(i).dat.ProteinRank(jstart) ~= j %if rank changed
                 %find ids of a "class" of proteins (proteins with the same rank)
