@@ -17,7 +17,9 @@ cutoff <- 0.8; # the proportion of the max in the test groups at which it cuts o
 fids <- read.csv("fileIDs.csv");
 
 dataset.groupids <- unique(fids$Test_Group) #unique test groups
-palette <- brewer.pal(length(dataset.groupids), "Pastel2")
+if (length(dataset.groupids) <= 8) {
+	palette <- brewer.pal(length(dataset.groupids), "Pastel2")
+}
 # if (length(dataset.groupids) == 1){
 # 	print("Not enough test groups to compare!")
 # 	stopQuietly();
@@ -139,9 +141,6 @@ for(hmid in 1:length(hms)){
 
 	combinedf <- data.matrix(cbind(f, groups))
 
-
-	# AAAAA unfinsihed  A A A A must set hmid
-
 	# Return TRUE if include, FALSE if not (or any other truthy/falsey value)
 	hm.prefunctions <- list(
 		"ranks"=function(i, data) TRUE, # just include all
@@ -176,17 +175,15 @@ for(hmid in 1:length(hms)){
 	}
 
 	jsonData[['ClusterHeatMap']][[hmid]] <- list(name=parsedHM[hmid], sheets=hm.list);
-	
-	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
 
+	# for sets of >10, generating overlap data will not only take too long but also be virtually useless due to 2^n possible overlap configs
+	if (length(dataset.groupids) > 10){
+		message("Number of test groups exceeds 10. Overlap data and Venn Diagram images will not be calculated.")
+		next
+	}
 
 	# create sets for venn diagram later usage
 	sets <- sapply(1:length(dataset.groupids), function(x) which(compareNA(groups[,x]>cutoff*maxgroup)));
-
-
-	# get overlap for each
-	# print()
-
 
 	# calculate overlap sections of the venn diagram
 	cnames <- recursiveBinary(length(dataset.groupids));
@@ -228,45 +225,48 @@ for(hmid in 1:length(hms)){
 	write.csv(overlap, file=file.path("VennDiagram", paste(parsedHM[hmid], "_ids.csv", sep="")), na = "");
 	write.csv(overlapnames, file=file.path("VennDiagram", paste(parsedHM[hmid], "_names.csv", sep="")), na = "");
 
-	# Try to generate PWA, if fail too bad
+	# too many datasets to generate venn diagram
 	if (length(sets) > 5){
 		message("Number of test groups exceeds 5, the maximum number for the venn diagram. As a result, no venn diagram image will be generated.")
-	}else{
-		venn.diagram(
-			x = sets,
-			category.names = paste("Testgroup_", dataset.groupids, sep=""),
-			filename = file.path("VennDiagram", outfname),
-			output=TRUE,
-
-			# Output features
-			imagetype="png",
-			height = imsize,
-			width = imsize,
-			resolution = 300,
-			compression = "lzw",
-			units = 'px',
-
-			# Circles
-      lwd = 2,
-      lty = 'solid',
-      fill = palette,
-      
-      # Numbers
-      cex = 0.6,
-      fontface = "bold",
-      fontfamily = "sans",
-      
-      # Set names
-      cat.cex = 0.6,
-      cat.fontface = "bold",
-      cat.fontfamily = "sans",
-      cat.default.pos = "outer"
-		)
-		message("Saving Venn Diagram Image")
-		jsonData[['VennDiagram']][[hmid]][['img']] <- paste("<img src=\"", 
-								dataURI(mime = "image/png", encoding = "base64", file = file.path("VennDiagram", outfname)), 
-								"\" class=\"vennImg\" alt=\"Venn Diagram\"/>", sep="")
+		next
 	}
+
+	outfname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], "png", sep=".");
+
+	venn.diagram(
+		x = sets,
+		category.names = paste("Testgroup_", dataset.groupids, sep=""),
+		filename = file.path("VennDiagram", outfname),
+		output=TRUE,
+
+		# Output features
+		imagetype="png",
+		height = imsize,
+		width = imsize,
+		resolution = 300,
+		compression = "lzw",
+		units = 'px',
+
+		# Circles
+    lwd = 2,
+    lty = 'solid',
+    fill = palette,
+    
+    # Numbers
+    cex = 0.6,
+    fontface = "bold",
+    fontfamily = "sans",
+    
+    # Set names
+    cat.cex = 0.6,
+    cat.fontface = "bold",
+    cat.fontfamily = "sans",
+    cat.default.pos = "outer"
+	)
+	message("Saving Venn Diagram Image")
+	jsonData[['VennDiagram']][[hmid]][['img']] <- paste("<img src=\"", 
+							dataURI(mime = "image/png", encoding = "base64", file = file.path("VennDiagram", outfname)), 
+							"\" class=\"vennImg\" alt=\"Venn Diagram\"/>", sep="")
 }
 
 # save json raw file
