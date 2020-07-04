@@ -17,28 +17,32 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     ProteinNamesMap = containers.Map(ProteinNames, 1:length(ProteinNames)); % Create a map from name -> ID (arbitrary #)
     ProteinRanks = [1:length(ProteinNames)]; % List of ranks
 
-    disp(TempStruct(i).dat)
+    % disp(TempStruct(i).dat)
 
     %Match ids if proteins are in groups
     for i = 1:NumFilesRead % loop each file
         j = 1; % start at rank 1
         jstart = 1; %Save start
         for jreal = 2:size(TempStruct(i).dat,1) % loop through all ranks/proteins in dataset
-            j = TempStruct(i).dat.ProteinRank(jreal);
-            if TempStruct(i).dat.ProteinRank(jstart) ~= j %if rank changed
+            j = TempStruct(i).dat.ProteinRank(jreal); % j is the rank of the current protein
+            if TempStruct(i).dat.ProteinRank(jstart) ~= j %if rank is different than before
                 %find ids of a "class" of proteins (proteins with the same rank)
-                ids = cell2mat(cellfun(@(x) ProteinNamesMap(x), TempStruct(i).dat.Description(jstart:jreal-1), 'UniformOutput', false));
-                ProteinRanks(ids) = min(ProteinRanks(ids));
+                ids = cellfun(@(x) ProteinRanks(ProteinNamesMap(x)), TempStruct(i).dat.Description(jstart:jreal-1));
+                ids = arrayfun(@(x) find(ProteinRanks==x), ids, 'UniformOutput', false);
+                ids = [ids{:}];
+                ProteinRanks(ids) = min(ProteinRanks(ids)); %take the smallest id to save it to
                 jstart = jreal;
             end
         end
     end
     
+    % assign new ranks to names list
     ProteinNames(:,2) = num2cell(ProteinRanks); 
     
+    % sort by new ranks
     ProteinNames = sortrows(ProteinNames,2); %sort names by id
 
-    disp(ProteinNames)
+    % disp(ProteinNames)
 
     totUniqueFuncs = zeros(length(UniqueColumns),1);
     totUniqueFuncs(1) = length(UniqueCombineFunctions{1});
