@@ -4,11 +4,11 @@ A data visualizer for Mass Spectrometry data.
 
 ## Running
 
-### [Params folder](/tree/master/Params)
+### [Params folder](Params)
 
 Contains parameter files for the various files.
 
-### [combinedHM.m](/blob/master/combinedHM.m)
+### [combinedHM.m](combinedHM.m)
 
 Run using `combinedHM.m` within matlab
 
@@ -21,7 +21,7 @@ Generates Mod Mapper and Heatmap data. Heatmap data necessary to run most later 
  * `mods.txt` contains a list of newline-separated modifications for the heatmap to generate filtered versions for. `All` refers to no filter.
  * `proteins.txt` contains a list of protein names to use for ModMapper.
 
-### [linearReg.m](/blob/master/linearReg.m)
+### [linearReg.m](linearReg.m)
 
 Run using `linearReg.m` within matlab
 
@@ -29,7 +29,7 @@ Run using `linearReg.m` within matlab
 
 Linear regression analysis between data files comparing protein spectral counts.
 
-### [vennclustermap.r](/blob/master/vennclustermap.r)
+### [vennclustermap.r](vennclustermap.r)
 
 Run using `rscript vennclustermap.r`
 
