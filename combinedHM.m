@@ -5,6 +5,9 @@ addpath('utils')
 % turn off table reading warning
 warning('OFF', 'MATLAB:table:ModifiedAndSavedVarnames')
 
+% used for debug purposes (saves console output to a file)
+diary on
+
 %% Preference Variables
 UniqueColumns = [7]; %Columns to take from each dataset (sorted by max and sum of first elem)
 UniqueCombineFunctions = {{@max, @nansum}}; %combined functions across datasets used
@@ -224,3 +227,5 @@ fclose(fid);
 
 disp('Done.');
 toc;
+
+diary off

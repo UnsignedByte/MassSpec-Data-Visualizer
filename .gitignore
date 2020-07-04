@@ -17,6 +17,9 @@
 # Simulink Code Generation
 slprj/
 
+# Matlab output diary
+diary
+
 # Session info
 octave-workspace
 

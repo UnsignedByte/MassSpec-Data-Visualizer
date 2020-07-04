@@ -17,7 +17,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     ProteinNamesMap = containers.Map(ProteinNames, 1:length(ProteinNames)); % Create a map from name -> ID (arbitrary #)
     ProteinRanks = [1:length(ProteinNames)]; % List of ranks
 
-    print(TempStruct(i).dat)
+    disp(TempStruct(i).dat)
 
     %Match ids if proteins are in groups
     for i = 1:NumFilesRead % loop each file
@@ -37,6 +37,8 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     ProteinNames(:,2) = num2cell(ProteinRanks); 
     
     ProteinNames = sortrows(ProteinNames,2); %sort names by id
+
+    disp(ProteinNames)
 
     totUniqueFuncs = zeros(length(UniqueColumns),1);
     totUniqueFuncs(1) = length(UniqueCombineFunctions{1});
