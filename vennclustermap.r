@@ -55,22 +55,19 @@ genHM <- function(loc, name, data, fnum){
 	message(paste('Generating Heatmap', name))
 	# use percentilism
 
-	outfname <- file.path("ClusterHeatMap", paste(loc, name, sep='_'));
-	write.csv(data, file=paste(outfname, 'csv', sep='.'), na="")
-
-	data <- apply(data,2,rank, na.last = "keep", ties.method = "max")
+	rankdata <- apply(data,2,rank, na.last = "keep", ties.method = "max")
 
 	hmheight <- max(max_text_height(
-	    rownames(data), 
+	    rownames(rankdata), 
 	    gp = genHM.colgp
 	  )*hmcount*linespacing, genHM.minheight)
 	rowhmheight <- max_text_height(
-	    rownames(data), 
+	    rownames(rankdata), 
 	    gp = genHM.rowgp
 	  )
 
 	hm2 <- Heatmap(
-		data[,1:fnum],
+		rankdata[,1:fnum],
 		name="File Id",
 		column_title="File Id",
 		row_title="Peptide Rank",
@@ -80,16 +77,23 @@ genHM <- function(loc, name, data, fnum){
 		width = max(rowhmheight*fnum*linespacing, genHM.minwidth),
 		height=hmheight
 	)+Heatmap(
-		data[,(fnum+1):NCOL(data)],
+		rankdata[,(fnum+1):NCOL(rankdata)],
 		name="Test Group",
 		column_title="Test Group",
 		col=colors,
 		row_names_gp = genHM.rowgp,
 		column_names_gp = genHM.colgp,
-		width = max(rowhmheight*(NCOL(data)-fnum)*linespacing, genHM.minwidth),
+		width = max(rowhmheight*(NCOL(rankdata)-fnum)*linespacing, genHM.minwidth),
 		height=hmheight
 	)
 	hm2plot <- draw(hm2)
+	
+	hm.colOrder <- column_order(hm2);
+	names(hm.colOrder) <- NULL
+	hm.colOrder <- c(hm.colOrder[[1]], sapply(hm.colOrder[[2]], function(x) x+4))
+	
+	outfname <- file.path("ClusterHeatMap", paste(loc, name, sep='_'));
+	write.csv(data[row_order(hm2),hm.colOrder], file=paste(outfname, 'csv', sep='.'), na="")
 	# attr(plot, "layout")$page_size[1] <- attr(plot, "ht_list_param")$width
 
 	hmw <- as.double(ComplexHeatmap:::width(hm2plot))*mm2in
