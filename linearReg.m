@@ -50,15 +50,10 @@ for i = 1:numel(wantedMods)
                 set(0, 'CurrentFigure', cfig);
                 subplot(nm, nm, (j-1)*nm+file);
                 scatter(X,Y, 10, linspace(0, 1, size(sumdat,1)), 'filled');
-                
+
                 set(gca, 'units', 'normalized'); %Just making sure it's normalized
                 set(gca,'YTickLabel',[]);
                 set(gca,'XTickLabel',[]);
-
-                Tight = get(gca, 'TightInset');  %Gives you the bording spacing between plot box and any axis labels
-                                                 %[Left Bottom Right Top] spacing
-                NewPos = [Tight(1) Tight(2) 1-Tight(1)-Tight(3) 1-Tight(2)-Tight(4)]; %New plot position [X Y W H]
-                set(gca, 'Position', NewPos);
             hold off
 
             f = figure('visible', 'off');
