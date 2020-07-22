@@ -1,6 +1,9 @@
 clear all;
 addpath('utils');
 
+% Turn off file exists warning
+warning('OFF', 'MATLAB:mkdir:DirectoryExists')
+
 name = input('Dataset Name:', 's');
 % get id of base file
 
@@ -29,15 +32,38 @@ for i = 1:numel(wantedMods)
     % save only data columns
     sumdat = sumdat(:,cellfun(@(x) startsWith(x, 'x_OfSpectra_'), sumdat.Properties.VariableNames));
     mkdir(fullfile(parentF, wantedMods{i}));
-    for file = 1:size(sumdat, 2) % loop through base files
+    disp(['Parsing mod ' wantedMods{i}]);
+    cfig = figure('visible', 'off');
+    nm = size(sumdat, 2);
+    for file = 1:nm % loop through base files
+        disp(['Parsing file ' num2str(file)])
         mkdir(fullfile(parentF, wantedMods{i}), ['File_' num2str(file)]);
-        for j = 1:size(sumdat,2)
+        for j = 1:nm
             if file == j
                 continue;
             end
+
+            X = table2array(sumdat(:,file));
+            Y = table2array(sumdat(:,j));
+
+            hold on
+                set(0, 'CurrentFigure', cfig);
+                subplot(nm, nm, (j-1)*nm+file);
+                scatter(X,Y, 10, linspace(0, 1, size(sumdat,1)), 'filled');
+                
+                set(gca, 'units', 'normalized'); %Just making sure it's normalized
+                set(gca,'YTickLabel',[]);
+                set(gca,'XTickLabel',[]);
+
+                Tight = get(gca, 'TightInset');  %Gives you the bording spacing between plot box and any axis labels
+                                                 %[Left Bottom Right Top] spacing
+                NewPos = [Tight(1) Tight(2) 1-Tight(1)-Tight(3) 1-Tight(2)-Tight(4)]; %New plot position [X Y W H]
+                set(gca, 'Position', NewPos);
+            hold off
+
             f = figure('visible', 'off');
             hold on
-                scatter(table2array(sumdat(:,file)),table2array(sumdat(:,j)), 25, linspace(0, 1, size(sumdat,1)), 'filled');
+                scatter(X,Y, 25, linspace(0, 1, size(sumdat,1)), 'filled');
                 saveas(f, fullfile(parentF, wantedMods{i}, ['File_' num2str(file)], ['norm_File_' num2str(j) '.svg']));
                 set(gca, 'YScale', 'log')
                 set(gca, 'XScale', 'log')
@@ -45,4 +71,5 @@ for i = 1:numel(wantedMods)
             hold off
         end
     end
+    saveas(cfig, fullfile(parentF, wantedMods{i}, 'combined.svg'));
 end
