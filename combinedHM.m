@@ -123,7 +123,7 @@ end
 for i = 1:length(wantedGenes)
     filename = fullfile(resfolder, wantedGenes{i});
     writetable(resTables{i}.Summary,[filename '.xlsx'], 'Sheet', 'Summary');
-    for j = 1:size(resTables{i}.Sheets, 1)
+    for j = 1:size(resTables{i}.Sheets, 2)
         writetable(resTables{i}.Sheets{j},[filename '.xlsx'], 'Sheet', num2str(j));
     end
 end

@@ -2,6 +2,10 @@
 
 A data visualizer for Mass Spectrometry data.
 
+## Changelog
+
+* Did some stuff
+
 ## Running
 
 ### [Params folder](Params)
