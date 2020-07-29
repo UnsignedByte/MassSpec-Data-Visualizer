@@ -4,7 +4,8 @@ A data visualizer for Mass Spectrometry data.
 
 ## Changelog
 
-* Did some stuff
+* 2020/07/28: Added combined plot without colour
+* 2020/07/27: Fixed missing sheets in ModMapper xlsx raws
 
 ## Running
 
