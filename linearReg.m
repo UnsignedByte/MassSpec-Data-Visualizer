@@ -51,10 +51,18 @@ for i = 1:numel(wantedMods)
                 if file < j
                     scatter(X,Y, 5, 'k', 'filled');
                 elseif file > j
+                    cor = corr(X, Y);
+                    col = abs(cor)*100;
+                    % Desmos graphs for color formula
+                    % g\left(x\right)=\min\left(\max\left(x,\ \frac{90}{30}\left(x-30\right)+30,\frac{105}{25}\left(x-70\right)+150\right),255\right)
+                    % b\left(x\right)=\max\left(0,\frac{255}{5}\left(x-95\right)\right)
+                    col = [255, min(max([col, 3*col-60, 4.2*col-144]), 255), max(0, 51*col-4845)]/255;
                     % set(ax, 'Color', [1 1 0.0667]);
-                    xlim([0 1])
-                    ylim([0 1])
-                    text(0.5, 0.5, num2str(corr(X, Y)), 'HorizontalAlignment','center','VerticalAlignment','middle')
+                    d = (1/8:1/4:1)*2*pi;
+                    fill(cos(d), sin(d), col)
+                    xlim([-sqrt(2) sqrt(2)]/2)
+                    ylim([-sqrt(2) sqrt(2)]/2)
+                    text(0.5, 0.5, num2str(cor), 'HorizontalAlignment','center','VerticalAlignment','middle')
                 end
                 % plot(rand(1,(j-1)*nm+file));
 
@@ -93,14 +101,22 @@ end
 %         elseif k > j
 %             disp('hi');
 %             set(ax, 'Color', [1 1 0.0667]);
-%         end
-%         set(ax,'xtick',[], 'ytick', []);
-%         disp([k-1 nm-j 1 1]/nm)
-%         disp((j-1)*nm+k)
-%         set(ax, 'position', [k-1 nm-j 1 1]/nm);
-%     end
-% end
+
 
 % f = figure
-% set(gca, 'Color', [1 1 0.0667]);
+% d = (1/8:1/4:1)*2*pi;
+% fill(cos(d), sin(d), [1 1 0.0667])
+% xlim([-sqrt(2) sqrt(2)]/2)
+% ylim([-sqrt(2) sqrt(2)]/2)
 % saveas(f, 'test.svg')
+
+% 1.0000         0         0
+% 1.0000    0.1667    0.0111
+% 1.0000    0.3333    0.0222
+% 1.0000    0.5000    0.0333
+% 1.0000    0.6667    0.0444
+% 1.0000    0.8333    0.0556
+% 1.0000    1.0000    0.0667
+% 1.0000    1.0000    0.3778
+% 1.0000    1.0000    0.6889
+% 1.0000    1.0000    1.0000

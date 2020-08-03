@@ -15,7 +15,7 @@ Contains parameter files for the various files.
 
 ### [combinedHM.m](combinedHM.m)
 
-Run using `combinedHM.m` within matlab
+Run using `combinedHM` within matlab
 
 #### Function
 
@@ -28,7 +28,7 @@ Generates Mod Mapper and Heatmap data. Heatmap data necessary to run most later 
 
 ### [linearReg.m](linearReg.m)
 
-Run using `linearReg.m` within matlab
+Run using `linearReg` within matlab
 
 #### Function
 
