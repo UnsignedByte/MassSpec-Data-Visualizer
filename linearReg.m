@@ -25,6 +25,8 @@ end
 
 parentF = fullfile('Results', name, 'Regression');
 
+jsonOut = cell(1, numel(wantedMods));
+
 for i = 1:numel(wantedMods)
     % read in heatmap data
     sumdat = readtable(fullfile('Results', name, 'HeatMap', [wantedMods{i} '.csv']));
@@ -36,6 +38,8 @@ for i = 1:numel(wantedMods)
     disp(['Parsing mod ' wantedMods{i}]);
     cfig = figure('visible', 'off');
     nm = size(sumdat, 2);
+    jsonOut{i} = struct;
+    jsonOut{i}.raw = cell(nm, nm);
     for file = 1:nm % loop through base files
         disp(['Parsing file ' num2str(file)])
         mkdir(fullfile(parentF, wantedMods{i}), ['File_' num2str(file)]);
@@ -78,17 +82,28 @@ for i = 1:numel(wantedMods)
                 continue;
             end
             f = figure('visible', 'off');
+            jsonOut{i}.raw{file, j} = struct;
             hold on
                 % set(0, 'CurrentFigure', f);
                 scatter(X,Y, 25, linspace(0, 1, size(sumdat,1)), 'filled');
-                saveas(f, fullfile(parentF, wantedMods{i}, ['File_' num2str(file)], ['norm_File_' num2str(j) '.svg']));
+                fname = fullfile(parentF, wantedMods{i}, ['File_' num2str(file)], ['norm_File_' num2str(j) '.svg']);
+                saveas(f, fname);
+                jsonOut{i}.raw{file, j}.norm = fileread(fname);
                 set(gca, 'YScale', 'log', 'XScale', 'log')
-                saveas(f, fullfile(parentF, wantedMods{i}, ['File_' num2str(file)], ['log_File_' num2str(j) '.svg']));
+                fname = fullfile(parentF, wantedMods{i}, ['File_' num2str(file)], ['log_File_' num2str(j) '.svg']);
+                saveas(f, fname);
+                jsonOut{i}.raw{file, j}.mod = fileread(fname);
             hold off
         end
     end
-    saveas(cfig, fullfile(parentF, wantedMods{i}, 'combined.svg'));
+    fname = fullfile(parentF, wantedMods{i}, 'combined.svg');
+    saveas(cfig, fname);
+    jsonOut{i}.combined = fileread(fname);
 end
+
+fid = fopen(fullfile('Results', name, 'Raws', 'linearReg.json'), 'w');
+fprintf(fid, jsonencode(jsonOut));
+fclose(fid);
 
 % cfig = figure()
 % nm = 4
