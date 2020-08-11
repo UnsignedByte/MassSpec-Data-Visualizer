@@ -81,14 +81,17 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
 
             % code to find the reverses and contaminants and flag them
             %for removal.
-            Result(j, end-1) = 0;
-            if       ~(isempty(strfind(ProteinNames{j,1},'>Reverse')) ...
-                    && isempty(strfind(ProteinNames{j,1},'Common contaminant')) ...
+            Result(j, end-1) = 1;
+            % If it has any contams, skip
+            if       ~(isempty(strfind(ProteinNames{j,1},'Common contaminant')) ...
                     && isempty(strfind(ProteinNames{j,1},'eratin, type')) ...
                     && isempty(strfind(ProteinNames{j,1},' desmo')) ...
                     && isempty(strfind(ProteinNames{j,1},'dermi')) ...
                     && isempty(strfind(ProteinNames{j,1},'plak')))
                 Result(j, end-1) = 1;
+            elseif ~isempty(strfind(ProteinNames{j,1},'>Reverse'))
+                % Contam iff no >tr and no >sp
+                Result(j, end-1) = isempty(strfind(ProteinNames{j,1},'>tr')) && isempty(strfind(ProteinNames{j,1},'>sp'));
             end
             Result(j, end) = i;
             j = j + 1;
