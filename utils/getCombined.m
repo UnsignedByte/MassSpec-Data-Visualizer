@@ -88,10 +88,10 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
                     && isempty(strfind(ProteinNames{j,1},' desmo')) ...
                     && isempty(strfind(ProteinNames{j,1},'dermi')) ...
                     && isempty(strfind(ProteinNames{j,1},'plak')))
-                Result(j, end-1) = 1;
+                Result(j, end-1) = 2;
             elseif ~isempty(strfind(ProteinNames{j,1},'>Reverse'))
                 % Contam iff no >tr and no >sp
-                Result(j, end-1) = isempty(strfind(ProteinNames{j,1},'>tr')) && isempty(strfind(ProteinNames{j,1},'>sp'));
+                Result(j, end-1) = 1;
             end
             Result(j, end) = i;
             j = j + 1;

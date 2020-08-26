@@ -2,6 +2,12 @@ clear all;
 % allow access to utils functions
 addpath('utils')
 
+% Add parse parameters thing
+mex -setup c++
+mex 'utils/parseParams.cpp'
+
+params = struct;
+
 % turn off table reading warning
 warning('OFF', 'MATLAB:table:ModifiedAndSavedVarnames')
 
@@ -9,15 +15,16 @@ warning('OFF', 'MATLAB:table:ModifiedAndSavedVarnames')
 diary on
 
 %% Preference Variables
-UniqueColumns = [7]; %Columns to take from each dataset (sorted by max and sum of first elem)
-UniqueCombineFunctions = {{@max, @nansum}}; %combined functions across datasets used
-UniqueClassFunctions = {@nansum}; %functions to use for each dataset when combining into class
+params.UniqueColumns = [7]; %Columns to take from each dataset (sorted by max and sum of first elem)
+params.UniqueCombineFunctions = {{@max, @nansum}}; %combined functions across datasets used
+params.UniqueClassFunctions = {@nansum}; %functions to use for each dataset when combining into class
 %Will save max and sum as well as values from the datasets
-SingleColumns = [11]; %Columns equal across all datasets (will only take one column)
-SingleClassFunctions = {@max}; %functions to use for each dataset when combining into class
+params.SingleColumns = [11]; %Columns equal across all datasets (will only take one column)
+params.SingleClassFunctions = {@max}; %functions to use for each dataset when combining into class
 
 %% File Selection
 
+mergeStruct(params, parseParams([mfilename '.m']));
 
 %select data files
 [TempFiles, folder] = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
@@ -26,9 +33,9 @@ SingleClassFunctions = {@max}; %functions to use for each dataset when combining
 TFPath = fullfile(folder, TempFiles);
 
 %read protein param file
-wantedGenes = splitlines(strtrim(fileread(fullfile('Params', 'proteins.txt'))));
-wantedGenes = wantedGenes(~cellfun('isempty',wantedGenes));
-if numel(wantedGenes) > 0
+% params.wantedGenes = splitlines(strtrim(fileread(fullfile('Params', 'proteins.txt'))));
+% params.wantedGenes = params.wantedGenes(~cellfun('isempty',params.wantedGenes));
+if numel(params.wantedGenes) > 0
     % Read in fasta data if genes are wanted (modmapper)
     [baseName, folder] = uigetfile('.fasta','Choose Fasta File');
     fastaFile = struct2table(fastaread(fullfile(folder, baseName)));
@@ -64,7 +71,7 @@ fileidtable = table([1:NumFilesRead]', datasetnames, [1:NumFilesRead]', 'Variabl
 
 writetable(fileidtable,fullfile('Results', getResultFolder(TempFiles{1}), 'fileIDs.csv'));
 
-resTables = cell(1, length(wantedGenes));
+resTables = cell(1, length(params.wantedGenes));
 
 for kk = 1:NumFilesRead
     TempFile = TempFiles{kk};
@@ -77,21 +84,21 @@ for kk = 1:NumFilesRead
 
     dat = origsdats{kk}; %spectra tab
     summarydat = origsumdats{kk}; %summary data
-    for i = 1:length(wantedGenes)
+    for i = 1:length(params.wantedGenes)
         if kk == 1
             resTables{i} = struct;
             resTables{i}.Summary = table('Size', [1,3], 'VariableTypes', {'uint32', 'string', 'string'}, 'VariableNames', {'SheetNumber', 'Filenames', 'Protein_Name'});
             resTables{i}.Sheets = {};
-            resTables{i}.Name = wantedGenes{i};
+            resTables{i}.Name = params.wantedGenes{i};
         end
-        proteinName = getProteinName(wantedGenes{i}, dat.ProteinName, 3);
+        proteinName = getProteinName(params.wantedGenes{i}, dat.ProteinName, 3);
         if isempty(proteinName)
             continue;
         end
         proteinName = proteinName{1};
-        filename = fullfile(resfolder, wantedGenes{i});
+        filename = fullfile(resfolder, params.wantedGenes{i});
         sheetname = makeValidSheetName(getResultFile(TempFile));
-        disp(['Processing Gene ' wantedGenes{i} ' for file ' sheetname]);
+        disp(['Processing Gene ' params.wantedGenes{i} ' for file ' sheetname]);
         toc;
         resTable = getPeptideMap(proteinName, dat, summarydat, fastaFile, sheetname);
         if numel(resTable)==0
@@ -120,8 +127,8 @@ for kk = 1:NumFilesRead
     % proteinName = '>sp|P14873|MAP1B_MOUSE Microtubule-associated protein 1B OS=Mus musculus OX=10090 GN=Map1b PE=1 SV=2'; %desired rank for protein to analyze
 end
 
-for i = 1:length(wantedGenes)
-    filename = fullfile(resfolder, wantedGenes{i});
+for i = 1:length(params.wantedGenes)
+    filename = fullfile(resfolder, params.wantedGenes{i});
     writetable(resTables{i}.Summary,[filename '.xlsx'], 'Sheet', 'Summary');
     for j = 1:size(resTables{i}.Sheets, 2)
         writetable(resTables{i}.Sheets{j},[filename '.xlsx'], 'Sheet', num2str(j));
@@ -186,7 +193,7 @@ for kk = 1:numel(wantedMods)
     toc;
 
     rt2s{kk} = struct;
-    rt2s{kk}.Data = getCombined(datasets, cellstr(num2str([1:NumFilesRead]')), UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions);
+    rt2s{kk}.Data = getCombined(datasets, cellstr(num2str([1:NumFilesRead]')), params.UniqueColumns, params.UniqueCombineFunctions, params.UniqueClassFunctions, params.SingleColumns, params.SingleClassFunctions);
     rt2s{kk}.Name = wantedMod;
     writetable(rt2s{kk}.Data,fullfile(resfolder, [wantedMod '.csv']));
 end
@@ -215,8 +222,8 @@ if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Params'))
 end
 
 fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', ['proteins_' completeTime '.txt']),'w');
-for i = 1 : numel(wantedGenes)
-    fprintf(fid, '%s\n', wantedGenes{i});
+for i = 1 : numel(params.wantedGenes)
+    fprintf(fid, '%s\n', params.wantedGenes{i});
 end
 fclose(fid);
 
