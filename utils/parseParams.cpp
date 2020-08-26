@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   03:04:47, 05-Aug-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 15:48:58, 26-Aug-2020
+* @Last Modified time: 15:56:13, 26-Aug-2020
 */
 
 #include <iostream>
@@ -95,8 +95,8 @@ returned parseParams(const std::string& fname){
 			t = 1;
 			break;
 		default:
-			std::cout << "unsupported type" << std::endl;
-			break;
+			std::cout << "unsupported filetype" << std::endl;
+			return ret;
 	}
 
 	std::vector<std::string> names;
