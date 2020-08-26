@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   03:04:47, 05-Aug-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 13:39:45, 26-Aug-2020
+* @Last Modified time: 15:48:58, 26-Aug-2020
 */
 
 #include <iostream>
@@ -71,6 +71,7 @@ struct returned {
 	matlab::data::Array m;
 };
 
+//Hash a cstr
 constexpr unsigned int hash(const char *s, int off = 0) {                        
     return !s[off] ? 5381 : (hash(s, off+1)*33) ^ s[off];                           
 } 
@@ -102,7 +103,7 @@ returned parseParams(const std::string& fname){
 	std::vector<matlab::data::Array> mvalues;
 
 	std::ifstream fin;
-	fin.open("params.params");
+	fin.open("params.p");
 
 	bool p = 0;
 
@@ -110,7 +111,7 @@ returned parseParams(const std::string& fname){
 	while(fin.peek()!=EOF){
 		std::getline(fin, l);
 
-		if (l.length()==0) continue;
+		if (l.length()==0 || l.at(0)=='#') continue;
 
 		if (l.at(0) == '[' && l.at(l.length()-1) == ']') {
 			if (l.compare(1, l.length()-2, fname)==0 || l.compare(1, l.length()-2, "GLOBAL")==0) {
@@ -154,6 +155,7 @@ returned parseParams(const std::string& fname){
 					switch (t) {
 						case 0:
 							arr = factory.createCharArray(v);
+							break;
 					}
 				}
 				mvalues.push_back(arr);
