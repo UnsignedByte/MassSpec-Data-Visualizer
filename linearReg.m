@@ -5,31 +5,41 @@ addpath('utils');
 % Turn off file exists warning
 warning('OFF', 'MATLAB:mkdir:DirectoryExists')
 
-name = input('Dataset Name:', 's');
+mex -setup c++
+mex 'utils/parseParams.cpp'
+
+% params = struct;
+% params = mergeStruct(parseParams([mfilename '.m']), params);
+
+params = parseParams([mfilename '.m']);
+
+if ~isfield(params, "name")
+    params.name = input('Dataset Name:', 's');
+end
 % get id of base file
 
 % read parameters
-pfolder = fullfile('Results', name, 'Params');
+pfolder = fullfile('Results', params.name, 'Params');
 allParams = getLatestParams(pfolder);
 wantedMods = splitlines(fileread(fullfile(pfolder, allParams('mods'))));
 wantedMods = wantedMods(~cellfun('isempty', wantedMods)); %remove empty
 
-if ~isfolder(fullfile('Results', name))
-    disp(['Missing HeatMap for ' name '. combinedHM_v2 must be run on the dataset before linear regression analysis can be done.']);
+if ~isfolder(fullfile('Results', params.name))
+    disp(['Missing HeatMap for ' params.name '. combinedHM_v2 must be run on the dataset before linear regression analysis can be done.']);
     return;
 end
 
-if ~isfolder(fullfile('Results', name, 'Regression'))
-    mkdir(fullfile('Results', name, 'Regression'));
+if ~isfolder(fullfile('Results', params.name, 'Regression'))
+    mkdir(fullfile('Results', params.name, 'Regression'));
 end
 
-parentF = fullfile('Results', name, 'Regression');
+parentF = fullfile('Results', params.name, 'Regression');
 
 jsonOut = cell(1, numel(wantedMods));
 
 for i = 1:numel(wantedMods)
     % read in heatmap data
-    sumdat = readtable(fullfile('Results', name, 'HeatMap', [wantedMods{i} '.csv']));
+    sumdat = readtable(fullfile('Results', params.name, 'HeatMap', [wantedMods{i} '.csv']));
     % parse out only classes with no contaminant
     sumdat = sumdat(((sumdat.Row_Type-sumdat.Contaminant) == 1),1:end-5);
     % save only data columns
@@ -101,7 +111,7 @@ for i = 1:numel(wantedMods)
     jsonOut{i}.combined = fileread(fname);
 end
 
-fid = fopen(fullfile('Results', name, 'Raws', 'linearReg.json'), 'w');
+fid = fopen(fullfile('Results', params.name, 'Raws', 'linearReg.json'), 'w');
 fprintf(fid, jsonencode(jsonOut));
 fclose(fid);
 

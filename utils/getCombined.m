@@ -81,7 +81,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
 
             % code to find the reverses and contaminants and flag them
             %for removal.
-            Result(j, end-1) = 1;
+            Result(j, end-1) = 0;
             % If it has any contams, skip
             if       ~(isempty(strfind(ProteinNames{j,1},'Common contaminant')) ...
                     && isempty(strfind(ProteinNames{j,1},'eratin, type')) ...
@@ -113,7 +113,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
                 currInd = length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k;
                 ClassResult(end,currInd) = SingleClassFunctions{k}(Result(startJ:j,currInd));
             end
-            ClassResult(end,end-1) = any(Result(startJ:j, end-1)); %add flags
+            ClassResult(end,end-1) = any(Result(startJ:j, end-1)==2)*2; %add flags
             ClassResult(end,end) = i;
             realI = realI + 1;
         end
