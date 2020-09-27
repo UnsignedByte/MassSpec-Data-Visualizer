@@ -1,7 +1,9 @@
 source("utils/rtools.r");
 
-list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "svglite", "stringr", "jsonlite", "base64enc")
+list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "svglite", "stringr", "jsonlite", "base64enc", "Rcpp")
 install_missing(list.packages)
+
+print(sourceCpp('utils/parseParams.cpp'))
 
 futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger");
 

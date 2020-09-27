@@ -43,7 +43,7 @@ for i = 1:numel(wantedMods)
     % parse out only classes with no contaminant
     sumdat = sumdat(((sumdat.Row_Type-sumdat.Contaminant) == 1),1:end-5);
     % save only data columns
-    sumdat = sumdat(:,cellfun(@(x) startsWith(x, 'x_OfSpectra_'), sumdat.Properties.VariableNames));
+    sumdat = sumdat(:,cellfun(@(x) startsWith(x, 'x_OfSpectra_'), sumdat.Properties.VariableNames)); % # spectra from each file
     mkdir(fullfile(parentF, wantedMods{i}));
     disp(['Parsing mod ' wantedMods{i}]);
     cfig = figure('visible', 'off');

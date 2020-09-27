@@ -24,8 +24,6 @@ params.SingleClassFunctions = {@max}; %functions to use for each dataset when co
 params.proteins = {"All"};
 params.mods = {};
 
-%% File Selection
-
 params = mergeStruct(parseParams([mfilename '.m']), params);
 
 %select data files
