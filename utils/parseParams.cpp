@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   03:04:47, 05-Aug-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 09:00:58, 06-Oct-2020
+* @Last Modified time: 12:06:49, 06-Oct-2020
 */
 
 #include <iostream>
@@ -13,9 +13,7 @@
 #include <locale>
 #include <regex>
 
-// struct undef {
-// 	createScalar()
-// }
+// [[Rcpp::plugins("cpp17")]]
 
 #if __has_include(<mex.hpp>)
 #include <mex.hpp>
@@ -41,15 +39,45 @@ namespace helper {
 		return factory.createCellArray({1, l});
 	}
 
-	NamedArray createNamed(std::vector<std::string> names) {
-		return factory.createStructArray({1,1}, names);
+	NamedArray createNamed(std::vector<std::string> names, std::vector<Value> values) {
+		NamedArray n = factory.createStructArray({1,1}, names);
+		for (int i = 0; i < names.size(); i++){
+			n[0][names[i]] = values[i];
+		}
+		return n;
 	}
 };
 #elif __has_include("Rcpp.h")
 #include "Rcpp.h"
-//pass
+using Value = SEXP;
+using Array = Rcpp::List;
+using NamedArray = Rcpp::List;
+
+namespace helper {
+	template <typename Numeric>
+	Value createNumeric(Numeric i) {
+		return Rcpp::NumericVector::create(i);
+	}
+
+	template <typename Str>
+	Value createString(Str s) {
+		return Rcpp::CharacterVector::create(s);
+	}
+
+	Array createList(size_t l) {
+		return Rcpp::List(l);
+	}
+
+	NamedArray createNamed(std::vector<std::string> names, std::vector<Value> values) {
+		Rcpp::List n;
+		for (int i = 0; i < names.size(); i++){
+			n[names[i]] = values[i];
+		}
+		return n;
+	}
+};
 #else
-// bool factory;
+// no file, won't compile.
 #endif
 
 // trim from start (in place)
@@ -104,7 +132,7 @@ constexpr unsigned int hash(const char *s, int off = 0) {
 	return !s[off] ? 5381 : (hash(s, off+1)*33) ^ s[off];
 } 
 
-NamedArray parseParams(const std::string& fname){
+NamedArray parse(const std::string& fname){
 	std::size_t splitter = fname.find_last_of('.');
 
 	std::string type = fname.substr(splitter+1);
@@ -162,10 +190,7 @@ NamedArray parseParams(const std::string& fname){
 		}
 	}
 
-	NamedArray ret = helper::createNamed(names);
-	for (int i = 0; i < names.size(); i++){
-		ret[0][names[i]] = mvalues[i];
-	}
+	NamedArray ret = helper::createNamed(names, mvalues);
 
 	return ret;
 }
@@ -187,34 +212,34 @@ public:
 	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> convert;
 
 	// Assign outputs
-		outputs[0] = parseParams(convert.to_bytes(inp[0]));
+		outputs[0] = parse(convert.to_bytes(inp[0]));
   }
 
   void checkArguments(matlab::mex::ArgumentList outputs, matlab::mex::ArgumentList inputs) {
-	if (inputs[0].getType() != matlab::data::ArrayType::CHAR)
-	{
-	  matlabPtr->feval(u"error", 0, 
-		  std::vector<matlab::data::Array>({ factory.createScalar("Input must be a char array") }));
-	}
+		if (inputs[0].getType() != matlab::data::ArrayType::CHAR)
+		{
+		  matlabPtr->feval(u"error", 0, 
+			  std::vector<matlab::data::Array>({ factory.createScalar("Input must be a char array") }));
+		}
 
-	if (inputs.size() > 1) {
-	  matlabPtr->feval(u"error", 0, 
-		  std::vector<matlab::data::Array>({ factory.createScalar("parseParams only accepts one input") }));
-	}
+		if (inputs.size() > 1) {
+		  matlabPtr->feval(u"error", 0, 
+			  std::vector<matlab::data::Array>({ factory.createScalar("parseParams only accepts one input") }));
+		}
 
-	if (outputs.size() > 1) {
-	  matlabPtr->feval(u"error", 0, 
-		  std::vector<matlab::data::Array>({ factory.createScalar("Only one output is returned") }));
-	}
+		if (outputs.size() > 1) {
+		  matlabPtr->feval(u"error", 0, 
+			  std::vector<matlab::data::Array>({ factory.createScalar("Only one output is returned") }));
+		}
   }
 };
 #elif __has_include("Rcpp.h")
 #include "Rcpp.h"
 
 // [[Rcpp::export]]
-Rcpp::List rParse(Rcpp::CharacterVector ff){
-	std::string fname = Rcpp::as(ff);
-	cout << fname << endl;
+Rcpp::List parseParams(Rcpp::CharacterVector ff){
+	std::string fname = Rcpp::as<std::string>(ff);
+	return parse(fname);
 }
 #else
 // bool factory;
