@@ -4,7 +4,7 @@ addpath('utils')
 
 % Add parse parameters thing
 mex -setup c++
-mex 'utils/parseParams.cpp'
+mex -v CXXFLAGS="\$CXXFLAGS -std=c++17" utils/parseParams.cpp
 
 params = struct;
 

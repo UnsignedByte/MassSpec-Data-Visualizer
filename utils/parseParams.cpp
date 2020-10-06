@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   03:04:47, 05-Aug-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 15:56:13, 26-Aug-2020
+* @Last Modified time: 09:00:58, 06-Oct-2020
 */
 
 #include <iostream>
@@ -13,50 +13,82 @@
 #include <locale>
 #include <regex>
 
+// struct undef {
+// 	createScalar()
+// }
+
+#if __has_include(<mex.hpp>)
 #include <mex.hpp>
 #include <mexAdapter.hpp>
-// #include <Rcpp.h>
+matlab::data::ArrayFactory factory;
+
+using Value = matlab::data::Array;
+using Array = matlab::data::CellArray;
+using NamedArray = matlab::data::Array;
+
+namespace helper {
+	template <typename Numeric>
+	Value createNumeric(Numeric i) {
+		return factory.createScalar(i);
+	}
+
+	template <typename Str>
+	Value createString(Str s) {
+		return factory.createCharArray(s);
+	}
+
+	Array createList(size_t l) {
+		return factory.createCellArray({1, l});
+	}
+
+	NamedArray createNamed(std::vector<std::string> names) {
+		return factory.createStructArray({1,1}, names);
+	}
+};
+#elif __has_include("Rcpp.h")
+#include "Rcpp.h"
+//pass
+#else
+// bool factory;
+#endif
 
 // trim from start (in place)
 static inline void ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
-        return !std::isspace(ch);
-    }));
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+		return !std::isspace(ch);
+	}));
 }
 
 // trim from end (in place)
 static inline void rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
+	s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+		return !std::isspace(ch);
+	}).base(), s.end());
 }
 
 // trim from both ends (in place)
 static inline void trim(std::string &s) {
-    ltrim(s);
-    rtrim(s);
+	ltrim(s);
+	rtrim(s);
 }
 
 // trim from start (copying)
 static inline std::string ltrim_copy(std::string s) {
-    ltrim(s);
-    return s;
+	ltrim(s);
+	return s;
 }
 
 // trim from end (copying)
 static inline std::string rtrim_copy(std::string s) {
-    rtrim(s);
-    return s;
+	rtrim(s);
+	return s;
 }
 
 // trim from both ends (copying)
 static inline std::string trim_copy(std::string s) {
-    trim(s);
-    return s;
+	trim(s);
+	return s;
 }
-
-std::shared_ptr<matlab::engine::MATLABEngine> matlabPtr;
-matlab::data::ArrayFactory factory;
 
 struct var {
 	int type;
@@ -67,40 +99,19 @@ struct var {
 	std::vector<std::string> strArr;
 };
 
-struct returned {
-	matlab::data::Array m;
-};
-
 //Hash a cstr
-constexpr unsigned int hash(const char *s, int off = 0) {                        
-    return !s[off] ? 5381 : (hash(s, off+1)*33) ^ s[off];                           
+constexpr unsigned int hash(const char *s, int off = 0) {
+	return !s[off] ? 5381 : (hash(s, off+1)*33) ^ s[off];
 } 
 
-returned parseParams(const std::string& fname){
-	returned ret;
-
+NamedArray parseParams(const std::string& fname){
 	std::size_t splitter = fname.find_last_of('.');
 
 	std::string type = fname.substr(splitter+1);
 	std::string name = fname.substr(0, splitter-1);
 
-	int t;
-
-	switch (hash(type.c_str())) {
-		case hash("m"):
-			t = 0;
-			//ret.m = matlab::data::Struct
-			break;
-		case hash("r"):
-			t = 1;
-			break;
-		default:
-			std::cout << "unsupported filetype" << std::endl;
-			return ret;
-	}
-
 	std::vector<std::string> names;
-	std::vector<matlab::data::Array> mvalues;
+	std::vector<Value> mvalues;
 
 	std::ifstream fin;
 	fin.open("params.p");
@@ -134,82 +145,77 @@ returned parseParams(const std::string& fname){
 					objs.push_back(l);
 				}
 
-				switch (t) {
-					case 0:
-						matlab::data::CellArray arr = factory.createCellArray({1, objs.size()});
-						for(int i = 0; i < objs.size(); i++){
-							arr[i] = factory.createCharArray(objs[i].c_str());
-						}
-						mvalues.push_back(arr);
-						break;
+				Array arr = helper::createList(objs.size());
+				for(int i = 0; i < objs.size(); i++){
+					arr[i] = helper::createString(objs[i].c_str());
 				}
+				mvalues.push_back(arr);
 			} else {
-				matlab::data::Array arr; 
+				Value arr; 
 				if (std::regex_match(v, std::regex("^[0-9]+(\\.[0-9]+)?$"))) {
-					switch (t) {
-						case 0:
-							arr = factory.createScalar(std::stod(v));
-							break;
-					}
+					arr = helper::createNumeric(std::stod(v));
 				} else {
-					switch (t) {
-						case 0:
-							arr = factory.createCharArray(v);
-							break;
-					}
+					arr = helper::createString(v);
 				}
 				mvalues.push_back(arr);
 			}
 		}
 	}
 
-	switch(t) {
-		case 0:
-			ret.m = factory.createStructArray({1, 1}, names);
-			for (int i = 0; i < names.size(); i++){
-				ret.m[0][names[i]] = mvalues[i];
-			}
-			break;
+	NamedArray ret = helper::createNamed(names);
+	for (int i = 0; i < names.size(); i++){
+		ret[0][names[i]] = mvalues[i];
 	}
 
 	return ret;
 }
-
+#if __has_include(<mex.hpp>)
 class MexFunction : public matlab::mex::Function {
 public:
+	std::shared_ptr<matlab::engine::MATLABEngine> matlabPtr;
   void operator()(matlab::mex::ArgumentList outputs, matlab::mex::ArgumentList inputs) {
   	matlabPtr = getEngine();
 
-    // Validate arguments
-    checkArguments(outputs, inputs);
+	// Validate arguments
+	checkArguments(outputs, inputs);
 
-    // Convert char arrays to string
-    matlab::data::StringArray inp = matlabPtr->feval(u"string", 
-          std::vector<matlab::data::Array>({ inputs[0] }));
+	// Convert char arrays to string
+	matlab::data::StringArray inp = matlabPtr->feval(u"string", 
+		  std::vector<matlab::data::Array>({ inputs[0] }));
 
-    //convert from std::basic_string<char16_t> to std::string
-    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> convert;
+	//convert from std::basic_string<char16_t> to std::string
+	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>,char16_t> convert;
 
-    // Assign outputs
-    outputs[0] = parseParams(convert.to_bytes(inp[0])).m;
+	// Assign outputs
+		outputs[0] = parseParams(convert.to_bytes(inp[0]));
   }
 
   void checkArguments(matlab::mex::ArgumentList outputs, matlab::mex::ArgumentList inputs) {
-    if (inputs[0].getType() != matlab::data::ArrayType::CHAR)
-    {
-      matlabPtr->feval(u"error", 0, 
-          std::vector<matlab::data::Array>({ factory.createScalar("Input must be a char array") }));
-    }
+	if (inputs[0].getType() != matlab::data::ArrayType::CHAR)
+	{
+	  matlabPtr->feval(u"error", 0, 
+		  std::vector<matlab::data::Array>({ factory.createScalar("Input must be a char array") }));
+	}
 
-    if (inputs.size() > 1) {
-      matlabPtr->feval(u"error", 0, 
-          std::vector<matlab::data::Array>({ factory.createScalar("parseParams only accepts one input") }));
-    }
+	if (inputs.size() > 1) {
+	  matlabPtr->feval(u"error", 0, 
+		  std::vector<matlab::data::Array>({ factory.createScalar("parseParams only accepts one input") }));
+	}
 
-    if (outputs.size() > 1) {
-      matlabPtr->feval(u"error", 0, 
-          std::vector<matlab::data::Array>({ factory.createScalar("Only one output is returned") }));
-    }
+	if (outputs.size() > 1) {
+	  matlabPtr->feval(u"error", 0, 
+		  std::vector<matlab::data::Array>({ factory.createScalar("Only one output is returned") }));
+	}
   }
 };
+#elif __has_include("Rcpp.h")
+#include "Rcpp.h"
 
+// [[Rcpp::export]]
+Rcpp::List rParse(Rcpp::CharacterVector ff){
+	std::string fname = Rcpp::as(ff);
+	cout << fname << endl;
+}
+#else
+// bool factory;
+#endif
