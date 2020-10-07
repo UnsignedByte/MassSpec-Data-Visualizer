@@ -45,12 +45,16 @@ Generates Mod Mapper and Heatmap data. Heatmap data necessary to run most later 
 
 #### Parameters
 
- * `mods.txt` contains a list of newline-separated modifications for the heatmap to generate filtered versions for. `All` refers to no filter.
- * `proteins.txt` contains a list of protein names to use for ModMapper.
+ * `mods`: list of modifications for the heatmap to generate filtered versions for. `All` refers to no filter.
+ * `proteins`: list of protein names to use for ModMapper.
 
 ### [linearReg.m](linearReg.m)
 
 Run using `linearReg` within matlab
+
+#### Parameters
+
+ * `name`: string referring to name of the wanted dataset.
 
 #### Function
 
@@ -59,6 +63,13 @@ Linear regression analysis between data files comparing protein spectral counts.
 ### [vennclustermap.r](vennclustermap.r)
 
 Run using `rscript vennclustermap.r`
+
+#### Parameters
+
+ * `name`: string referring to name of the wanted dataset.
+ * `vennImgSize`: resolution of the venn diagram image in pixels.
+ * `heatmapcount`: total number of rows to select from heatmap
+ * `heatmapcolors`: color palette used to generate gradient for heatmap (low to high).
 
 #### Function
 
