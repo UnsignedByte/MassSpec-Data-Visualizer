@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   03:04:47, 05-Aug-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 12:06:49, 06-Oct-2020
+* @Last Modified time: 18:33:08, 06-Oct-2020
 */
 
 #include <iostream>
@@ -98,18 +98,6 @@ static inline void rtrim(std::string &s) {
 static inline void trim(std::string &s) {
 	ltrim(s);
 	rtrim(s);
-}
-
-// trim from start (copying)
-static inline std::string ltrim_copy(std::string s) {
-	ltrim(s);
-	return s;
-}
-
-// trim from end (copying)
-static inline std::string rtrim_copy(std::string s) {
-	rtrim(s);
-	return s;
 }
 
 // trim from both ends (copying)

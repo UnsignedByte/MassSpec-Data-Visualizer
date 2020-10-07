@@ -3,13 +3,29 @@ source("utils/rtools.r");
 list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "svglite", "stringr", "jsonlite", "base64enc", "Rcpp")
 install_missing(list.packages)
 
-print(sourceCpp('utils/parseParams.cpp'))
+sourceCpp('utils/parseParams.cpp')
+
+
+mm2in <- 0.0393701;
+
+params <- list(
+	vennImgSize = 2800,
+	heatmapcount = 64,
+	linespacing = 1.5,
+	heatmapcolors = list("blue", "white", "red")
+)
+
+params <- mergeList(parseParams('vennclustermap.r'), params);
+
+colors <- colorRamp2(c(0, params$heatmapcount/2, params$heatmapcount), params$heatmapcolors)(seq(0, params$heatmapcount));
 
 futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger");
 
-dataset.name <- readInput("Dataset name:");
+if (!('name' %in% names(params))) {
+	params$name <- readInput("dataset name:");
+}
 
-homedir <- fileExists(file.path("Results",dataset.name), paste("Dataset", dataset.name, "cannot be found. Please run combinedHM to generate HeatMap data before this program is run."));
+homedir <- fileExists(file.path("Results",params$name), paste("Dataset", params$name, "cannot be found. Please run combinedHM to generate HeatMap data before this program is run."));
 
 setwd(homedir);
 
@@ -28,12 +44,6 @@ if (length(dataset.groupids) <= 8) {
 # }
 
 hms <- list.files(path="HeatMap"); #All heatmaps generated
-
-imsize <- 2800
-hmcount <- 64 #number of rows to take for heatmap
-colors <- colorRamp2(c(0, hmcount/2, hmcount), c("blue", "white", "red"))(seq(0, hmcount));
-linespacing <- 1.5;
-mm2in <- 0.0393701;
 
 # Disable Rplots.pdf from generating;
 pdf(NULL)
@@ -62,7 +72,7 @@ genHM <- function(loc, name, data, fnum){
 	hmheight <- max(max_text_height(
 	    rownames(rankdata), 
 	    gp = genHM.colgp
-	  )*hmcount*linespacing, genHM.minheight)
+	  )*params$heatmapcount*params$linespacing, genHM.minheight)
 	rowhmheight <- max_text_height(
 	    rownames(rankdata), 
 	    gp = genHM.rowgp
@@ -76,7 +86,7 @@ genHM <- function(loc, name, data, fnum){
 		col=colors,
 		row_names_gp = genHM.rowgp,
 		column_names_gp = genHM.colgp,
-		width = max(rowhmheight*fnum*linespacing, genHM.minwidth),
+		width = max(rowhmheight*fnum*params$linespacing, genHM.minwidth),
 		height=hmheight
 	)+Heatmap(
 		rankdata[,(fnum+1):NCOL(rankdata)],
@@ -85,7 +95,7 @@ genHM <- function(loc, name, data, fnum){
 		col=colors,
 		row_names_gp = genHM.rowgp,
 		column_names_gp = genHM.colgp,
-		width = max(rowhmheight*(NCOL(rankdata)-fnum)*linespacing, genHM.minwidth),
+		width = max(rowhmheight*(NCOL(rankdata)-fnum)*params$linespacing, genHM.minwidth),
 		height=hmheight
 	)
 	hm2plot <- draw(hm2)
@@ -173,7 +183,7 @@ for(hmid in 1:length(hms)){
 		data <- sapply(1:NROW(combinedf), hm.func, combinedf) # get sort order first
 		data <- data[!is.na(data)] # remove NAs (things that we dont want to include)
 		data <- combinedf[rank(data, ties.method = "first"),] # convert list of sorted to actual data
-		data <- data[1:min(NROW(data), hmcount),] # take the first <hmcount> so the table isnt too big
+		data <- data[1:min(NROW(data), params$heatmapcount),] # take the first <params$heatmapcount> so the table isnt too big
 
 		hm.list[[length(hm.list)+1]] <- genHM(parsedHM[hmid], paste(hm.name, 'ids', sep='_'), data, NCOL(f))
 		rownames(data) <- sapply(rownames(data), function(v) f.geneNames[f.geneNames$Rank_Number==as.numeric(v),"Gene_Name"])
@@ -247,8 +257,8 @@ for(hmid in 1:length(hms)){
 
 		# Output features
 		imagetype="png",
-		height = imsize,
-		width = imsize,
+		height = params$vennImgSize,
+		width = params$vennImgSize,
 		resolution = 300,
 		compression = "lzw",
 		units = 'px',

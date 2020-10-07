@@ -75,3 +75,11 @@ dist_no_na <- function(mat) {
 cv <- function(dat, na.rm=FALSE) {
 	return(sd(dat, na.rm=na.rm)/mean(dat, na.rm=na.rm))
 }
+
+mergeList <- function(original, new) {
+	# Will add fields of new to original if they dont exist in original
+	for (i in names(original)) {
+		new[[i]] = original[[i]]
+	}
+	return(new)
+}

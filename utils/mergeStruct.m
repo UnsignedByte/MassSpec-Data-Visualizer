@@ -1,9 +1,7 @@
-function original = mergeStruct(original, new)
+function new = mergeStruct(original, new)
 	% Will add fields of new to original if they dont exist in original
-	n = fieldnames(new);
+	n = fieldnames(original);
 	for i = 1:length(n)
-		if ~isfield(original, n{i})
-			original.(n{i}) = new.(n{i});
-		end
+		new.(n{i}) = original.(n{i});
 	end
 end
