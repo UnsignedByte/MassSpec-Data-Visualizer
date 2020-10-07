@@ -4,15 +4,36 @@ A data visualizer for Mass Spectrometry data.
 
 ## Changelog
 
+* 2020/10/06: Finished custom `params.p` parsing for R and MATLAB
 * 2020/08/26: Added custom `params.p` for customization
 * 2020/07/28: Added combined plot without colour
 * 2020/07/27: Fixed missing sheets in ModMapper xlsx raws
 
 ## Running
 
-### [Params folder](Params)
+### params.p
 
-Contains parameter files for the various files.
+Parameter file created within the home directory. 
+
+#### Format
+```py
+[GLOBAL]
+# Global parameters here
+
+name = Dataset
+
+[filename.fileextension]
+# File specific parameters here
+
+numericobject = 1.0
+
+stringobject = Hello World!
+
+listobject = [
+stringvalue1
+stringvalue2
+]
+```
 
 ### [combinedHM.m](combinedHM.m)
 

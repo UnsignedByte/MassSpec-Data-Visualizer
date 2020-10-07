@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   03:04:47, 05-Aug-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 18:33:08, 06-Oct-2020
+* @Last Modified time: 18:48:12, 06-Oct-2020
 */
 
 #include <iostream>
@@ -131,6 +131,13 @@ NamedArray parse(const std::string& fname){
 
 	std::ifstream fin;
 	fin.open("params.p");
+	if (!fin.good()) {
+		std::cout << "Missing params.p file. Created in home directory." << std::endl;
+		std::ofstream outfile ("params.p");
+		outfile << "# Find params.p formatting in README.md" << std::endl;
+		outfile.close();
+		fin.open("params.p");
+	}
 
 	bool p = 0;
 
