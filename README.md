@@ -4,7 +4,7 @@ A data visualizer for Mass Spectrometry data.
 
 ## Changelog
 
-* 2020/10/12: Fix JSON saving and loading bugs
+* 2020/10/12: Fix JSON saving and loading bugs, allow nested lists in `params.p`.
 * 2020/10/06: Finished custom `params.p` parsing for R and MATLAB
 * 2020/08/26: Added custom `params.p` for customization
 * 2020/07/28: Added combined plot without colour
