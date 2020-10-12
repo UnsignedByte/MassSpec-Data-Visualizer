@@ -1,0 +1,69 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+name: params
+file_extensions:
+  - p
+scope: source.p
+
+contexts:
+  # The prototype context is prepended to all contexts but those setting
+  # meta_include_prototype: false.
+  prototype:
+    - include: comments
+
+  main:
+    # The main context is the initial starting point of our syntax.
+    # Include other contexts from here (or specify them directly).
+    - include: var
+    - include: fname
+
+  fname:
+    - match: '^\['
+      push:
+        # This is an anonymous context push for brevity.
+        - meta_scope: markup.heading
+        - match: \]$
+          pop: true
+
+  in_list:
+    - meta_include_prototype: false
+    - meta_scope: string.quoted.double.c
+    - match: '\[$'
+      scope: punctuation.definition.string.begin.c
+      push: in_list
+    - match: '^\]$'
+      scope: punctuation.definition.string.end.c
+      pop: true
+
+  var:
+    - match: '^.+(?=\s*=)'
+      scope: entity.other.attribute-name.css
+      push: eq
+
+  eq:
+    - match: '(?<==)\s+(?!\[$)'
+      push: value
+    - match: '\[$'
+      scope: punctuation.definition.string.begin.c
+      push: in_list
+    - match: $\n?
+      pop: true
+
+  value:
+    - meta_scope: string.quoted.double.c
+    - match: '(-)?[0-9]+(\.[0-9]+)?$'
+      scope: constant.numeric.c
+      pop: true
+    - match: $\n?
+      pop: true
+
+  comments:
+    # Comments begin with a '//' and finish at the end of the line.
+    - match: '#'
+      scope: comment.line.p
+      push:
+        # This is an anonymous context push for brevity.
+        - meta_scope: comment.block.python
+        - match: $\n?
+          pop: true

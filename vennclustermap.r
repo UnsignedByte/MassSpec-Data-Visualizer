@@ -5,7 +5,6 @@ install_missing(list.packages)
 
 sourceCpp('utils/parseParams.cpp')
 
-
 mm2in <- 0.0393701;
 
 params <- list(
@@ -16,6 +15,8 @@ params <- list(
 )
 
 params <- mergeList(parseParams('vennclustermap.r'), params);
+print(params)
+
 
 colors <- colorRamp2(c(0, params$heatmapcount/2, params$heatmapcount), params$heatmapcolors)(seq(0, params$heatmapcount));
 

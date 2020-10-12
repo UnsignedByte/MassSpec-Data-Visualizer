@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   03:04:47, 05-Aug-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 17:25:00, 07-Oct-2020
+* @Last Modified time: 15:19:42, 12-Oct-2020
 */
 
 #include <iostream>
@@ -120,16 +120,39 @@ constexpr unsigned int hash(const char *s, int off = 0) {
 	return !s[off] ? 5381 : (hash(s, off+1)*33) ^ s[off];
 } 
 
+
+std::ifstream fin;
+std::vector<std::string> names;
+std::vector<Value> mvalues;
+
+Value parseObject(std::string v) {
+	std::string l;
+	if (v.at(0) == '[' && v.length() == 1) {
+		Array arr;
+		while(fin.peek()!=EOF) {
+			std::getline(fin, l);
+			if (l.at(0) == ']' && l.length() == 1) break;
+			arr.push_back(parseObject(l));
+		}
+		return arr;
+	} else {
+		Value arr;
+		if (std::regex_match(v, std::regex("^[0-9]+(\\.[0-9]+)?$"))) {
+			arr = helper::createNumeric(std::stod(v));
+		} else {
+			arr = helper::createString(v);
+		}
+		return arr;
+	}
+}
+
+
 NamedArray parse(const std::string& fname){
 	std::size_t splitter = fname.find_last_of('.');
 
 	std::string type = fname.substr(splitter+1);
 	std::string name = fname.substr(0, splitter-1);
 
-	std::vector<std::string> names;
-	std::vector<Value> mvalues;
-
-	std::ifstream fin;
 	fin.open("params.p");
 	if (!fin.good()) {
 		std::cout << "Missing params.p file. Created in home directory." << std::endl;
@@ -160,28 +183,7 @@ NamedArray parse(const std::string& fname){
 			std::size_t sp = l.find('=');
 			names.push_back(trim_copy(l.substr(0, sp-1)));
 			std::string v = trim_copy(l.substr(sp+1));
-			if (v.at(0) == '[' && v.length() == 1) {
-				std::vector<std::string> objs;
-				while(fin.peek()!=EOF) {
-					std::getline(fin, l);
-					if (l.at(0) == ']' && l.length() == 1) break;
-					objs.push_back(l);
-				}
-
-				Array arr = helper::createList(objs.size());
-				for(int i = 0; i < objs.size(); i++){
-					arr[i] = helper::createString(objs[i].c_str());
-				}
-				mvalues.push_back(arr);
-			} else {
-				Value arr; 
-				if (std::regex_match(v, std::regex("^[0-9]+(\\.[0-9]+)?$"))) {
-					arr = helper::createNumeric(std::stod(v));
-				} else {
-					arr = helper::createString(v);
-				}
-				mvalues.push_back(arr);
-			}
+			mvalues.push_back(parseObject(v));
 		}
 	}
 
