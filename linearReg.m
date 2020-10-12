@@ -112,36 +112,5 @@ for i = 1:numel(wantedMods)
 end
 
 fid = fopen(fullfile('Results', params.name, 'Raws', 'linearReg.json'), 'w');
-fprintf(fid, jsonencode(jsonOut));
+saveJSON(fid, jsonOut);
 fclose(fid);
-
-% cfig = figure()
-% nm = 4
-% for j = 1:nm
-%     for k = 1:nm
-%         set(0, 'CurrentFigure', cfig);
-%         ax = axes('Parent',cfig);
-%         if k < j
-%             plot(rand(1,(j-1)*nm+k));
-%         elseif k > j
-%             disp('hi');
-%             set(ax, 'Color', [1 1 0.0667]);
-
-
-% f = figure
-% d = (1/8:1/4:1)*2*pi;
-% fill(cos(d), sin(d), [1 1 0.0667])
-% xlim([-sqrt(2) sqrt(2)]/2)
-% ylim([-sqrt(2) sqrt(2)]/2)
-% saveas(f, 'test.svg')
-
-% 1.0000         0         0
-% 1.0000    0.1667    0.0111
-% 1.0000    0.3333    0.0222
-% 1.0000    0.5000    0.0333
-% 1.0000    0.6667    0.0444
-% 1.0000    0.8333    0.0556
-% 1.0000    1.0000    0.0667
-% 1.0000    1.0000    0.3778
-% 1.0000    1.0000    0.6889
-% 1.0000    1.0000    1.0000

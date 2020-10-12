@@ -2,7 +2,7 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 23:48:36, 09-Jun-2020
+# @Last Modified time: 14:47:22, 12-Oct-2020
 
 import csv
 import json
@@ -92,7 +92,11 @@ def insertData(name):
 		filename = os.fsdecode(file)
 		if filename.endswith(".json"):
 			with open(os.path.join(resultsFolder, 'Raws', filename)) as f:
-				data = {**data, **json.load(f)};
+				print(f"Reading {filename}.");
+				loaded = json.load(f);
+				if isinstance(loaded, list):
+					loaded = {filename.rsplit('.',1)[0]:loaded}
+				data = {**data, **loaded};
 
 	return default.replace('$$datainput$$', json.dumps(data)) # Place data into html file
 

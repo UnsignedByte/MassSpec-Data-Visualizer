@@ -213,7 +213,7 @@ if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Raws'))
 end
 
 fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Raws', 'combinedHM.json'), 'w');
-fprintf(fid, jsonencode(Output));
+saveJSON(fid, Output);
 fclose(fid);
 
 if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Params'))
