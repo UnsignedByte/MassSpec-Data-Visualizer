@@ -49,6 +49,12 @@ if isa(TempFiles, 'char')
 end
 NumFilesRead = length(TempFiles);
 
+if isfield(params, 'test_groups') && length(params.test_groups) == NumFilesRead
+    params.test_groups = cell2mat(params.test_groups);
+else
+    params.test_groups = 1:NumFilesRead;
+end
+
 datasetnames = cell(NumFilesRead,1);
 
 origsumdats = cell(NumFilesRead, 1);
@@ -67,7 +73,7 @@ for i = 1 : NumFilesRead
     toc;
 end
 
-fileidtable = table([1:NumFilesRead]', datasetnames, [1:NumFilesRead]', 'VariableNames', {'ID', 'Filename', 'Test_Group'});
+fileidtable = table([1:NumFilesRead]', datasetnames, params.test_groups', 'VariableNames', {'ID', 'Filename', 'Test_Group'});
 
 writetable(fileidtable,fullfile('Results', getResultFolder(TempFiles{1}), 'fileIDs.csv'));
 
