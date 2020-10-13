@@ -15,12 +15,12 @@ warning('OFF', 'MATLAB:table:ModifiedAndSavedVarnames')
 diary on
 
 %% Preference Variables
-params.UniqueColumns = [7]; %Columns to take from each dataset (sorted by max and sum of first elem)
-params.UniqueCombineFunctions = {{@max, @nansum}}; %combined functions across datasets used
-params.UniqueClassFunctions = {@nansum}; %functions to use for each dataset when combining into class
+params.uniqueColumns = [7]; %Columns to take from each dataset (sorted by max and sum of first elem)
+params.uniqueCombineFunctions = {{'max', 'nansum'}}; %combined functions across datasets used
+params.uniqueClassFunctions = {'nansum'}; %functions to use for each dataset when combining into class
 %Will save max and sum as well as values from the datasets
-params.SingleColumns = [11]; %Columns equal across all datasets (will only take one column)
-params.SingleClassFunctions = {@max}; %functions to use for each dataset when combining into class
+params.singleColumns = [11]; %Columns equal across all datasets (will only take one column)
+params.singleClassFunctions = {'max'}; %functions to use for each dataset when combining into class
 params.proteins = {"All"};
 params.mods = {};
 
@@ -199,7 +199,7 @@ for kk = 1:numel(params.mods)
     toc;
 
     rt2s{kk} = struct;
-    rt2s{kk}.Data = getCombined(datasets, cellstr(num2str([1:NumFilesRead]')), params.UniqueColumns, params.UniqueCombineFunctions, params.UniqueClassFunctions, params.SingleColumns, params.SingleClassFunctions);
+    rt2s{kk}.Data = getCombined(datasets, cellstr(num2str([1:NumFilesRead]')), params.uniqueColumns, params.uniqueCombineFunctions, params.uniqueClassFunctions, params.singleColumns, params.singleClassFunctions);
     rt2s{kk}.Name = wantedMod;
     writetable(rt2s{kk}.Data,fullfile(resfolder, [wantedMod '.csv']));
 end

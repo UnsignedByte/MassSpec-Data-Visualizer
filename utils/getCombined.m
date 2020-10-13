@@ -75,7 +75,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
             for k = 1:length(UniqueColumns)
                 currSliceInd = k*NumFilesRead+totUniqueFuncs(k)-length(UniqueCombineFunctions{k});
                 for l = 1:length(UniqueCombineFunctions{k})
-                    Result(j, currSliceInd+l)=UniqueCombineFunctions{k}{l}(Result(j, currSliceInd-NumFilesRead+1:currSliceInd));
+                    Result(j, currSliceInd+l)=feval(UniqueCombineFunctions{k}{l}, Result(j, currSliceInd-NumFilesRead+1:currSliceInd));
                 end
             end
 
@@ -102,16 +102,16 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
             for k = 1:length(UniqueColumns)
                 currSliceInd = (k-1)*NumFilesRead+totUniqueFuncs(k)-length(UniqueCombineFunctions{k});
                 for kk = 1:NumFilesRead
-                    ClassResult(end, currSliceInd+kk) = UniqueClassFunctions{k}(Result(startJ:j,currSliceInd+kk));
+                    ClassResult(end, currSliceInd+kk) = feval(UniqueClassFunctions{k}, Result(startJ:j,currSliceInd+kk));
                 end
                 Slice = ClassResult(end,currSliceInd+1:currSliceInd+NumFilesRead);
                 for l = 1:length(UniqueCombineFunctions{k})
-                    ClassResult(end, k*NumFilesRead+totUniqueFuncs(k)-length(UniqueCombineFunctions{k})+l)=UniqueCombineFunctions{k}{l}(Slice);
+                    ClassResult(end, k*NumFilesRead+totUniqueFuncs(k)-length(UniqueCombineFunctions{k})+l)=feval(UniqueCombineFunctions{k}{l}, Slice);
                 end
             end
             for k = 1:length(SingleColumns)
                 currInd = length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k;
-                ClassResult(end,currInd) = SingleClassFunctions{k}(Result(startJ:j,currInd));
+                ClassResult(end,currInd) = feval(SingleClassFunctions{k}, Result(startJ:j,currInd));
             end
             ClassResult(end,end-1) = any(Result(startJ:j, end-1)==2)*2; %add flags
             ClassResult(end,end) = i;
@@ -214,7 +214,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     %label max and sum
     for j = 1:length(UniqueColumns)
         for jj = 1:length(UniqueCombineFunctions{j})
-            HeaderFileString{3+j*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+jj} = [func2str(UniqueCombineFunctions{j}{jj}) '_' TempStruct(1).dat.Properties.VariableNames{UniqueColumns(j)}];
+            HeaderFileString{3+j*NumFilesRead+totUniqueFuncs(j)-length(UniqueCombineFunctions{j})+jj} = [UniqueCombineFunctions{j}{jj} '_' TempStruct(1).dat.Properties.VariableNames{UniqueColumns(j)}];
         end
     end
 
