@@ -2,7 +2,7 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 14:45:28, 14-Oct-2020
+# @Last Modified time: 14:53:20, 14-Oct-2020
 
 import csv
 import json
@@ -20,6 +20,9 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+def title(s):
+	return s[0].upper() + s[1:]
 
 root = os.path.abspath(os.path.dirname(__file__)) # Root directory
 
@@ -95,7 +98,7 @@ def insertData(name):
 				print(f"Reading {filename}.");
 				loaded = json.load(f);
 				if isinstance(loaded, list):
-					loaded = {filename.rsplit('.',1)[0]:loaded}
+					loaded = {title(filename.rsplit('.',1)[0]):loaded}
 				data = {**data, **loaded};
 
 	return default.replace('$$datainput$$', json.dumps(data)) # Place data into html file

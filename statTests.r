@@ -21,7 +21,7 @@ homedir <- fileExists(file.path("Results",params$name), paste("Dataset", params$
 
 setwd(homedir);
 
-dir.create("statTests", showWarnings = FALSE)
+dir.create("StatTests", showWarnings = FALSE)
 
 fids <- read.csv("fileIDs.csv");
 
@@ -39,7 +39,7 @@ if (length(dataset.groupids) > 10){
 }
 
 # json list
-jsonData <- list(statTests=list())
+jsonData <- list()
 # all pairs of files
 cnames <- combn(dataset.groupids, 2)
 
@@ -47,6 +47,7 @@ cnames <- combn(dataset.groupids, 2)
 
 for(hmid in 1:length(hms)){
 	hm <- hms[hmid]
+	hmname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1];
 	f <- read.csv(file.path("HeatMap", hm));
 	groups <- list();
 
@@ -69,9 +70,9 @@ for(hmid in 1:length(hms)){
 				statTables[[stat]][row,col] <- params$stats[[stat]](p[[1]], p[[2]]);
 			}
 		}
-		write.csv(statTables[[stat]], file=file.path("StatTests", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], '_', stat, '.csv', sep='')))
+		write.csv(statTables[[stat]], file=file.path("StatTests", hmname, '_', stat, '.csv', sep='')))
 	}
-	jsonData$statTests[[hm]] <- statTables;
+	jsonData$StatTests[[hmname]] <- statTables;
 	# print(statTables);
 }
 write(toJSON(jsonData, auto_unbox=TRUE), file=file.path("Raws", "statTests.json"));
