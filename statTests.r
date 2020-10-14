@@ -33,8 +33,8 @@ jsonData <- list(VennDiagram = list(), ClusterHeatMap = list())
 
 parsedHM <- str_match(hms, "(.+)\\.csv")[,2]
 
-if (length(dataset.groupids) > 10){
-	message("Number of test groups exceeds 10. 2d statistics tests cannot be calculated unless a list of pairs is provided.")
+if (length(dataset.groupids) > 50){
+	message("Number of test groups exceeds 50. 2d statistics tests will be calculated unless a list of pairs is provided.")
 	stopQuietly();
 }
 
@@ -42,8 +42,6 @@ if (length(dataset.groupids) > 10){
 jsonData <- list()
 # all pairs of files
 cnames <- combn(dataset.groupids, 2)
-
-
 
 for(hmid in 1:length(hms)){
 	hm <- hms[hmid]
@@ -72,7 +70,7 @@ for(hmid in 1:length(hms)){
 		}
 		write.csv(statTables[[stat]], file=file.path("StatTests", paste(hmname, '_', stat, '.csv', sep='')))
 	}
-	jsonData$StatTests[[hmname]] <- statTables;
+	jsonData$StatTests[[hmid]] <- list(name=hmname, data=statTables);
 	# print(statTables);
 }
 write(toJSON(jsonData, auto_unbox=TRUE), file=file.path("Raws", "statTests.json"));
