@@ -15,8 +15,7 @@ params <- list(
 )
 
 params <- mergeList(parseParams('vennclustermap.r'), params);
-print(params)
-
+# print(params)
 
 colors <- colorRamp2(c(0, params$heatmapcount/2, params$heatmapcount), params$heatmapcolors)(seq(0, params$heatmapcount));
 
@@ -37,7 +36,7 @@ fids <- read.csv("fileIDs.csv");
 
 dataset.groupids <- unique(fids$Test_Group) #unique test groups
 if (length(dataset.groupids) <= 8) {
-	palette <- brewer.pal(length(dataset.groupids), "Pastel2")
+	palette <- brewer.pal(8, "Pastel2")[1:length(dataset.groupids)]
 }
 # if (length(dataset.groupids) == 1){
 # 	print("Not enough test groups to compare!")
@@ -128,16 +127,18 @@ for(hmid in 1:length(hms)){
 	f <- f[Reduce("&", list(f$Row_Type==1, f$Contaminant == 0)), ]; #take only uncontamiated classes
 	# f <- f[f$contaminant==0,]
 	
-	groups <- matrix(0L, nrow=NROW(f),ncol=length(dataset.groupids)); # get final test groups averaged
-	for(x in 1:length(dataset.groupids)){
-		fnames <- fids$ID[fids$Test_Group==dataset.groupids[x]] # get file ids in this group
-		colnames <- paste("x_OfSpectra", fnames, sep="_");
-		selected <- f[,colnames];
-		if (NCOL(selected) > 1){
-			selected <- rowMeans(selected, na.rm=TRUE);
-		}
-		groups[,x] = selected;
-	}
+	groups <- getGroups(f, fids, dataset.groupids);
+
+	# groups <- matrix(0L, nrow=NROW(f),ncol=length(dataset.groupids)); # get final test groups averaged
+	# for(x in 1:length(dataset.groupids)){
+	# 	fnames <- fids$ID[fids$Test_Group==dataset.groupids[x]] # get file ids in this group
+	# 	colnames <- paste("x_OfSpectra", fnames, sep="_");
+	# 	selected <- f[,colnames];
+	# 	if (NCOL(selected) > 1){
+	# 		selected <- rowMeans(selected, na.rm=TRUE);
+	# 	}
+	# 	groups[,x] = selected;
+	# }
 
 	if (length(dataset.groupids) > 1){
 		maxgroup <- apply(groups, 1, function(x) max(x, na.rm=TRUE));

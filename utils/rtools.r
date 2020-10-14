@@ -83,3 +83,17 @@ mergeList <- function(original, new) {
 	}
 	return(new)
 }
+
+getGroups <- function(data, fids, groupids) {
+	groups <- matrix(0L, nrow=NROW(data),ncol=length(groupids)); # get final test groups averaged
+	for(x in 1:length(groupids)){
+		fnames <- fids$ID[fids$Test_Group==groupids[x]] # get file ids in this group
+		colnames <- paste("x_OfSpectra", fnames, sep="_");
+		selected <- data[,colnames];
+		if (NCOL(selected) > 1){
+			selected <- rowMeans(selected, na.rm=TRUE);
+		}
+		groups[,x] = selected;
+	}
+	return(groups)
+}

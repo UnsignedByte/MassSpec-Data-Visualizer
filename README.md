@@ -68,8 +68,8 @@ Run using `rscript vennclustermap.r`
 #### Parameters
 
  * `name`: string referring to name of the wanted dataset.
- * `vennImgSize`: resolution of the venn diagram image in pixels.
- * `heatmapcount`: total number of rows to select from heatmap
+ * `vennImgSize`: resolution of the venn diagram image in pixels. [default 2800]
+ * `heatmapcount`: total number of rows to select from heatmap [default 64]
  * `heatmapcolors`: color palette used to generate gradient for heatmap (low to high).
 
 #### Function
