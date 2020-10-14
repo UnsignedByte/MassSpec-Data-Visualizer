@@ -69,7 +69,7 @@ for(hmid in 1:length(hms)){
 				statTables[[stat]][row,col] <- params$stats[[stat]](p[[1]], p[[2]]);
 			}
 		}
-		write.csv(statTables[[stat]], file=file.path("statTests", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], '_', stat, '.csv', sep='')))
+		write.csv(statTables[[stat]], file=file.path("StatTests", paste(unlist(strsplit(hm, ".", fixed=TRUE))[1], '_', stat, '.csv', sep='')))
 	}
 	jsonData$statTests[[hm]] <- statTables;
 	# print(statTables);

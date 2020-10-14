@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 17:16:34, 10-Jun-2020
+* @Last Modified time: 14:49:59, 14-Oct-2020
 */
 
 data = $$datainput$$;
@@ -209,6 +209,7 @@ function createGenerator(button, type){
   }
 }
 
+// function to color table
 function colorTable(color){
   if (color){
     let nums = [];
@@ -290,38 +291,40 @@ for(const x of Object.keys(data)){
 
 var footer = $('.box .row.footer');
 
-var footerElems = {
-  isColoured:false
-};
-
+var footerElems = {};
 
 footerElems.pickrLow = addPickr(footer, "#FFFFFF");
 footerElems.pickrLow._root.button.textContent = 'Low Color';
 footerElems.pickrHigh = addPickr(footer, "#FF0000");
 footerElems.pickrHigh._root.button.textContent = 'High Color';
+//Column selectors
 $('<input/>', {
   type:"number",
   min:"0",
-  placeholder:"Row Low"
+  placeholder:"Col Low"
   }).change(function(){
     this.value = Math.max(1, Math.floor(this.value));
-    footerElems.isColoured = false;
   }).appendTo(footer);
 $('<input/>', {
   type:"number",
   min:"0",
-  placeholder:"Row High"
+  placeholder:"Col High"
   }).change(function(){
     this.value = Math.max(1, Math.floor(this.value));
-    footerElems.isColoured = false;
   }).appendTo(footer);
+//Color tables button
 $('<input/>', {
   type:"button",
   value:"Color Table"
   }).click(function(){
-    // console.log("colorTable", footerElems.isColoured);
-    footerElems.isColoured = !footerElems.isColoured;
-    colorTable(footerElems.isColoured);
+    colorTable(true);
+  }).appendTo(footer);
+//Clear colors button
+$('<input/>', {
+  type:"button",
+  value:"Clear Colors"
+  }).click(function(){
+    colorTable(false);
   }).appendTo(footer);
 
 //----------------------------------------------------------- MISC UTILITY FUNCTIONS -----------------------------------------------------------
