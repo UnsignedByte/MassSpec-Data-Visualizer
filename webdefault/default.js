@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 14:49:59, 14-Oct-2020
+* @Last Modified time: 16:11:41, 14-Oct-2020
 */
 
 data = $$datainput$$;
@@ -141,8 +141,16 @@ function createGenerator(button, type){
     button.addClass('selected');
     let submenu = $('#submenu');
     submenu.empty();
+    $("#sheetbar").empty();
+    $("#tables").empty();
     let sel;
     switch(type){
+      case 'FileIds':
+        generateSheet(
+            [data.FileIds],
+            ["IDs"],
+            ['basic'])
+        break;
       case 'HeatMap':
         $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
         sel = $('<select/>', {name:"mod"}).appendTo(submenu);
@@ -192,17 +200,35 @@ function createGenerator(button, type){
       case 'ClusterHeatMap':
 	      $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
         sel = $('<select/>', {name:"mod"}).appendTo(submenu);
-        data.VennDiagram.map((x, i)=>{
-        	$('<option/>', {value:i, text:x.Name}).appendTo(sel);
+        data.ClusterHeatMap.map((x, i)=>{
+        	$('<option/>', {value:i, text:x.name}).appendTo(sel);
         })
         longButton("Generate Sheet", ()=>{
           let index = $('#submenu select[name="mod"] option:selected').val(); // index of selected gene
           $("#tables").empty()
+          let sheets = data.ClusterHeatMap[index].sheets;
 
           generateSheet(
-            [data.ClusterHeatMap[index].Data],
-            ["Heatmap"],
-            ['html']) // all html sheets
+            sheets.map(x=>x.data),
+            sheets.map(x=>x.name),
+            fillArray('html', sheets.length)) // all html sheets
+        }).appendTo(submenu)
+        break;
+      case 'StatTests':
+        $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"mod"}).appendTo(submenu);
+        data.StatTests.map((x, i)=>{
+          $('<option/>', {value:i, text:x.name}).appendTo(sel);
+        })
+        longButton("Generate Sheet", ()=>{
+          let index = $('#submenu select[name="mod"] option:selected').val(); // index of selected gene
+          $("#tables").empty()
+          let sheets = data.StatTests[index].data;
+
+          generateSheet(
+            Object.values(sheets),
+            Object.keys(sheets),
+            fillArray('basic', Object.keys(sheets).length)) // all basic sheets
         }).appendTo(submenu)
         break;
     }
