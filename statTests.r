@@ -47,7 +47,7 @@ cnames <- combn(dataset.groupids, 2)
 
 for(hmid in 1:length(hms)){
 	hm <- hms[hmid]
-	hmname <- paste(unlist(strsplit(hm, ".", fixed=TRUE))[1];
+	hmname <- unlist(strsplit(hm, ".", fixed=TRUE))[1];
 	f <- read.csv(file.path("HeatMap", hm));
 	groups <- list();
 
@@ -70,7 +70,7 @@ for(hmid in 1:length(hms)){
 				statTables[[stat]][row,col] <- params$stats[[stat]](p[[1]], p[[2]]);
 			}
 		}
-		write.csv(statTables[[stat]], file=file.path("StatTests", hmname, '_', stat, '.csv', sep='')))
+		write.csv(statTables[[stat]], file=file.path("StatTests", paste(hmname, '_', stat, '.csv', sep='')))
 	}
 	jsonData$StatTests[[hmname]] <- statTables;
 	# print(statTables);
