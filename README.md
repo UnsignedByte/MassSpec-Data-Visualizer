@@ -4,7 +4,7 @@ A data visualizer for Mass Spectrometry data.
 
 ## Changelog
 
-* 2020/10/14: Add `clear colors` button for column coloring in web viewer.
+* 2020/10/14: Add `clear colors` button for column coloring in web viewer and implement remaining statistics tests.
 * 2020/10/13: Add stat tests applied to test groups (`statTests.r`).
 * 2020/10/12: Fix JSON saving and loading bugs, allow nested lists in `params.p`.
 * 2020/10/06: Finished custom `params.p` parsing for R and MATLAB

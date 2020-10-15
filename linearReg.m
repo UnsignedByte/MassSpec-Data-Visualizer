@@ -6,7 +6,7 @@ addpath('utils');
 warning('OFF', 'MATLAB:mkdir:DirectoryExists')
 
 mex -setup c++
-mex 'utils/parseParams.cpp'
+mex -v CXXFLAGS="\$CXXFLAGS -std=c++17" utils/parseParams.cpp
 
 % params = struct;
 % params = mergeStruct(parseParams([mfilename '.m']), params);
@@ -80,7 +80,7 @@ for i = 1:numel(wantedMods)
                 end
                 % plot(rand(1,(j-1)*nm+file));
 
-%                 set(gca, 'units', 'normalized'); %Just making sure it's normalized
+                % set(gca, 'units', 'normalized'); %Just making sure it's normalized
                 set(ax,'xtick',[], 'ytick', []);
                 
                 % disp([file-1 nm-j 1 1]/nm)
@@ -103,12 +103,14 @@ for i = 1:numel(wantedMods)
                 fname = fullfile(parentF, wantedMods{i}, ['File_' num2str(file)], ['log_File_' num2str(j) '.svg']);
                 saveas(f, fname);
                 jsonOut{i}.raw{file, j}.mod = fileread(fname);
+                jsonOut{i}.raw{file, j}.name = [num2str(file) '_' num2str(j)];
             hold off
         end
     end
     fname = fullfile(parentF, wantedMods{i}, 'combined.svg');
     saveas(cfig, fname);
     jsonOut{i}.combined = fileread(fname);
+    jsonOut{i}.raw = jsonOut{i}.raw(~cellfun('isempty',jsonOut{i}.raw));
 end
 
 fid = fopen(fullfile('Results', params.name, 'Raws', 'linearReg.json'), 'w');
