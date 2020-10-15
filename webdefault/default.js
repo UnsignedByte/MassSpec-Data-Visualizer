@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 16:11:41, 14-Oct-2020
+* @Last Modified time: 18:56:16, 14-Oct-2020
 */
 
 data = $$datainput$$;
@@ -229,6 +229,30 @@ function createGenerator(button, type){
             Object.values(sheets),
             Object.keys(sheets),
             fillArray('basic', Object.keys(sheets).length)) // all basic sheets
+        }).appendTo(submenu)
+        break;
+      case 'LinearReg':
+        $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"mod"}).appendTo(submenu);
+        data.LinearReg.map((x, i)=>{
+          $('<option/>', {value:i, text:x.name}).appendTo(sel);
+        })
+        $('<div/>', {text:"Axis Scale:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"axes"}).appendTo(submenu);
+        ["norm", "log"].map((x)=>{
+          $('<option/>', {value:x, text:x}).appendTo(sel);
+        })
+
+        longButton("Generate Sheet", ()=>{
+          let index = $('#submenu select[name="mod"] option:selected').val(); // index of selected gene
+          let type = $('#submenu select[name="axes"] option:selected').val(); // axes type to select
+          $("#tables").empty()
+          let sheets = data.LinearReg[index];
+
+          generateSheet(
+            [sheets.combined, ...sheets.raw.map(x=>x[type])],
+            ['combined', ...sheets.raw.map(x=>x.name)],
+            fillArray('html', sheets.raw.length+1)) // all basic sheets
         }).appendTo(submenu)
         break;
     }

@@ -102,13 +102,14 @@ for i = 1:numel(wantedMods)
                 set(gca, 'YScale', 'log', 'XScale', 'log')
                 fname = fullfile(parentF, wantedMods{i}, ['File_' num2str(file)], ['log_File_' num2str(j) '.svg']);
                 saveas(f, fname);
-                jsonOut{i}.raw{file, j}.mod = fileread(fname);
+                jsonOut{i}.raw{file, j}.log = fileread(fname);
                 jsonOut{i}.raw{file, j}.name = [num2str(file) '_' num2str(j)];
             hold off
         end
     end
     fname = fullfile(parentF, wantedMods{i}, 'combined.svg');
     saveas(cfig, fname);
+    jsonOut{i}.name = wantedMods{i};
     jsonOut{i}.combined = fileread(fname);
     jsonOut{i}.raw = jsonOut{i}.raw(~cellfun('isempty',jsonOut{i}.raw));
 end
