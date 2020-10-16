@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 19:17:22, 15-Oct-2020
+* @Last Modified time: 21:14:17, 15-Oct-2020
 */
 
 data = $$datainput$$;
@@ -270,8 +270,8 @@ function colorTable(color){
           let txt = $(this).text();
           if ($.isNumeric(txt)){
             // console.log(txt);
-            if(rlowi == -1 && txt === $('input[placeholder="Row Low"]').val()) rlowi = ind;
-            if (rhighi == -1 && (txt === $('input[placeholder="Row High"]').val() || $(this).is(':last-child'))) rhighi = ind;
+            if(rlowi == -1 && txt === $('input[placeholder="Col Low"]').val()) rlowi = ind;
+            if (rhighi == -1 && (txt === $('input[placeholder="Col High"]').val() || $(this).is(':last-child'))) rhighi = ind;
           }
         });
       }else if (index > 1){
