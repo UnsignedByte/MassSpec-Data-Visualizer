@@ -6,7 +6,7 @@ addpath('utils');
 warning('OFF', 'MATLAB:mkdir:DirectoryExists')
 
 mex -setup c++
-mex -v CXXFLAGS="\$CXXFLAGS -std=c++17" utils/parseParams.cpp
+mex CXXFLAGS="\$CXXFLAGS -std=c++17" utils/parseParams.cpp
 
 % params = struct;
 % params = mergeStruct(parseParams([mfilename '.m']), params);
@@ -50,6 +50,7 @@ for i = 1:numel(wantedMods)
     nm = size(sumdat, 2);
     jsonOut{i} = struct;
     jsonOut{i}.raw = cell(nm, nm);
+    tiles = cell(nm, nm);
     for file = 1:nm % loop through base files
         disp(['Parsing file ' num2str(file)])
         mkdir(fullfile(parentF, wantedMods{i}), ['File_' num2str(file)]);
@@ -86,6 +87,7 @@ for i = 1:numel(wantedMods)
                 % disp([file-1 nm-j 1 1]/nm)
                 % disp((j-1)*nm+file)
                 set(ax, 'position', [file-1 nm-j 1 1]/nm);
+                tiles{file, j} = ax;
             hold off
 
             if file == j
@@ -107,10 +109,18 @@ for i = 1:numel(wantedMods)
             hold off
         end
     end
-    fname = fullfile(parentF, wantedMods{i}, 'combined.svg');
-    saveas(cfig, fname);
+    fname = fullfile(parentF, wantedMods{i}, 'combined');
+    saveas(cfig, [fname '_norm.svg']);
+    for ii = 1:nm
+        for j = 1:(ii-1)
+            set(tiles{j, ii}, 'YScale', 'log', 'XScale', 'log')
+        end
+    end
+    saveas(cfig, [fname '_log.svg']);
     jsonOut{i}.name = wantedMods{i};
-    jsonOut{i}.combined = fileread(fname);
+    jsonOut{i}.combined = struct;
+    jsonOut{i}.combined.norm = fileread([fname '_norm.svg']);
+    jsonOut{i}.combined.log = fileread([fname '_log.svg']);
     jsonOut{i}.raw = jsonOut{i}.raw(~cellfun('isempty',jsonOut{i}.raw));
 end
 

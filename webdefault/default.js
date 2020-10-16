@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 18:56:16, 14-Oct-2020
+* @Last Modified time: 19:17:22, 15-Oct-2020
 */
 
 data = $$datainput$$;
@@ -250,7 +250,7 @@ function createGenerator(button, type){
           let sheets = data.LinearReg[index];
 
           generateSheet(
-            [sheets.combined, ...sheets.raw.map(x=>x[type])],
+            [sheets.combined[type], ...sheets.raw.map(x=>x[type])],
             ['combined', ...sheets.raw.map(x=>x.name)],
             fillArray('html', sheets.raw.length+1)) // all basic sheets
         }).appendTo(submenu)
