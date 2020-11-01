@@ -11,7 +11,8 @@ params <- list(
 	vennImgSize = 2800,
 	heatmapcount = 64,
 	linespacing = 1.5,
-	heatmapcolors = list("blue", "white", "red")
+	heatmapcolors = list("blue", "white", "red"),
+	vennCutoff = 0.8 # the proportion of the max in the test groups at which it cuts off including the other rows; threshold between counted/not in venn
 )
 
 params <- mergeList(parseParams('vennclustermap.r'), params);
@@ -28,9 +29,6 @@ if (!('name' %in% names(params))) {
 homedir <- fileExists(file.path("Results",params$name), paste("Dataset", params$name, "cannot be found. Please run combinedHM to generate HeatMap data before this program is run."));
 
 setwd(homedir);
-
-cutoff <- 0.8; # the proportion of the max in the test groups at which it cuts off including the other rows
-# threshold between counted/not in venn
 
 fids <- read.csv("fileIDs.csv");
 
@@ -201,7 +199,7 @@ for(hmid in 1:length(hms)){
 	}
 
 	# create sets for venn diagram later usage
-	sets <- sapply(1:length(dataset.groupids), function(x) which(compareNA(groups[,x]>cutoff*maxgroup)));
+	sets <- sapply(1:length(dataset.groupids), function(x) which(compareNA(groups[,x]>params$vennCutoff*maxgroup)));
 
 	# calculate overlap sections of the venn diagram
 	cnames <- recursiveBinary(length(dataset.groupids));

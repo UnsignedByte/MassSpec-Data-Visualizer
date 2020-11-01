@@ -81,3 +81,7 @@ Venn diagrams and set overlap calculations between data sets, as well as cluster
 * 2020/08/26: Added custom `params.p` for customization
 * 2020/07/28: Added combined plot without colour
 * 2020/07/27: Fixed missing sheets in ModMapper xlsx raws
+
+## Using
+
+[github-markdown-css](https://github.com/sindresorhus/github-markdown-css)
