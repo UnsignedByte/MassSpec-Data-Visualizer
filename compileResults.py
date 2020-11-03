@@ -2,13 +2,15 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 14:53:20, 14-Oct-2020
+# @Last Modified time: 18:21:26, 02-Nov-2020
 
 import csv
 import json
 import base64
 import os.path
 import traceback
+import re
+import markdown2
 
 # Colored terminal text for python
 class bcolors:
@@ -74,6 +76,9 @@ with open(os.path.join(root, 'webtools', 'clusterize.css')) as f:
 
 name = input("Result Folder Name: ") # Get file to read
 
+with open(os.path.join(root, 'utils', 'README.md')) as f:
+	documentation = dict((y,markdown2.markdown(x, extras=["tables"])) for (x,y) in re.findall(r'(?ms)^(\#\#\ (.+?)$.+?)(?=^\#\#(?:\#\ Details|\ .+?)$)', f.read()))
+
 def insertData(name):
 	resultsFolder = os.path.join(root, 'Results', name)
 
@@ -100,6 +105,8 @@ def insertData(name):
 				if isinstance(loaded, list):
 					loaded = {title(filename.rsplit('.',1)[0]):loaded}
 				data = {**data, **loaded};
+
+	data["Instructions"] = f"<div class=markdown-body>{''.join(documentation[x] for x in data.keys())}</div>";
 
 	return default.replace('$$datainput$$', json.dumps(data)) # Place data into html file
 

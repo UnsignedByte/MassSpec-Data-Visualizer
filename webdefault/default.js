@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 21:14:17, 15-Oct-2020
+* @Last Modified time: 18:12:40, 02-Nov-2020
 */
 
 data = $$datainput$$;
@@ -145,6 +145,12 @@ function createGenerator(button, type){
     $("#tables").empty();
     let sel;
     switch(type){
+      case 'Instructions':
+        generateSheet(
+            [data.Instructions],
+            ["Instructions"],
+            ['html'])
+        break;
       case 'FileIds':
         generateSheet(
             [data.FileIds],

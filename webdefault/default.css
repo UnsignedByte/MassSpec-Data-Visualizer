@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:53:46, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 00:22:20, 10-Jun-2020
+* @Last Modified time: 18:22:54, 02-Nov-2020
 */
 
 :root {
@@ -232,4 +232,8 @@ div#processing {
   text-align: center;
   transform: translate(-50%,-50%);
   -ms-transform: translate(-50%,-50%);
+}
+
+div.markdown-body {
+  padding: 15px;
 }
