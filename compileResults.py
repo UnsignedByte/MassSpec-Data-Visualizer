@@ -2,7 +2,7 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 14:34:59, 04-Nov-2020
+# @Last Modified time: 14:52:53, 04-Nov-2020
 
 import csv
 import json
@@ -80,11 +80,12 @@ name = input("Result Folder Name: ") # Get file to read
 readmeSRC = os.path.join(root, 'utils', 'README.md');
 with open(readmeSRC) as f:
 	documentation = dict((y,markdown2.markdown(x, extras=["tables"])) for (x,y) in re.findall(r'(?ms)^(\#\#\ (.+?)$.+?)(?=^\#\#(?:\#\ Details|\ .+?)$)', f.read()))
+	documentation["Instructions"] = markdown2.markdown('# Data Visualizer\n\nThis is an abridged version of the README. Get full details [here](./README.md)')
 
 def insertData(name):
 	resultsFolder = os.path.join(root, 'Results', name)
 
-	data = {};
+	data = {"Instructions":None};
 
 	# fileIDs
 
