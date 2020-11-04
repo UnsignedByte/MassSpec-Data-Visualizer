@@ -2,7 +2,7 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 18:21:26, 02-Nov-2020
+# @Last Modified time: 14:34:59, 04-Nov-2020
 
 import csv
 import json
@@ -11,6 +11,7 @@ import os.path
 import traceback
 import re
 import markdown2
+import shutil
 
 # Colored terminal text for python
 class bcolors:
@@ -76,7 +77,8 @@ with open(os.path.join(root, 'webtools', 'clusterize.css')) as f:
 
 name = input("Result Folder Name: ") # Get file to read
 
-with open(os.path.join(root, 'utils', 'README.md')) as f:
+readmeSRC = os.path.join(root, 'utils', 'README.md');
+with open(readmeSRC) as f:
 	documentation = dict((y,markdown2.markdown(x, extras=["tables"])) for (x,y) in re.findall(r'(?ms)^(\#\#\ (.+?)$.+?)(?=^\#\#(?:\#\ Details|\ .+?)$)', f.read()))
 
 def insertData(name):
@@ -112,14 +114,21 @@ def insertData(name):
 
 def saveData(x):
 	print(f"{bcolors.HEADER}Compiling files for {x}.{bcolors.ENDC}")
-	with open(os.path.join(os.path.join(root, 'Results', x), f'{x}.html'), 'w') as f:
+	resultsFolder = os.path.join(root, 'Results', x)
+	# duplicate README to output file
+	shutil.copyfile(readmeSRC, os.path.join(resultsFolder, 'README.md'));
+	
+	with open(os.path.join(resultsFolder, f'{x}.html'), 'w') as f:
 		try:
+			# Write web data
 			f.write(insertData(x))
 			print(f"{bcolors.OKGREEN}Compilation completed successfully.{bcolors.ENDC}")
 		except Exception as e:
 			print(f"{bcolors.FAIL}Compilation error occured. Results data may not be formatted properly.\nFull error:\n{traceback.format_exc()}{bcolors.ENDC}")
 		finally:
 			f.close()
+			shutil.make_archive(os.path.join(resultsFolder, x), 'zip', resultsFolder)
+			print(f"{bcolors.OKGREEN}Results compressed to archive.{bcolors.ENDC}")
 
 if not name: # name is empty
 	print(f"{bcolors.WARNING}No dataset supplied. Compiling all datasets by default.{bcolors.ENDC}")
