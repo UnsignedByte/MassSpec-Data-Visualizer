@@ -97,3 +97,5 @@ getGroups <- function(data, fids, groupids) {
 	}
 	return(groups)
 }
+
+null_na <- function(x) ifelse(is.null(x), NA, x)

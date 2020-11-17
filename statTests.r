@@ -7,8 +7,12 @@ sourceCpp('utils/parseParams.cpp')
 
 params <- list()
 
-params$stats <- list(
+params$twoStats <- list( # stats comparing 2 test groups
 	"wilcoxon"=function(x,y) tryCatch(wilcox.test(x,y)$p.value, error=function(cond) return(NaN))
+)
+
+params$multiStats <- list( # stats comparing value to test group
+	"anova"=function(x,y) null_na(summary(aov(x~y))[[1]][1,5])
 )
 
 params <- mergeList(parseParams('statTests.r'), params);
@@ -56,20 +60,36 @@ for(hmid in 1:length(hms)){
 		groups[[x]] <- as.data.frame(selected);
 	}
 
+	colnames <- paste("x_OfSpectra", 1:length(fids$ID), sep="_")
+	ungrouped <- f[,colnames];
+	colnames(ungrouped) <- fids$Test_Group;
+
 	statTables <- list()
 
-	for (stat in names(params$stats)) {
+	for (stat in names(params$twoStats)) {
 		statTables[[stat]] <- data.frame(matrix(NA, nrow = NROW(f), ncol = NCOL(cnames)));
 		for(col in 1:NCOL(cnames)) {
 			pair <- cnames[,col];
 			colnames(statTables[[stat]])[[col]] <- paste(pair, collapse="_");
 			for(row in 1:NROW(f)) {
 				p <- lapply(pair, function(i) as.numeric(groups[[i]][row,]))
-				statTables[[stat]][row,col] <- params$stats[[stat]](p[[1]], p[[2]]);
+				statTables[[stat]][row,col] <- params$twoStats[[stat]](p[[1]], p[[2]]);
 			}
 		}
 		write.csv(statTables[[stat]], file=file.path("StatTests", paste(hmname, '_', stat, '.csv', sep='')))
 	}
+
+	multiName <- "MultiDim"
+
+	statTables[[multiName]] <- data.frame(matrix(NA, nrow = NROW(f), ncol = length(params$multiStats)));
+	for (col in 1:length(params$multiStats)) {
+		stat <- names(params$multiStats)[[col]];
+		colnames(statTables[[multiName]])[[col]] <- stat;
+		for(row in 1:NROW(f)) {
+			statTables[[multiName]][row,col] <- params$multiStats[[stat]](as.numeric(colnames(ungrouped)), as.numeric(ungrouped[row,]));
+		}
+	}
+	write.csv(statTables[[multiName]], file=file.path("StatTests", paste(hmname, '_', multiName, '.csv', sep='')))
 	jsonData$StatTests[[hmid]] <- list(name=hmname, data=statTables);
 	# print(statTables);
 }
