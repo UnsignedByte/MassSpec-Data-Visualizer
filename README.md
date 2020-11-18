@@ -69,7 +69,7 @@ Run using `rscript vennclustermap.r`
 Venn diagrams and set overlap calculations between data sets, as well as cluster heatmaps filtered and sorted by various functions including rank, standard deviation, and the coefficient of variation.
 
 ## Developing
- * `source build.sh` to set up virtual enviroment and matlab CLI alias (default uses `MATLAB R2019b`)
+ * `source source.sh` to set up virtual enviroment and matlab CLI alias (default uses `MATLAB R2019b`)
 
 ## Changelog
 

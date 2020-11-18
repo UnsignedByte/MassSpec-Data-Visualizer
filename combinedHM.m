@@ -226,17 +226,7 @@ if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Params'))
     mkdir(fullfile('Results', getResultFolder(TempFile), 'Params'));
 end
 
-fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', ['proteins_' completeTime '.txt']),'w');
-for i = 1 : numel(params.proteins)
-    fprintf(fid, '%s\n', params.proteins{i});
-end
-fclose(fid);
-
-fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Params', ['mods_' completeTime '.txt']),'w');
-for i = 1 : numel(params.mods)
-    fprintf(fid, '%s\n', params.mods{i});
-end
-fclose(fid);
+copyfile(fullfile('Results', getResultFolder(TempFile), 'params.p'), fullfile('Results', getResultFolder(TempFile), 'Params', ['params_' completeTime '.p']))
 
 disp('Done.');
 toc;

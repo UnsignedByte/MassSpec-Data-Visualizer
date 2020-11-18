@@ -1,11 +1,11 @@
 # @Author: UnsignedByte
 # @Date:   15:02:23, 09-Jun-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 17:41:00, 22-Oct-2020
+# @Last Modified time: 14:33:05, 18-Nov-2020
 
 # create venv if not exist
-if [ ! -d "$.venv" ]; then
-  virtualenv --python=python3.7 .venv
+if [ ! -d "/.venv" ]; then
+  virtualenv --python=python3 --system-site-packages .venv
 fi
 
 
