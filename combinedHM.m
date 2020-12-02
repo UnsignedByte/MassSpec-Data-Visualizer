@@ -27,7 +27,9 @@ params.mods = {};
 params = mergeStruct(parseParams([mfilename '.m']), params);
 
 %select data files
-[TempFiles, folder] = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
+folder = fullfile('Results', params.name, 'Data');
+TempFiles = extractfield(dir(fullfile(folder, '*.xlsx')), 'name');
+% [TempFiles, folder] = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
 
 % combine folder with basename to get full path (allows selection of files anywhere)
 TFPath = fullfile(folder, TempFiles);
@@ -226,7 +228,7 @@ if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Params'))
     mkdir(fullfile('Results', getResultFolder(TempFile), 'Params'));
 end
 
-copyfile(fullfile('Results', getResultFolder(TempFile), 'params.p'), fullfile('Results', getResultFolder(TempFile), 'Params', ['params_' completeTime '.p']))
+copyfile('params.p', fullfile('Results', getResultFolder(TempFile), 'Params', ['params_' completeTime '.p']))
 
 disp('Done.');
 toc;

@@ -76,6 +76,7 @@ for(hmid in 1:length(hms)){
 				statTables[[stat]][row,col] <- params$twoStats[[stat]](p[[1]], p[[2]]);
 			}
 		}
+		statTables[[stat]] <- cbind(f[c('Rank_Number','Protein_Name','Gene_Name')], statTables[[stat]], f['Row_Type'])
 		write.csv(statTables[[stat]], file=file.path("StatTests", paste(hmname, '_', stat, '.csv', sep='')))
 	}
 
@@ -89,6 +90,7 @@ for(hmid in 1:length(hms)){
 			statTables[[multiName]][row,col] <- params$multiStats[[stat]](as.numeric(colnames(ungrouped)), as.numeric(ungrouped[row,]));
 		}
 	}
+	statTables[[multiName]] <- cbind(f[c('Rank_Number','Protein_Name','Gene_Name')], statTables[[multiName]], f['Row_Type'])
 	write.csv(statTables[[multiName]], file=file.path("StatTests", paste(hmname, '_', multiName, '.csv', sep='')))
 	jsonData$StatTests[[hmid]] <- list(name=hmname, data=statTables);
 	# print(statTables);

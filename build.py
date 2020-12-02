@@ -2,13 +2,13 @@
 # @Author: UnsignedByte
 # @Date:   16:05:44, 17-Nov-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 14:48:47, 18-Nov-2020
-
+# @Last Modified time: 09:55:55, 02-Dec-2020
 
 import tkinter as tk
 from tkinter import filedialog
 import os.path
 from shutil import copy
+import re
 
 class bcolors:
     HEADER = '\033[95m'
@@ -26,9 +26,12 @@ rootDir = os.path.abspath(os.path.dirname(__file__)) # Root directory
 
 files = filedialog.askopenfilenames(parent=root,title='Choose files', initialdir=rootDir)
 
-name = input("Result Folder Name: ") # Get file to read
+name = re.match(r"^\d+_(.+?_.+?)_", os.path.basename(files[0])).group(1)
+# name = input("Result Folder Name: ") # Get file to read
 
-os.makedirs(os.path.join(rootDir, name, 'Data'))
+os.makedirs(os.path.join(rootDir, 'Results', name, 'Data'), exist_ok=True)
+
+print(f'{bcolors.OKGREEN}Created folder {name}{bcolors.ENDC}')
 
 for x in files:
-	copy(x, os.path.join(rootDir, name, 'Data', os.path.basename(x)))
+	copy(x, os.path.join(rootDir, 'Results', name, 'Data', os.path.basename(x)))

@@ -9,6 +9,16 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
         TempStruct(i).NameForFile = datasetnames{i};
         dat = datasets{i};
         dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
+        for ii = 3:size(dat,2)
+            for jj = 1:size(dat,1)
+                if isempty(dat{jj,ii})
+                    dat{jj,ii} = NaN
+                elseif ~isnumeric(dat{jj,ii})
+                    warning(["Position (" jj "," ii ") expected number, found " dat{jj,ii}])
+                    dat{jj,ii} = NaN
+                end
+            end
+        end
         TempStruct(i).dat = dat;
         ProteinNames = [ProteinNames; dat.Description];
     end

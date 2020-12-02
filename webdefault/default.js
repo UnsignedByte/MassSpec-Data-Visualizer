@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 18:12:40, 02-Nov-2020
+* @Last Modified time: 13:51:56, 02-Dec-2020
 */
 
 data = $$datainput$$;
@@ -49,7 +49,7 @@ function generateSheet(datas, names, types){
 function basicTableCreate(dat){
   let table = $('<table/>', {class:'basicTable'});
   headers = Object.keys(dat[0]);
-  $('<tr/>').addRow('th', [...Array(headers.length).keys()], ["Row Numbers", ...[...Array(headers.length).keys()].slice(1)]).wrap('<thead/>').parent().appendTo(table);
+  $('<tr/>').addRow('th', [...Array(headers.length).keys()], [...Array(headers.length).keys()]).wrap('<thead/>').parent().appendTo(table);
   $('<tr/>').addRow('th', [...Array(headers.length).keys()], headers).wrap('<thead/>').parent().appendTo(table);
 
   let body = $('<tbody/>').appendTo(table);
@@ -234,7 +234,7 @@ function createGenerator(button, type){
           generateSheet(
             Object.values(sheets),
             Object.keys(sheets),
-            fillArray('basic', Object.keys(sheets).length)) // all basic sheets
+            fillArray('class', Object.keys(sheets).length)) // all basic sheets
         }).appendTo(submenu)
         break;
       case 'LinearReg':
