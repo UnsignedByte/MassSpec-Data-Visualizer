@@ -73,6 +73,7 @@ Venn diagrams and set overlap calculations between data sets, as well as cluster
 
 ## Changelog
 
+* 2020/12/02: Fixed StatTests to include HeatMap information.
 * 2020/10/15: Add log scaled version of combined regression plot.
 * 2020/10/14: Add `clear colors` button for column coloring in web viewer and implement remaining statistics tests.
 * 2020/10/13: Add stat tests applied to test groups (`statTests.r`).

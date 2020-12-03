@@ -8,14 +8,15 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     for i = 1 : NumFilesRead
         TempStruct(i).NameForFile = datasetnames{i};
         dat = datasets{i};
-        dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
+        % dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
         for ii = 3:size(dat,2)
             for jj = 1:size(dat,1)
-                if isempty(dat{jj,ii})
-                    dat{jj,ii} = NaN
-                elseif ~isnumeric(dat{jj,ii})
-                    warning(["Position (" jj "," ii ") expected number, found " dat{jj,ii}])
-                    dat{jj,ii} = NaN
+                if ~isnumeric(dat{jj,ii})
+                    newvalue = str2double(dat{jj,ii});
+                    if isnan(newvalue) & ~isempty(char(dat{jj,ii}))
+                        warning(['Position (' num2str(jj) ', ' num2str(ii) ') expected number, found "' char(dat{jj,ii}) '"'])
+                    end
+                    dat{jj,ii} = {newvalue};
                 end
             end
         end
