@@ -17,6 +17,8 @@ Table containing File ID, name, and test group information. `Test_Group` column 
 
 Results from running statistics tests comparing pairs of test groups.
 
+Statistics tests taking only two data sets at a time will be separated into individual files. Each test is run on a all pairs of test groups in a row of spectral counts, and the R values are saved in the column representing the test group pair used in the statistic.
+
 ### Files
 
 Column names are an underscore-separated list of Test Group IDs (taken from FileIds.csv). Rows correspond to the same row from HeatMap. Each cell represents the resulting p-value from the stat test.

@@ -26,6 +26,7 @@ homedir <- fileExists(file.path("Results",params$name), paste("Dataset", params$
 setwd(homedir);
 
 dir.create("StatTests", showWarnings = FALSE)
+dir.create("StatsHeatMap", showWarnings = FALSE)
 
 fids <- read.csv("fileIDs.csv");
 
@@ -90,6 +91,7 @@ for(hmid in 1:length(hms)){
 			statTables[[multiName]][row,col] <- params$multiStats[[stat]](as.numeric(colnames(ungrouped)), as.numeric(ungrouped[row,]));
 		}
 	}
+	write.csv(cbind(f[,names(mtcars)!="Row_Type"], statTables[[multiName]], f['Row_Type']), file=file.path("StatsHeatMap", paste(hmname, '.csv', sep='')))
 	statTables[[multiName]] <- cbind(f[c('Rank_Number','Protein_Name','Gene_Name')], statTables[[multiName]], f['Row_Type'])
 	write.csv(statTables[[multiName]], file=file.path("StatTests", paste(hmname, '_', multiName, '.csv', sep='')))
 	jsonData$StatTests[[hmid]] <- list(name=hmname, data=statTables);
