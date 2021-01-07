@@ -32,7 +32,7 @@ Filename formatted using `<modification-filter>_<test-name>.csv`.
 
 ## LinearReg
 
-Linear regression data on # of spectral counts.
+Linear regression data on spectral counts. Each graph represents a scatterplot comparing spectral counts of two datasets from the heatmap. A combined SVG contains a grid `DxD` where `D` represents the total number of datasets. This contains all scatterplots for all pairs of datasets as well as Pearson's R values for these datasets.
 
 ### Files
 
@@ -44,7 +44,7 @@ Filepath formatted using `<modification-filter>/File_<File1_ID>/<axes_scale>_Fil
 
 ## ModMapper
 
-Peptide-specific modification information.
+Peptide-specific modification information. ModMapper contains information on the count and types of modifications at each Amino Acid on the peptide sequence of selected protein(s). Contains information on the same protein from all files in the dataset.
 
 ### Files
 
@@ -53,16 +53,16 @@ Data separated by Gene Name.
 Each file contains a **Summary** Sheet with summary information. This contains information on which protein sequence is being used in each subsequent sheet, as well as the files included in that sheet.
 
 | SheetNumber | Filenames | Protein\_Name |
-|-------------|-----------|--------------|
-| 1           | FileName1 | ProteinName1 |
-| 2           | FileName2 | ProteinName2 |
+|-------------|-----------|---------------|
+| 1           | FileName1 | ProteinName1  |
+| 2           | FileName2 | ProteinName2  |
 
 Subsequent sheets will contain information on the existence of different modifications at each amino acid and on each file.
 
 | Amino Acid | ModA\_File1 | ModB\_File1 | Total\_File1 | ModA\_File2 | ModB\_File2 | Total\_File2 | ... |
-|------------|------------|------------|-------------|------------|------------|-------------|-----|
-| A          | 0          | 1          | 1           | 0          | 0          | 0           | ... |
-| D          | 1          | 2          | 3           | 2          | 0          | 2           | ... |
+|------------|-------------|-------------|--------------|-------------|-------------|--------------|-----|
+| A          | 0           | 1           | 1            | 0           | 0           | 0            | ... |
+| D          | 1           | 2           | 3            | 2           | 0           | 2            | ... |
 
 Each cell represents the number of the observed modification found at the amino acid.
 

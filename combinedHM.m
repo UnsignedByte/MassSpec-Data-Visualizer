@@ -209,7 +209,7 @@ end
 disp('Saving final files...')
 
 % Time of completion
-completeTime = datestr(now,'dd-mm-yyyy_HH:MM:SS');
+completeTime = datestr(now,'dd_mm_yyyy_HH_MM_SS');
 
 Output = struct;
 Output.ModMapper = resTables;
