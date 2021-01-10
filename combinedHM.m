@@ -29,6 +29,8 @@ params = mergeStruct(parseParams([mfilename '.m']), params);
 %select data files
 folder = fullfile('Results', params.name, 'Data');
 TempFiles = extractfield(dir(fullfile(folder, '*.xlsx')), 'name');
+TempFiles = TempFiles(~startsWith('~$')); %Ignore tempsave files
+
 % [TempFiles, folder] = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
 
 % combine folder with basename to get full path (allows selection of files anywhere)

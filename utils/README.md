@@ -74,7 +74,7 @@ Files must occasionally be separated into different sheets as isotopes of protei
 
 ## HeatMap
 
-HeatMap containing spectral data and basic analysis.
+HeatMap containing spectral data and basic analysis. Takes selected data columns from *Protein* tab of Byonic data and combines all datasets into one heatmap. Proteins are identified across all datasets and combined into one rank.
 
 ### Files
 
