@@ -101,7 +101,7 @@ for kk = 1:NumFilesRead
             resTables{i}.Sheets = {};
             resTables{i}.Name = params.proteins{i};
         end
-        proteinName = getProteinName(params.proteins{i}, dat.ProteinName, 3);
+        proteinName = getProteinName(params.proteins{i}, dat.ProteinName, [3, 8]);
         if isempty(proteinName)
             continue;
         end
