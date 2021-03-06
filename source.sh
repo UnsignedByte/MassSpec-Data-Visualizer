@@ -1,7 +1,7 @@
 # @Author: UnsignedByte
 # @Date:   15:02:23, 09-Jun-2020
-# @Last Modified by:   almund
-# @Last Modified time: 2021-03-06 11:33:48
+# @Last Modified by:   UnsignedByte
+# @Last Modified time: 2021-03-06 12:31:31
 
 # create venv if not exist
 if [ ! -d "./.venv" ]; then
@@ -12,9 +12,6 @@ fi
 # activate venv
 source .venv/bin/activate
 pip install -r requirements.txt
-
-# add matlab alias
-alias matlab='/Applications/MATLAB_R2019b.app/bin/matlab -nodesktop -nosplash $*'
 
 # declare -a langs=("matlab" "r")
 # for i in "${langs[@]}"

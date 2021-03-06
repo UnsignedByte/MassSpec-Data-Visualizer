@@ -29,6 +29,8 @@ params = mergeStruct(parseParams([mfilename '.m']), params);
 %select data files
 folder = fullfile('Results', params.name, 'Data');
 TempFiles = extractfield(dir(fullfile(folder, '*.xlsx')), 'name');
+TempFiles = TempFiles(~startsWith(TempFiles(:),'~$')); %Ignore tempsave files
+
 % [TempFiles, folder] = uigetfile('.xlsx','Choose Data Files', 'Multiselect', 'on');
 
 % combine folder with basename to get full path (allows selection of files anywhere)
@@ -99,7 +101,7 @@ for kk = 1:NumFilesRead
             resTables{i}.Sheets = {};
             resTables{i}.Name = params.proteins{i};
         end
-        proteinName = getProteinName(params.proteins{i}, dat.ProteinName, 3);
+        proteinName = getProteinName(params.proteins{i}, dat.ProteinName, [3, 8]);
         if isempty(proteinName)
             continue;
         end
@@ -209,7 +211,7 @@ end
 disp('Saving final files...')
 
 % Time of completion
-completeTime = datestr(now,'dd-mm-yyyy_HH:MM:SS');
+completeTime = datestr(now,'dd_mm_yyyy_HH_MM_SS');
 
 Output = struct;
 Output.ModMapper = resTables;
