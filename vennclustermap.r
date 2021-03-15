@@ -41,7 +41,7 @@ if (length(dataset.groupids) <= 8) {
 # 	stopQuietly();
 # }
 
-hms <- list.files(path="HeatMap"); #All heatmaps generated
+hms <- list.files(path="HeatMap/Files"); #All heatmaps generated
 
 # Disable Rplots.pdf from generating;
 pdf(NULL)

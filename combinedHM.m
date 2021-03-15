@@ -21,7 +21,7 @@ params.uniqueClassFunctions = {'nansum'}; %functions to use for each dataset whe
 %Will save max and sum as well as values from the datasets
 params.singleColumns = [11]; %Columns equal across all datasets (will only take one column)
 params.singleClassFunctions = {'max'}; %functions to use for each dataset when combining into class
-params.proteins = {"All"};
+params.proteins = {'All'};
 params.mods = {};
 
 params = mergeStruct(parseParams([mfilename '.m']), params);
@@ -122,10 +122,10 @@ for kk = 1:NumFilesRead
             else
                 sheetID = size(resTables{i}.Summary, 1)+1;
                 resTables{i}.Summary = [resTables{i}.Summary;{sheetID, sheetname, proteinName}];
-%                 disp(resTables{i}.Summary)
+%             disp(resTables{i}.Summary)
             end
-%             disp(sheetID);
-%             disp(sheetname);
+%          disp(sheetID);
+%          disp(sheetname);
         else
             resTables{i}.Summary.SheetNumber(1) = 1;
             resTables{i}.Summary.Filenames{1} = sheetname;
@@ -153,14 +153,21 @@ resfolder = fullfile('Results', getResultFolder(TempFiles{1}), 'HeatMap');
 if ~isfolder(resfolder)
     mkdir(resfolder);
 end
+if ~isfolder(fullfile(resfolder, 'Files'))
+    mkdir(fullfile(resfolder, 'Files'));
+end
+if ~isfolder(fullfile(resfolder, 'TestGroups'))
+    mkdir(fullfile(resfolder, 'TestGroups'));
+end
 
 % params.mods = splitlines(strtrim(fileread(fullfile('Params', 'mods.txt'))));
 
 rt2s = cell(numel(params.mods), 1);
 
+allgroups = unique(params.testGroups);
 for kk = 1:numel(params.mods)
     
-    wantedMod = params.mods{kk};
+    wantedMod = params.mods{kk}; %Get list of modifications for heatmap
 
     %Building the main data structure here. All data is read in and retained.
     %This should make it flexible to do alternative readouts on the fly. Should
@@ -179,7 +186,7 @@ for kk = 1:numel(params.mods)
                 TempStruct(i).modMatches = zeros(size(TempStruct(i).sdat.Peptide_ProteinMetricsConfidential_));
             else
 
-            %    dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
+            %   dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
                 TempStruct(i).modMatches = cellfun(@(x) contains(x, ['[' modlist{1,2} num2str(modlist{1,3}) ']']),TempStruct(i).sdat.Peptide_ProteinMetricsConfidential_);
             end
 
@@ -199,13 +206,50 @@ for kk = 1:numel(params.mods)
         end
         datasets{i} = pdat;
     end
-    disp(['Mod ' wantedMod ' finished.'])
+    disp(['Mod ' wantedMod ' loaded.'])
     toc;
 
     rt2s{kk} = struct;
     rt2s{kk}.Data = getCombined(datasets, cellstr(num2str([1:NumFilesRead]')), params.uniqueColumns, params.uniqueCombineFunctions, params.uniqueClassFunctions, params.singleColumns, params.singleClassFunctions);
     rt2s{kk}.Name = wantedMod;
-    writetable(rt2s{kk}.Data,fullfile(resfolder, [wantedMod '.csv']));
+    writetable(rt2s{kk}.Data,fullfile(resfolder, 'Files', [wantedMod '.csv']));
+
+    disp(['Compiling Testgroup data for ' wantedMod '.'])
+    toc;
+
+    rt2s{kk}.GroupData = rt2s{kk}.Data(:,1:3);
+    for uniqueCol = 1:length(params.uniqueColumns)
+        tmpcols = table;
+        for group = 1:length(allgroups)
+            avginds = find(params.testGroups==allgroups(group));
+            tmpcols = [ ...
+                tmpcols ...
+                table( ...
+                    mean(rt2s{kk}.Data{:,avginds+3+(uniqueCol-1)*(NumFilesRead+length(params.uniqueCombineFunctions{uniqueCol}))}, 2), ...
+                    'VariableNames', {[datasets{1}.Properties.VariableNames{params.uniqueColumns(uniqueCol)} '_' num2str(allgroups(group))]} ...
+                    ) ...
+                ];
+        end
+        tmpcols = [
+            tmpcols ...
+            table( ...
+                'Size', [size(rt2s{kk}.Data, 1), 2], ...
+                'VariableTypes', {'double', 'double'}, ...
+                'VariableNames', cellfun(@(x) [x '_' datasets{1}.Properties.VariableNames{params.uniqueColumns(uniqueCol)}], params.uniqueCombineFunctions{uniqueCol}, 'UniformOutput', false)...
+            ) ...
+        ];
+        startI = 1;
+        for endI = 1:size(rt2s{kk}.Data,1)
+            for combineFunc = 1:length(params.uniqueCombineFunctions{uniqueCol})
+                tmpcols{endI, length(allgroups)+combineFunc} = feval(params.uniqueCombineFunctions{uniqueCol}{combineFunc}, tmpcols{endI,1:length(allgroups)});
+            end
+        end
+        rt2s{kk}.GroupData = [rt2s{kk}.GroupData tmpcols]
+    end
+
+    rt2s{kk}.GroupData = [rt2s{kk}.GroupData rt2s{kk}.Data(:,(end-length(params.singleColumns)-1):end)]
+
+    writetable(rt2s{kk}.GroupData,fullfile(resfolder, 'TestGroups', [wantedMod '.csv']));
 end
 
 disp('Saving final files...')

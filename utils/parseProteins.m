@@ -2,7 +2,7 @@ function parsed = parseProteins(proteins) %return info about each protein in a l
     regStr = '^>?(.+?)\|(.+?)\|(.+?)_(.+?)\s((?:.+?)+?)(\sOS=(?:.|\s|)+?)(\sOX=\d+?)(\sGN=.+?)?(\sPE=\d+)?(\sSV=\d+)?$';
 
     %disp(proteins)
-    
+
     function p = parse(x)
     	if regexp(x, regStr)
     		p = regexp(x, regStr, 'tokens');

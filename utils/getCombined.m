@@ -124,7 +124,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
                 currInd = length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k;
                 ClassResult(end,currInd) = feval(SingleClassFunctions{k}, Result(startJ:j,currInd));
             end
-            ClassResult(end,end-1) = any(Result(startJ:j, end-1)==2)*2; %add flags
+            ClassResult(end,end-1) = max(Result(startJ:j, end-1)); %add flags
             ClassResult(end,end) = i;
             realI = realI + 1;
         end

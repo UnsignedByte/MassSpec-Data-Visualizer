@@ -39,7 +39,7 @@ jsonOut = cell(1, numel(wantedMods));
 
 for i = 1:numel(wantedMods)
     % read in heatmap data
-    sumdat = readtable(fullfile('Results', params.name, 'HeatMap', [wantedMods{i} '.csv']));
+    sumdat = readtable(fullfile('Results', params.name, 'HeatMap', 'Files', [wantedMods{i} '.csv']));
     % parse out only classes with no contaminant
     sumdat = sumdat(((sumdat.Row_Type-sumdat.Contaminant) == 1),1:end-5);
     % save only data columns
