@@ -1,7 +1,7 @@
 source("utils/rtools.r");
 
 list.packages = c("VennDiagram", "ComplexHeatmap", "circlize", "RColorBrewer", "measurements", "svglite", "stringr", "jsonlite", "base64enc", "Rcpp")
-install_missing(list.packages)
+install_missing(list.packages, github=c("ComplexHeatmap"="jokergoo/ComplexHeatmap"))
 
 sourceCpp('utils/parseParams.cpp')
 
@@ -120,7 +120,7 @@ genHM <- function(loc, name, data, fnum){
 
 for(hmid in 1:length(hms)){
 	hm <- hms[hmid]
-	f <- read.csv(file.path("HeatMap", hm));
+	f <- read.csv(file.path("HeatMap", "Files", hm));
 	
 	f <- f[Reduce("&", list(f$Row_Type==1, f$Contaminant == 0)), ]; #take only uncontamiated classes
 	# f <- f[f$contaminant==0,]

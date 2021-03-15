@@ -4,9 +4,17 @@ stopQuietly <- function() {
   stop()
 }
 
-install_missing <- function(packages, repos='http://cran.us.r-project.org') {
+install_missing <- function(packages, repos='http://cran.us.r-project.org', github=c()) {
 	new.packages <- packages[!(packages %in% installed.packages()[,"Package"])]
-	if(length(new.packages)) install.packages(new.packages, repos=repos) #install missing using selected mirror (default cran)
+	github.packages <- github[names(github) %in% new.packages]
+	if(length(github.packages)){
+		if (!('devtools' %in% packages)){
+			install_missing('devtools')
+			library(devtools)
+		}
+		sapply(github.packages, install_github)
+	}
+	if(length(new.packages)) install.packages(setdiff(new.packages, names(github)), repos=repos) #install missing using selected mirror (default cran)
 	lapply(packages, library, character.only = TRUE) # import installed
 }
 

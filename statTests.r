@@ -51,7 +51,7 @@ cnames <- combn(dataset.groupids, 2)
 for(hmid in 1:length(hms)){
 	hm <- hms[hmid]
 	hmname <- unlist(strsplit(hm, ".", fixed=TRUE))[1];
-	f <- read.csv(file.path("HeatMap", hm));
+	f <- read.csv(file.path("HeatMap", "Files", hm));
 	groups <- list();
 
 	for(x in 1:length(dataset.groupids)){
