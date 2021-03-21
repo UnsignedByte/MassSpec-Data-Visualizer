@@ -64,6 +64,11 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     Result = NaN(length(ProteinNames),NumFilesRead*length(UniqueColumns)+totUniqueFuncs(end)+length(SingleColumns)+2);
     ClassResult = [];
 
+    function res = getContaminated(data)
+        res = max(2*any(data==2), all(data==1)); %returns 2 if any contaminated (2) exist, or 1 if all are reverse
+    end
+
+
     realI = 1;
     j = 1;
     for i = 1:ProteinNames{end,2}
@@ -124,7 +129,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
                 currInd = length(UniqueColumns)*NumFilesRead+totUniqueFuncs(end)+k;
                 ClassResult(end,currInd) = feval(SingleClassFunctions{k}, Result(startJ:j,currInd));
             end
-            ClassResult(end,end-1) = max(Result(startJ:j, end-1)); %add flags
+            ClassResult(end,end-1) = getContaminated(Result(startJ:j, end-1)); %add flags
             ClassResult(end,end) = i;
             realI = realI + 1;
         end

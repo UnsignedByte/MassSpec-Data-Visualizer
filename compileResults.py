@@ -2,7 +2,7 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 14:52:53, 04-Nov-2020
+# @Last Modified time: 2021-03-20 23:37:37
 
 import csv
 import json
@@ -128,7 +128,8 @@ def saveData(x):
 			print(f"{bcolors.FAIL}Compilation error occured. Results data may not be formatted properly.\nFull error:\n{traceback.format_exc()}{bcolors.ENDC}")
 		finally:
 			f.close()
-			shutil.make_archive(os.path.join(resultsFolder, x), 'zip', resultsFolder)
+			print('Creating zip file')
+			shutil.make_archive(resultsFolder, 'zip', os.path.join(root, 'Results'), x)
 			print(f"{bcolors.OKGREEN}Results compressed to archive.{bcolors.ENDC}")
 
 if not name: # name is empty
