@@ -1,5 +1,5 @@
 function parsed = parseProteins(proteins) %return info about each protein in a list of protein names
-    regStr = '^>?(.+?)\|(.+?)\|(.+?)_(.+?)\s((?:.+?)+?)(\sOS=(?:.|\s|)+?)(\sOX=\d+?)(\sGN=.+?)?(\sPE=\d+)?(\sSV=\d+)?$';
+    regStr = '^>?(.+?)\|(.+?)\|(.+?)_(.+?)\s((?:.+?)+?)(\sOS=(?:.|\s|)+?)?(\sOX=\d+?)?(\sGN=.+?)?(\sPE=\d+)?(\sSV=\d+)?$';
 
     %disp(proteins)
 
