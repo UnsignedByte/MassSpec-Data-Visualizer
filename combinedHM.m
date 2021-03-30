@@ -53,7 +53,8 @@ if isa(TempFiles, 'char')
 end
 NumFilesRead = length(TempFiles);
 
-if isfield(params, 'test_groups') && length(params.testGroups) == NumFilesRead
+if isfield(params, 'testGroups') && length(params.testGroups) == NumFilesRead
+    disp('Using existing test groups...')
     params.testGroups = cell2mat(params.testGroups);
 else
     params.testGroups = 1:NumFilesRead;

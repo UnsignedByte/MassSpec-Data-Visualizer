@@ -42,7 +42,7 @@ if (length(dataset.groupids) > 50){
 jsonData <- list()
 # all pairs of files
 cnames <- combn(dataset.groupids, 2)
-message(paste("Generating ", choose(NCOL(cnames), 2), " volcano plots."))
+message(paste("Generating", choose(NCOL(cnames), 2), "volcano plots."))
 
 for(hmid in 1:length(hms)){
 	hm <- hms[hmid];
@@ -51,16 +51,21 @@ for(hmid in 1:length(hms)){
 	pvals <- read.csv(file.path("StatTests", paste(hmname, "_", params$statTest, ".csv", sep="")));
 	dir.create(file.path("Volcano", hmname))
 	for(pairI in 1:NCOL(cnames)){
-		pairname <- paste(cnames[1,pairI], "_", cnames[2,pairI], sep="");
+		pairname <- paste(cnames[1,pairI], cnames[2,pairI], sep="_");
+		message(paste("Generating raws for groups", cnames[1,pairI], "and", cnames[2,pairI]));
 		dir.create(file.path("Volcano", hmname, pairname))
 		group <- data.frame(matrix(NA, nrow=NROW(f), ncol=4))
+		print(colnames(f))
+		print(paste("x_OfSpectra", cnames[,pairI], sep="_"))
 		group[,1:2] <- f[,paste("x_OfSpectra", cnames[,pairI], sep="_")]
 		group[,3] <- sapply(1:NROW(f), function(i) log2(group[i,2]/group[i,1]))
-		group[,4] <- pvals[,paste("X", pairname, sep="")]
+		group[,4] <- sapply(pvals[,paste("X", pairname, sep="")], function(i) -log10(i))
 		names(group) <- c(paste("x_OfSpectra", cnames[,pairI], sep="_"), "log2foldchange", params$statTest)
 		write.csv(group, file=file.path("Volcano", hmname, pairname, "raw.csv"))
+		message("Creating plot")
 		pdf(file.path("Volcano", hmname, pairname, "plot.pdf"))
-		print(ggplot(data=group, aes_string(x="log2foldchange", y=params$statTest))+geom_point())
+		print(ggplot(data=group, aes_string(x=names(group)[3], y=paste("-log10(", params$statTest, ")", sep="")))+geom_point())
 		dev.off()
+		message("Finished")
 	}
 }
