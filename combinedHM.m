@@ -21,8 +21,8 @@ params.uniqueClassFunctions = {'nansum'}; %functions to use for each dataset whe
 %Will save max and sum as well as values from the datasets
 params.singleColumns = [11]; %Columns equal across all datasets (will only take one column)
 params.singleClassFunctions = {'max'}; %functions to use for each dataset when combining into class
-params.proteins = {'All'};
-params.mods = {};
+params.proteins = {};
+params.mods = {'All'};
 
 params = mergeStruct(parseParams([mfilename '.m']), params);
 
@@ -79,7 +79,9 @@ end
 
 fileidtable = table([1:NumFilesRead]', datasetnames, params.testGroups', 'VariableNames', {'ID', 'Filename', 'Test_Group'});
 
-writetable(fileidtable,fullfile('Results', getResultFolder(TempFiles{1}), 'fileIDs.csv'));
+if ~isfile(fullfile('Results', getResultFolder(TempFiles{1}), 'fileIDs.csv'))
+    writetable(fileidtable,fullfile('Results', getResultFolder(TempFiles{1}), 'fileIDs.csv'));
+end
 
 resTables = cell(1, length(params.proteins));
 

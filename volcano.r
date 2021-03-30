@@ -1,6 +1,6 @@
 source("utils/rtools.r");
 
-list.packages = c("Rcpp", "stringr", "jsonlite")
+list.packages = c("Rcpp", "stringr", "jsonlite", "ggplot2")
 install_missing(list.packages)
 
 sourceCpp('utils/parseParams.cpp')
@@ -59,5 +59,8 @@ for(hmid in 1:length(hms)){
 		group[,4] <- pvals[,paste("X", pairname, sep="")]
 		names(group) <- c(paste("x_OfSpectra", cnames[,pairI], sep="_"), "log2foldchange", params$statTest)
 		write.csv(group, file=file.path("Volcano", hmname, pairname, "raw.csv"))
+		pdf(file.path("Volcano", hmname, pairname, "plot.pdf"))
+		print(ggplot(data=group, aes_string(x="log2foldchange", y=params$statTest))+geom_point())
+		dev.off()
 	}
 }
