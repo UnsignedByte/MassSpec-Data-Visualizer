@@ -107,3 +107,14 @@ getGroups <- function(data, fids, groupids) {
 }
 
 null_na <- function(x) ifelse(is.null(x), NA, x)
+
+dynamicCeil <- function(x) { # Rounds all numbers up, keeping 1 significant figure
+	if(x==0) return(0)
+	factor = 10^floor(log10(abs(x))) #smallest power of 10 larger than x
+	return(ceiling(x/factor)*factor)
+}
+dynamicFloor <- function(x) { # Rounds all numbers down, keeping 1 significant figure
+	if(x==0) return(0)
+	factor = 10^floor(log10(abs(x))) #smallest power of 10 larger than x
+	return(floor(x/factor)*factor)
+}

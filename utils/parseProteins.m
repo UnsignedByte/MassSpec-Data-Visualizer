@@ -1,8 +1,9 @@
 function parsed = parseProteins(proteins) %return info about each protein in a list of protein names
     regStr = '^>?(.+?)\|(.+?)\|(.+?)_(.+?)\s((?:.+?)+?)(\sOS=(?:.|\s|)+?)?(\sOX=\d+?)?(\sGN=.+?)?(\sPE=\d+)?(\sSV=\d+)?$';
 
+    
+    %Identifier, Gene name, 
     %disp(proteins)
-
     function p = parse(x)
     	if regexp(x, regStr)
     		p = regexp(x, regStr, 'tokens');
