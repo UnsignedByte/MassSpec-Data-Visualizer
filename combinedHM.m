@@ -104,7 +104,7 @@ for kk = 1:NumFilesRead
             resTables{i}.Sheets = {};
             resTables{i}.Name = params.proteins{i};
         end
-        proteinName = getProteinName(params.proteins{i}, dat.ProteinName, [3, 8]);
+        proteinName = getProteinName(params.proteins{i}, dat.ProteinName, {'dbname', 'genename', 'proteinname'});
         if isempty(proteinName)
             continue;
         end
@@ -247,10 +247,10 @@ for kk = 1:numel(params.mods)
                 tmpcols{endI, length(allgroups)+combineFunc} = feval(params.uniqueCombineFunctions{uniqueCol}{combineFunc}, tmpcols{endI,1:length(allgroups)});
             end
         end
-        rt2s{kk}.GroupData = [rt2s{kk}.GroupData tmpcols]
+        rt2s{kk}.GroupData = [rt2s{kk}.GroupData tmpcols];
     end
 
-    rt2s{kk}.GroupData = [rt2s{kk}.GroupData rt2s{kk}.Data(:,(end-length(params.singleColumns)-1):end)]
+    rt2s{kk}.GroupData = [rt2s{kk}.GroupData rt2s{kk}.Data(:,(end-length(params.singleColumns)-1):end)];
 
     writetable(rt2s{kk}.GroupData,fullfile(resfolder, 'TestGroups', [wantedMod '.csv']));
 end

@@ -146,17 +146,18 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
 
     CombinedRes = cell(size(ClassResult,1)+size(Result,1), size(ClassResult,2)+1);
     realI = 1;
-
+    
     for i = 1:size(ClassResult,1)
         CombinedRes(realI,:) = [i ClassResult(i,2:end) 1];
         found = Result(cell2mat(Result(:,1))==ClassResult{i,1},:); %get rows in class
         fnames = found(:,2); %take out names
         pnames = parseProteins(fnames);
-        found = [found(:,2) pnames(:,9) found(:,3:end)];
+
+        found = [found(:,2) getfieldFromStructCell(pnames, 'genename') found(:,3:end)];
         found(:,1) = num2cell(1:size(found,1));
         found = sortrows(found, sortOrd); %sort by rows
-        CombinedRes{realI,2} = strjoin(unique(pnames(~cellfun('isempty',pnames(:,3)),3)), '/'); %name of class
-        CombinedRes{realI,3} = strjoin(unique(pnames(~cellfun('isempty',pnames(:,9)),9)), '/'); %name of class
+        CombinedRes{realI,2} = strjoin(unique(getfieldFromStructCell(pnames(~cellfun('isempty',getfieldFromStructCell(pnames, 'proteinname'))), 'proteinname')), '/'); %name of class
+        CombinedRes{realI,3} = strjoin(unique(getfieldFromStructCell(pnames(~cellfun('isempty',getfieldFromStructCell(pnames, 'genename'))), 'proteinname')), '/'); %name of class
         found(:,1) = fnames(cell2mat(found(:,1))); %replace names
         CombinedRes(realI+1:realI+size(found,1),2:end-1) = found;
         CombinedRes(realI+1:realI+size(found,1),1) = {i};
