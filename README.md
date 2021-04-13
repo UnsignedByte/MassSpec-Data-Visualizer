@@ -73,6 +73,8 @@ Venn diagrams and set overlap calculations between data sets, as well as cluster
 
 ## Changelog
 
+* 2021/04/13: Updated protein name parsing to include new formats.
+* 2021/03/28: Added volcano plot support
 * 2020/12/02: Fixed StatTests to include HeatMap information.
 * 2020/10/15: Add log scaled version of combined regression plot.
 * 2020/10/14: Add `clear colors` button for column coloring in web viewer and implement remaining statistics tests.
