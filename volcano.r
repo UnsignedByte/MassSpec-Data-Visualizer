@@ -84,7 +84,7 @@ for(hmid in 1:length(hms)){
 			+geom_point()
 			+scale_y_continuous(limits=c(0,dynamicCeil(max(group[,5], na.rm=TRUE))),expand=c(0,0))
 			+scale_x_continuous(limits=c(dynamicFloor(min(group[,3], na.rm=TRUE)), dynamicCeil(max(group[,3], na.rm=TRUE))),expand=c(0,0))
-			+scale_colour_manual(values = c("black","red","grey","black"))
+			+scale_colour_manual(values = c("#69a048","red","#999998","#69a048"))
 		)
 		dev.off()
 		write.csv(group, file=file.path("Volcano", hmname, pairname, "raw.csv"))
