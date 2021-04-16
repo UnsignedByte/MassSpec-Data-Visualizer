@@ -11,7 +11,7 @@ function parsed = parseProteins(proteins, fmts) %return info about each protein 
 
     function m = gparse(x)
         rng(0, 'twister'); % reset rng seed so we can use this later
-        m = regexprep(x, '{(.+?)}', '(?<generated_${num2str(floor(rand()*1e6))}>$1)?')
+        m = regexprep(x, '{(.+?)}', '(?<generated_${num2str(floor(rand()*1e6))}>$1)?');
     end
 
     fmtsR = cellfun(@(x) gparse(x), fmts, 'UniformOutput', false); % Convert custom regex to usable regex
@@ -24,7 +24,6 @@ function parsed = parseProteins(proteins, fmts) %return info about each protein 
         for i = 1:length(fmts)
             if regexp(x, fmtsR{i})
                 p = regexp(x, fmtsR{i}, 'names');
-                disp(p);
                 rng(0, 'twister');
                 for j = 1:length(fmtsGroups{i})
                     fld = ['generated_' num2str(floor(rand()*1e6))];
