@@ -4,14 +4,14 @@ function parsed = parseProteins(proteins, fmts) %return info about each protein 
     end
     fmts = [fmts,...
             {
-            '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}\|(?<dbname>.+?)\|(?<proteinname>.+?){_(?<organism>.+?)}\s(?<type>.+?){\sOS=(?<os>(?:.|\s|)+?)}{\sOX=(?<ox>(?:.|\s|)+?)}{\sGN=(?<genename>(?:.|\s|)+?)}{\sPE=(?<pe>(?:.|\s|)+?)}{\sSV=(?<sv>(?:.|\s|)+?)}$',...
-            '^>{()}{\s(?<proteinname>(.|\s)+)\s}{\s\[(?<organism>(?:.|\s)+)\]}$',...
+            '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}\|(?<dbname>.+?)\|(?<proteinname>.+?){_(?<organism>.+?)}\s(?<type>.+?){\sOS=(?<os>.+?)}{\sOX=(?<ox>.+?)}{\sGN=(?<genename>.+?)}{\sPE=(?<pe>.+?)}{\sSV=(?<sv>.+?)}$',...
+            '^{>(?<reverse>Reverse)\s*}>(?<proteinname>.+?(?:\.\d+)?){\s(?<proteindescription>.+?)}{\s\[(?<organism>(?:.|\s)+)\]}$',...
             '^>?(?<reverse>Reverse)\s*>?(?<tr>tr)\s*>?(?<sp>sp)(?:\||\s)(?<proteinname>.+?)$'
             }];
 
     function m = gparse(x)
         rng(0, 'twister'); % reset rng seed so we can use this later
-        m = regexprep(x, '{(.+?)}', '(?<generated_${num2str(floor(rand()*1e6))}>$1)?');
+        m = regexprep(x, '{(.+?)}', '(?<generated_${num2str(floor(rand()*1e6))}>$1)?')
     end
 
     fmtsR = cellfun(@(x) gparse(x), fmts, 'UniformOutput', false); % Convert custom regex to usable regex
@@ -24,10 +24,11 @@ function parsed = parseProteins(proteins, fmts) %return info about each protein 
         for i = 1:length(fmts)
             if regexp(x, fmtsR{i})
                 p = regexp(x, fmtsR{i}, 'names');
+                disp(p);
                 rng(0, 'twister');
                 for j = 1:length(fmtsGroups{i})
                     fld = ['generated_' num2str(floor(rand()*1e6))];
-                    p = mergeStruct(p, regexp(p.(fld), fmtsGroups{i}{j}{1}, 'names'));
+                    p = mergeStruct(p, regexp(p.(fld), ['^' fmtsGroups{i}{j}{1} '$'], 'names'));
                     p = rmfield(p, fld);
                 end
                 p.fullname = x;
