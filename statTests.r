@@ -33,7 +33,6 @@ fids <- read.csv("fileIDs.csv");
 dataset.groupids <- unique(fids$Test_Group) #unique test groups
 
 hms <- list.files(path="HeatMap/Files"); #All heatmaps generated
-jsonData <- list(VennDiagram = list(), ClusterHeatMap = list())
 
 parsedHM <- str_match(hms, "(.+)\\.csv")[,2]
 

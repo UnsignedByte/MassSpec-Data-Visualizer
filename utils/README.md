@@ -116,3 +116,11 @@ Each file contains a svg with two heatmaps, one with files and another with aver
 ### Details
 
 Custom functions can be defined in `vennclustermap.r`, and heatmap row count can be determined in `params.p`; default `hmcount=64`.
+
+## Volcano
+
+Volcano plots comparing data across test groups.
+
+### Details
+
+Custom function for `p` values can be defined in `params.p`.

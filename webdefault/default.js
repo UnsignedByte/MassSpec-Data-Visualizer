@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 2021-04-18 18:07:20
+* @Last Modified time: 2021-04-18 21:05:14
 */
 
 data = $$datainput$$;
@@ -263,6 +263,41 @@ function createGenerator(button, type){
             [sheets.combined[type], ...sheets.raw.map(x=>x[type])],
             ['combined', ...sheets.raw.map(x=>x.name)],
             fillArray('html', sheets.raw.length+1)) // all basic sheets
+        }).appendTo(submenu)
+        break;
+      case 'Volcano':
+        $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"mod"}).appendTo(submenu);
+        data.Volcano.map((x, i)=>{
+          $('<option/>', {value:i, text:x.name}).appendTo(sel);
+        })
+        $('<div/>', {text:"Type:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"type"}).appendTo(submenu);
+        ["graph", "raw"].map((x)=>{
+          $('<option/>', {value:x, text:x}).appendTo(sel);
+        })
+
+        longButton("Generate Sheet", ()=>{
+          let index = $('#submenu select[name="mod"] option:selected').val(); // index of selected gene
+          let type = $('#submenu select[name="type"] option:selected').val(); // raws or graphs
+          $("#tables").empty()
+          let sheets = data.Volcano[index];
+          switch(type)
+          {
+            case "graph":
+              generateSheet(
+                Object.values(sheets.graph),
+                Object.keys(sheets.graph),
+                fillArray('html', Object.keys(sheets.graph).length)) // all html sheets
+              break;
+            case "raw":
+              generateSheet(
+                Object.values(sheets.raw),
+                Object.keys(sheets.raw),
+                fillArray('basic', Object.keys(sheets.raw).length)) // all basic tables
+              break;
+          }
+
         }).appendTo(submenu)
         break;
     }

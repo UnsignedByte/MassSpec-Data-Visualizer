@@ -32,7 +32,7 @@ dataset.groupids <- unique(fids$Test_Group) #unique test groups
 
 hms <- list.files(path="HeatMap/TestGroups"); #All heatmaps generated
 
-jsonData <- list(VennDiagram = list(), ClusterHeatMap = list())
+jsonData <- list();
 
 parsedHM <- str_match(hms, "(.+)\\.csv")[,2]
 
@@ -41,8 +41,6 @@ if (length(dataset.groupids) > 50){
 	stopQuietly();
 }
 
-# json list
-jsonData <- list()
 # all pairs of files
 cnames <- combn(dataset.groupids, 2)
 message(paste("Generating", NCOL(cnames), "volcano plots."))
@@ -65,6 +63,7 @@ for(hmid in 1:length(hms)){
 	f <- read.csv(file.path("HeatMap", "TestGroups", hm));
 	pvals <- read.csv(file.path("StatTests", paste(hmname, "_", params$statTest, ".csv", sep="")));
 	dir.create(file.path("Volcano", hmname))
+	jsonData$Volcano[[hmid]] <- list(name = hmname, graph=list(), raw=list());
 	for(pairI in 1:NCOL(cnames)){
 		pairname <- paste(cnames[1,pairI], cnames[2,pairI], sep="_");
 		message(paste("Generating raws for groups", cnames[1,pairI], "and", cnames[2,pairI]));
@@ -78,16 +77,19 @@ for(hmid in 1:length(hms)){
 		group[,6] <- sapply(1:NROW(f), function(i) classify(group[i,3],group[i,5]))
 		names(group) <- c(paste("x_OfSpectra", cnames[,pairI], sep="_"), "log2foldchange", params$statTest, paste("-log10(", params$statTest, ")", sep=""), "significance")
 		message("Creating plot")
-		pdf(file.path("Volcano", hmname, pairname, "plot.pdf"))
-		print(
-			ggplot(data=group, aes_string(x=names(group)[3], y=paste("-log10(", params$statTest, ")", sep=""), color="significance"))
-			+geom_point()
-			+scale_y_continuous(limits=c(0,dynamicCeil(max(group[,5], na.rm=TRUE))),expand=c(0,0))
-			+scale_x_continuous(limits=c(dynamicFloor(min(group[,3], na.rm=TRUE)), dynamicCeil(max(group[,3], na.rm=TRUE))),expand=c(0,0))
-			+scale_colour_manual(values = c("#69a048","red","#999998","#69a048"))
+		outsvg <- file.path("Volcano", hmname, pairname, "plot.svg");
+		ggsave(
+			file=outsvg,
+			plot=ggplot(data=group, aes_string(x=names(group)[3], y=paste("-log10(", params$statTest, ")", sep=""), color="significance"))
+					+geom_point()
+					+scale_y_continuous(limits=c(0,dynamicCeil(max(group[,5], na.rm=TRUE))),expand=c(0,0))
+					+scale_x_continuous(limits=c(dynamicFloor(min(group[,3], na.rm=TRUE)), dynamicCeil(max(group[,3], na.rm=TRUE))),expand=c(0,0))
+					+scale_colour_manual(values = c("#69a048","red","#999998","#69a048"))
 		)
-		dev.off()
+		jsonData$Volcano[[hmid]]$graph[[pairname]] <- readChar(outsvg, file.info(outsvg)$size)
 		write.csv(group, file=file.path("Volcano", hmname, pairname, "raw.csv"))
+		jsonData$Volcano[[hmid]]$raw[[pairname]] <- group;
 		message("Finished")
 	}
 }
+write(toJSON(jsonData, auto_unbox=TRUE), file=file.path("Raws", "volcano.json"));
