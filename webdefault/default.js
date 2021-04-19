@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 13:51:56, 02-Dec-2020
+* @Last Modified time: 2021-04-18 18:07:20
 */
 
 data = $$datainput$$;
@@ -158,6 +158,10 @@ function createGenerator(button, type){
             ['basic'])
         break;
       case 'HeatMap':
+        $('<div/>', {text:"Selected Type:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"type"}).appendTo(submenu);
+        $('<option/>', {value:'Data', text:'Files'}).appendTo(sel);
+        $('<option/>', {value:'GroupData', text:'TestGroups'}).appendTo(sel);
         $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
         sel = $('<select/>', {name:"mod"}).appendTo(submenu);
         data.HeatMap.map((x, i)=>{
@@ -166,7 +170,7 @@ function createGenerator(button, type){
         longButton("Generate Sheet", ()=>{
           // $("#tables").empty().append(classTableCreate(data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data));
           $("#tables").empty()
-          generateSheet([data.HeatMap[$('#submenu select[name="mod"] option:selected').val()].Data], [1], ['class'])
+          generateSheet([data.HeatMap[$('#submenu select[name="mod"] option:selected').val()][$('#submenu select[name="type"] option:selected').val()]], [1], ['class'])
         }).appendTo(submenu)
         // $('<input/>', {type:"button", value:"Generate Sheet"}).click().appendTo(submenu);
         // .selectmenu().selectmenu( "menuWidget" ).addClass( "overflow" )
