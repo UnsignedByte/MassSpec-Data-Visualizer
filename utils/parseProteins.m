@@ -6,8 +6,9 @@ function parsed = parseProteins(proteins, fmts) %return info about each protein 
             {
             '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}\|(?<dbname>.+?)\|(?<proteinname>.+?){_(?<organism>.+?)}\s(?<type>.+?){\sOS=(?<os>.+?)}{\sOX=(?<ox>.+?)}{\sGN=(?<genename>.+?)}{\sPE=(?<pe>.+?)}{\sSV=(?<sv>.+?)}$',...
             '^{>(?<reverse>Reverse)\s*}>(?<proteinname>.+?(?:\.\d+)?){\s(?<proteindescription>.+?)}{\s\[(?<organism>(?:.|\s)+)\]}$',...
-            '^>?(?<reverse>Reverse)\s*>?(?<tr>tr)\s*>?(?<sp>sp)(?:\||\s)(?<proteinname>.+?)$'
+            '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}>?\|?(?<proteinname>.+?)$'
             }];
+            % '^>(?<proteinname>.+?){\stype=(?<type>.+?);}{\sloc=(?<loc>.+?);?}{\s}'
 
     function m = gparse(x)
         rng(0, 'twister'); % reset rng seed so we can use this later

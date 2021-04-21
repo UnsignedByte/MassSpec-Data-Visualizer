@@ -17,6 +17,8 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
                         warning(['Position (' num2str(jj) ', ' num2str(ii) ') expected number, found "' char(dat{jj,ii}) '"'])
                     end
                     dat{jj,ii} = {newvalue};
+                elseif isnan(dat{jj, ii})
+                    dat{jj, ii} = 0; % replace NaN values with 0
                 end
             end
         end

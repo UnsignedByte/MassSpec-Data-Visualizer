@@ -189,7 +189,7 @@ for kk = 1:numel(params.mods)
                 TempStruct(i).modMatches = zeros(size(TempStruct(i).sdat.Peptide_ProteinMetricsConfidential_));
             else
 
-            %   dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
+                % dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
                 TempStruct(i).modMatches = cellfun(@(x) contains(x, ['[' modlist{1,2} num2str(modlist{1,3}) ']']),TempStruct(i).sdat.Peptide_ProteinMetricsConfidential_);
             end
 
