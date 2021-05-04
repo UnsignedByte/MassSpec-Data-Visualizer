@@ -167,6 +167,17 @@ end
 
 rt2s = cell(numel(params.mods), 1);
 
+ProteinNames = [];
+for i = 1:NumFilesRead
+    ProteinNames = [ProteinNames; origpdats{i}.Description];
+end
+ProteinNames = unique(ProteinNames); % get only unique
+
+parsedProteins = generateParsedProteins(ProteinNames);
+
+disp('Protein names parsed');
+toc;
+
 allgroups = unique(params.testGroups);
 for kk = 1:numel(params.mods)
     
@@ -207,18 +218,32 @@ for kk = 1:numel(params.mods)
                 end
             end
         end
+        % dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
+
+        for ii = 3:size(pdat,2)
+            for jj = 1:size(pdat,1)
+                if ~isnumeric(pdat{jj,ii})
+                    newvalue = str2double(pdat{jj,ii});
+                    if isnan(newvalue) & ~isempty(char(pdat{jj,ii}))
+                        warning(['Position (' num2str(jj) ', ' num2str(ii) ') expected number, found "' char(pdat{jj,ii}) '"'])
+                    end
+                    pdat{jj,ii} = {newvalue};
+                elseif isnan(pdat{jj, ii})
+                    pdat{jj, ii} = 0; % replace NaN values with 0
+                end
+            end
+        end
         datasets{i} = pdat;
     end
     disp(['Mod ' wantedMod ' loaded.'])
     toc;
 
     rt2s{kk} = struct;
-    rt2s{kk}.Data = getCombined(datasets, cellstr(num2str([1:NumFilesRead]')), params.uniqueColumns, params.uniqueCombineFunctions, params.uniqueClassFunctions, params.singleColumns, params.singleClassFunctions);
+    rt2s{kk}.Data = getCombined(datasets, cellstr(num2str([1:NumFilesRead]')), parsedProteins, params.uniqueColumns, params.uniqueCombineFunctions, params.uniqueClassFunctions, params.singleColumns, params.singleClassFunctions);
     rt2s{kk}.Name = wantedMod;
-    writetable(rt2s{kk}.Data,fullfile(resfolder, 'Files', [wantedMod '.csv']));
-
-    disp(['Compiling Testgroup data for ' wantedMod '.'])
+    disp(['File data for' wantedMod ' generated.'])
     toc;
+    writetable(rt2s{kk}.Data,fullfile(resfolder, 'Files', [wantedMod '.csv']));
 
     rt2s{kk}.GroupData = rt2s{kk}.Data(:,1:3);
     for uniqueCol = 1:length(params.uniqueColumns)
@@ -252,6 +277,9 @@ for kk = 1:numel(params.mods)
 
     rt2s{kk}.GroupData = [rt2s{kk}.GroupData rt2s{kk}.Data(:,(end-length(params.singleColumns)-1):end)];
 
+    disp(['Testgroup data for ' wantedMod ' done.'])
+    toc;
+
     writetable(rt2s{kk}.GroupData,fullfile(resfolder, 'TestGroups', [wantedMod '.csv']));
 end
 
@@ -268,6 +296,12 @@ Output.HeatMap = rt2s;
 if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Raws'))
     mkdir(fullfile('Results', getResultFolder(TempFile), 'Raws'));
 end
+
+if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Significance'))
+    mkdir(fullfile('Results', getResultFolder(TempFile), 'Significance'));
+end
+
+% writetable(rt2s{kk}.(:,1:3))
 
 fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Raws', 'combinedHM.json'), 'w');
 saveJSON(fid, Output);

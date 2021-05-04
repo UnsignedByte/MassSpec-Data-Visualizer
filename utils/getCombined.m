@@ -1,46 +1,28 @@
-function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions) 
+function FinalFileOut = getCombined(datasets, datasetnames, parsedProteins, UniqueColumns, UniqueCombineFunctions, UniqueClassFunctions, SingleColumns, SingleClassFunctions) 
     NumFilesRead = length(datasets);
-    ProteinNames = []; %all protein names
 
     %Building the main data structure here. All data is read in and retained.
     %This should make it flexible to do alternative readouts on the fly. Should
     %be scalable to any number of input files.
     for i = 1 : NumFilesRead
         TempStruct(i).NameForFile = datasetnames{i};
-        dat = datasets{i};
-        % dat(:,3:end) = fillmissing(dat(:,3:end), 'constant', 0); %replace NaN with zero
-        for ii = 3:size(dat,2)
-            for jj = 1:size(dat,1)
-                if ~isnumeric(dat{jj,ii})
-                    newvalue = str2double(dat{jj,ii});
-                    if isnan(newvalue) & ~isempty(char(dat{jj,ii}))
-                        warning(['Position (' num2str(jj) ', ' num2str(ii) ') expected number, found "' char(dat{jj,ii}) '"'])
-                    end
-                    dat{jj,ii} = {newvalue};
-                elseif isnan(dat{jj, ii})
-                    dat{jj, ii} = 0; % replace NaN values with 0
-                end
-            end
-        end
-        TempStruct(i).dat = dat;
-        ProteinNames = [ProteinNames; dat.Description];
+        TempStruct(i).dat = datasets{i};
     end
 
-    ProteinNames = unique(ProteinNames); % get only unique
-    ProteinNamesMap = containers.Map(ProteinNames, 1:length(ProteinNames)); % Create a map from name -> ID (arbitrary #)
-    ProteinRanks = [1:length(ProteinNames)]; % List of ranks
+    ProteinNamesMap = containers.Map(parsedProteins.fullname, 1:size(parsedProteins,1)); % Create a map from name -> ID (arbitrary #)
+    ProteinRanks = [1:size(parsedProteins,1)]; % List of ranks
+    ProteinExists = zeros(1,size(parsedProteins,1));
 
     % disp(TempStruct(i).dat)
 
     %Match ids if proteins are in groups
     for i = 1:NumFilesRead % loop each file
-        j = 1; % start at rank 1
         jstart = 1; %Save start
-        for jreal = 2:size(TempStruct(i).dat,1) % loop through all ranks/proteins in dataset
-            j = TempStruct(i).dat.ProteinRank(jreal); % j is the rank of the current protein
-            if TempStruct(i).dat.ProteinRank(jstart) ~= j %if rank is different than before
+        for jreal = 2:size(TempStruct(i).dat,1)+1 % loop through all ranks/proteins in dataset
+            if jreal > size(TempStruct(i).dat,1) || TempStruct(i).dat.ProteinRank(jstart) ~= TempStruct(i).dat.ProteinRank(jreal) %if rank is different than before or we are at the end
                 %find ids of a "class" of proteins (proteins with the same rank)
                 ids = cellfun(@(x) ProteinRanks(ProteinNamesMap(x)), TempStruct(i).dat.Description(jstart:jreal-1));
+                ProteinExists(ids) = 1; %set these to exists
                 ids = arrayfun(@(x) find(ProteinRanks==x), ids, 'UniformOutput', false);
                 ids = [ids{:}];
                 ProteinRanks(ids) = min(ProteinRanks(ids)); %take the smallest id to save it to
@@ -50,10 +32,15 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     end
     
     % assign new ranks to names list
-    ProteinNames(:,2) = num2cell(ProteinRanks); 
-    
+    % disp(length(find(ProteinExists)))
+    % disp(ProteinNames(find(ProteinExists==0)));
+    parsedProteins.ranks = ProteinRanks';
+    % ProteinNames(:,2) = num2cell(ProteinRanks);
+    parsedProteins = parsedProteins(find(ProteinExists), :);
+
     % sort by new ranks
-    ProteinNames = sortrows(ProteinNames,2); %sort names by id
+    parsedProteins = sortrows(parsedProteins,"ranks"); %sort names by id
+    parsedProteinsMap = containers.Map(parsedProteins.fullname, 1:size(parsedProteins,1));
 
     % disp(ProteinNames)
 
@@ -63,7 +50,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
         totUniqueFuncs(i) = totUniqueFuncs(i-1)+length(UniqueCombineFunctions{i});
     end
 
-    Result = NaN(length(ProteinNames),NumFilesRead*length(UniqueColumns)+totUniqueFuncs(end)+length(SingleColumns)+2);
+    Result = NaN(size(parsedProteins,1),NumFilesRead*length(UniqueColumns)+totUniqueFuncs(end)+length(SingleColumns)+2);
     ClassResult = [];
 
     function res = getContaminated(data)
@@ -73,11 +60,11 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
 
     realI = 1;
     j = 1;
-    for i = 1:ProteinNames{end,2}
+    for i = 1:parsedProteins.ranks(end)
         startJ = j;
-        while j <= size(ProteinNames, 1) && ProteinNames{j,2} == i
+        while j <= size(parsedProteins, 1) && parsedProteins.ranks(j) == i
             for kk = 1:NumFilesRead
-                ind = find(ismember(TempStruct(kk).dat.Description, ProteinNames{j,1})); %find index of peptide
+                ind = find(strcmp(TempStruct(kk).dat.Description, parsedProteins.fullname(j))); %find index of peptide
                 if ~isempty(ind)
                     for k = 1:length(UniqueColumns)
                         Result(j,(k-1)*NumFilesRead+totUniqueFuncs(k)-length(UniqueCombineFunctions{k})+kk) = max(table2array(TempStruct(kk).dat(ind,UniqueColumns(k))), [], 1); %paste data into result
@@ -101,13 +88,13 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
             %for removal.
             Result(j, end-1) = 0;
             % If it has any contams, skip
-            if       ~(isempty(strfind(ProteinNames{j,1},'Common contaminant')) ...
-                    && isempty(strfind(ProteinNames{j,1},'eratin, type')) ...
-                    && isempty(strfind(ProteinNames{j,1},' desmo')) ...
-                    && isempty(strfind(ProteinNames{j,1},'dermi')) ...
-                    && isempty(strfind(ProteinNames{j,1},'plak')))
+            if       ~(isempty(strfind(parsedProteins.fullname(j),'Common contaminant')) ...
+                    && isempty(strfind(parsedProteins.fullname(j),'eratin, type')) ...
+                    && isempty(strfind(parsedProteins.fullname(j),' desmo')) ...
+                    && isempty(strfind(parsedProteins.fullname(j),'dermi')) ...
+                    && isempty(strfind(parsedProteins.fullname(j),'plak')))
                 Result(j, end-1) = 2;
-            elseif ~isempty(strfind(ProteinNames{j,1},'>Reverse'))
+            elseif ~ismissing(parsedProteins.reverse(j))
                 % Contam iff no >tr and no >sp
                 Result(j, end-1) = 1;
             end
@@ -142,7 +129,7 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
     ClassResult = sortrows(ClassResult, [size(ClassResult,2)-1, -NumFilesRead-1, -NumFilesRead-2]);
 
     Result = num2cell(Result);
-    Result = [Result(:,end) ProteinNames(:, 1) Result(:,1:end-1)];
+    Result = [Result(:,end) cellstr(parsedProteins.fullname) Result(:,1:end-1)];
     ClassResult = num2cell(ClassResult);
     ClassResult = [ClassResult(:,end) cell(size(ClassResult,1),2) ClassResult(:,1:end-1)];
 
@@ -153,13 +140,14 @@ function FinalFileOut = getCombined(datasets, datasetnames, UniqueColumns, Uniqu
         CombinedRes(realI,:) = [i ClassResult(i,2:end) 1];
         found = Result(cell2mat(Result(:,1))==ClassResult{i,1},:); %get rows in class
         fnames = found(:,2); %take out names
-        pnames = parseProteins(fnames);
+        pranks =arrayfun(@(x) parsedProteinsMap(x), string(fnames));
 
-        found = [found(:,2) getfieldFromStructCell(pnames, 'genename') found(:,3:end)];
+        found = [found(:,2) cellstr(parsedProteins.genename(pranks)) found(:,3:end)];
         found(:,1) = num2cell(1:size(found,1));
         found = sortrows(found, sortOrd); %sort by rows
-        CombinedRes{realI,2} = strjoin(unique(getfieldFromStructCell(pnames(~cellfun('isempty',getfieldFromStructCell(pnames, 'proteinname'))), 'proteinname')), '/'); %name of class
-        CombinedRes{realI,3} = strjoin(unique(getfieldFromStructCell(pnames(~cellfun('isempty',getfieldFromStructCell(pnames, 'genename'))), 'proteinname')), '/'); %name of class
+        CombinedRes{realI,2} = char(strjoin(unique(parsedProteins.proteinname(pranks(~cellfun('isempty',parsedProteins.proteinname(pranks))))), '/')); %name of class
+        CombinedRes{realI,3} = char(strjoin(unique(parsedProteins.proteinname(pranks(~cellfun('isempty',parsedProteins.genename(pranks))))), '/')); %name of class
+        % disp(found)
         found(:,1) = fnames(cell2mat(found(:,1))); %replace names
         CombinedRes(realI+1:realI+size(found,1),2:end-1) = found;
         CombinedRes(realI+1:realI+size(found,1),1) = {i};

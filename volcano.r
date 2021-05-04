@@ -20,7 +20,6 @@ homedir <- fileExists(file.path("Results",params$name), paste("Dataset", params$
 
 setwd(homedir);
 
-
 if(dir.exists("Volcano")) {
 	unlink("Volcano", recursive=TRUE)
 }
