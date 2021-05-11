@@ -283,8 +283,6 @@ for kk = 1:numel(params.mods)
     writetable(rt2s{kk}.GroupData,fullfile(resfolder, 'TestGroups', [wantedMod '.csv']));
 end
 
-disp('Saving final files...')
-
 % Time of completion
 completeTime = datestr(now,'dd_mm_yyyy_HH_MM_SS');
 
@@ -301,7 +299,28 @@ if ~isfolder(fullfile('Results', getResultFolder(TempFile), 'Significance'))
     mkdir(fullfile('Results', getResultFolder(TempFile), 'Significance'));
 end
 
+disp('Generating Significance...')
+toc;
+for i = 1:length(params.mods)
+    sigFile = fullfile('Results', getResultFolder(TempFile), 'Significance', params.mods{i});
+    mkdir(sigFile);
+    sigData = rt2s{i}.Data(find(rt2s{i}.Data.Row_Type),1:3);
+    sigData.provided = cell(size(sigData, 1), 1);
+    for j = 1:size(sigData,1)
+        strs = regexp([sigData.Protein_Name{j} '/' sigData.Gene_Name{j}], '(?<=^|\/)(?<name>.+?)(?=$|\/)', 'match');
+        for k = 1:length(params.significantProteins)
+            if any(strcmp(strs,params.significantProteins(k)))
+                sigData.provided{j} = 'listed';
+            end
+        end
+    end
+    writetable(sigData, fullfile(sigFile, 'raw.csv'));
+end
+
 % writetable(rt2s{kk}.(:,1:3))
+
+disp('Saving final files...')
+toc;
 
 fid = fopen(fullfile('Results', getResultFolder(TempFile), 'Raws', 'combinedHM.json'), 'w');
 saveJSON(fid, Output);
