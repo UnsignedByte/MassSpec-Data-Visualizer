@@ -22,6 +22,7 @@ params.uniqueClassFunctions = {'nansum'}; %functions to use for each dataset whe
 params.singleColumns = [11]; %Columns equal across all datasets (will only take one column)
 params.singleClassFunctions = {'max'}; %functions to use for each dataset when combining into class
 params.proteins = {};
+params.significantProteins = {};
 params.mods = {'All'};
 
 params = mergeStruct(parseParams([mfilename '.m']), params);

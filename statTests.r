@@ -76,7 +76,7 @@ for(hmid in 1:length(hms)){
 			}
 		}
 		statTables[[stat]] <- cbind(f[c('Rank_Number','Protein_Name','Gene_Name')], statTables[[stat]], f['Row_Type'])
-		write.csv(statTables[[stat]], file=file.path("StatTests", paste(hmname, '_', stat, '.csv', sep='')))
+		write.csv(statTables[[stat]], file=file.path("StatTests", paste(hmname, '_', stat, '.csv', sep='')), row.names=FALSE)
 	}
 
 	multiName <- "MultiDim"
@@ -89,9 +89,9 @@ for(hmid in 1:length(hms)){
 			statTables[[multiName]][row,col] <- params$multiStats[[stat]](as.numeric(colnames(ungrouped)), as.numeric(ungrouped[row,]));
 		}
 	}
-	write.csv(cbind(f[,names(mtcars)!="Row_Type"], statTables[[multiName]], f['Row_Type']), file=file.path("StatsHeatMap", paste(hmname, '.csv', sep='')))
+	write.csv(cbind(f[,names(mtcars)!="Row_Type"], statTables[[multiName]], f['Row_Type']), file=file.path("StatsHeatMap", paste(hmname, '.csv', sep='')), row.names=FALSE)
 	statTables[[multiName]] <- cbind(f[c('Rank_Number','Protein_Name','Gene_Name')], statTables[[multiName]], f['Row_Type'])
-	write.csv(statTables[[multiName]], file=file.path("StatTests", paste(hmname, '_', multiName, '.csv', sep='')))
+	write.csv(statTables[[multiName]], file=file.path("StatTests", paste(hmname, '_', multiName, '.csv', sep='')), row.names=FALSE)
 	jsonData$StatTests[[hmid]] <- list(name=hmname, data=statTables);
 	# print(statTables);
 }

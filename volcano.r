@@ -60,7 +60,14 @@ for(hmid in 1:length(hms)){
 	hm <- hms[hmid];
 	hmname <- unlist(strsplit(hm, ".", fixed=TRUE))[1];
 	f <- read.csv(file.path("HeatMap", "TestGroups", hm));
+	f <- f[f$Row_Type==1,]; # take only class values
+	rownames(f) <- NULL; # Reset row names
 	pvals <- read.csv(file.path("StatTests", paste(hmname, "_", params$statTest, ".csv", sep="")));
+	pvals <- pvals[pvals$Row_Type==1,]; # take only class values
+	rownames(pvals) <- NULL; # Reset row names
+	significance <- read.csv(file.path("Significance", hmname, "raw.csv"));
+	significance$volcano = vector(mode="character", length=NROW(significance));
+	print(significance)
 	dir.create(file.path("Volcano", hmname))
 	jsonData$Volcano[[hmid]] <- list(name = hmname, graph=list(), raw=list());
 	for(pairI in 1:NCOL(cnames)){
@@ -73,7 +80,16 @@ for(hmid in 1:length(hms)){
 		group[which(!is.finite(group[,3])),3] <- NA;
 		group[,4] <- pvals[,paste("X", pairname, sep="")]
 		group[,5] <- sapply(group[,4], function(i) -log10(i));
-		group[,6] <- sapply(1:NROW(f), function(i) classify(group[i,3],group[i,5]))
+		group[,6] <- sapply(1:NROW(f), function(i) classify(group[i,3],group[i,5])) # Label upregulated and downregulated
+
+		for(i in 1:NROW(f)) {
+			significance[significance$Rank_Number==i,"volcano"] = paste(significance[significance$Rank_Number==i,"volcano"], switch(group[i,6],
+				"upregulated" = paste("Classified upregulated between group pairs ", cnames[1,pairI], "&", cnames[2,pairI], "\n", sep=""),
+				"downregulated" = paste("Classified downregulated between groups pairs ", cnames[1,pairI], "&", cnames[2,pairI], "\n", sep=""),
+				"none" = ""
+				), sep="");
+		}
+
 		names(group) <- c(paste("x_OfSpectra", cnames[,pairI], sep="_"), "log2foldchange", params$statTest, paste("-log10(", params$statTest, ")", sep=""), "significance")
 		message("Creating plot")
 		outsvg <- file.path("Volcano", hmname, pairname, "plot.svg");
@@ -86,9 +102,10 @@ for(hmid in 1:length(hms)){
 					+scale_colour_manual(values = c("#69a048","red","#999998","#69a048"))
 		)
 		jsonData$Volcano[[hmid]]$graph[[pairname]] <- readChar(outsvg, file.info(outsvg)$size)
-		write.csv(group, file=file.path("Volcano", hmname, pairname, "raw.csv"))
+		write.csv(group, file=file.path("Volcano", hmname, pairname, "raw.csv"), row.names=FALSE)
 		jsonData$Volcano[[hmid]]$raw[[pairname]] <- group;
 		message("Finished")
 	}
+	write.csv(significance, file=file.path("Significance", hmname, "raw.csv"), row.names=FALSE);
 }
 write(toJSON(jsonData, auto_unbox=TRUE), file=file.path("Raws", "volcano.json"));
