@@ -67,7 +67,7 @@ for(hmid in 1:length(hms)){
 	rownames(pvals) <- NULL; # Reset row names
 	significance <- read.csv(file.path("Significance", hmname, "raw.csv"));
 	significance$volcano = vector(mode="character", length=NROW(significance));
-	print(significance)
+	# print(significance)
 	dir.create(file.path("Volcano", hmname))
 	jsonData$Volcano[[hmid]] <- list(name = hmname, graph=list(), raw=list());
 	for(pairI in 1:NCOL(cnames)){

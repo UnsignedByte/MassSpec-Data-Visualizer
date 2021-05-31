@@ -63,7 +63,7 @@ for(hmid in 1:length(hms)){
 			if (any(nchar(as.character(significance[rank,-(1:3)]))))
 			{
 				dataset$group = as.factor(dataset$group)
-				dir.create(file.path("Violin", hmname, gsub("/", ",", significance$Gene_Name[rank])), recursive=TRUE)
+				dir.create(file.path("Violin", hmname, gsub("/", ",", significance$Gene_Name[rank])), recursive=TRUE);
 				outsvg <- file.path("Violin", hmname, gsub("/", ",", significance$Gene_Name[rank]), "plot.svg");
 				# print(dataset);
 				ggsave(
@@ -73,6 +73,7 @@ for(hmid in 1:length(hms)){
 							+scale_y_continuous(limits=c(0,dynamicCeil(max(dataset$count, na.rm=TRUE))),expand=c(0,0))
 							# +scale_x_discrete(limits=c(0,length(dataset.groupids)))
 				)
+				jsonData$Violin[[hmid]]$graph[[significance$Gene_Name[rank]]] <- readChar(outsvg, file.info(outsvg)$size);
 			}
 		}
 	}

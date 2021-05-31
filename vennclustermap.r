@@ -100,7 +100,7 @@ genHM <- function(loc, name, data, fnum){
 	
 	hm.colOrder <- column_order(hm2);
 	names(hm.colOrder) <- NULL
-	hm.colOrder <- c(hm.colOrder[[1]], sapply(hm.colOrder[[2]], function(x) x+4))
+	hm.colOrder <- c(hm.colOrder[[1]], sapply(hm.colOrder[[2]], function(x) x+length(dataset.groupids)))
 	
 	outfname <- file.path("ClusterHeatMap", paste(loc, name, sep='_'));
 	write.csv(data[row_order(hm2),hm.colOrder], file=paste(outfname, 'csv', sep='.'), na="")

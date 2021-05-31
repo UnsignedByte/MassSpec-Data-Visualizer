@@ -28,6 +28,12 @@ stringvalue2
 ]
 ```
 
+### GLOBAL PARAMETERS
+
+ * `name`: Name of dataset to use for all programs.
+ * `mods`: List of modifications for the heatmap to generate filtered versions for. `All` refers to no filter.
+ * `testGroups`: List must have an equal length to the number of files in the dataset; each number refers to the testgroup number that file resides in.
+
 ### [combinedHM.m](combinedHM.m)
 
 Run using `combinedHM` within matlab
@@ -38,8 +44,7 @@ Generates Mod Mapper and Heatmap data. Heatmap data necessary to run most later 
 
 #### Parameters
 
- * `mods`: list of modifications for the heatmap to generate filtered versions for. `All` refers to no filter.
- * `proteins`: list of protein names to use for ModMapper.
+ * `proteins`: List of protein names to use for ModMapper.
 
 ### [linearReg.m](linearReg.m)
 

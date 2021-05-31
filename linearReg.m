@@ -18,11 +18,13 @@ if ~isfield(params, "name")
 end
 % get id of base file
 
-% read parameters
-pfolder = fullfile('Results', params.name, 'Params');
-allParams = getLatestParams(pfolder);
-wantedMods = splitlines(fileread(fullfile(pfolder, allParams('mods'))));
-wantedMods = wantedMods(~cellfun('isempty', wantedMods)); %remove empty
+% % read parameters
+% pfolder = fullfile('Results', params.name, 'Params');
+% allParams = getLatestParams(pfolder);
+% wantedMods = splitlines(fileread(fullfile(pfolder, allParams('mods'))));
+% wantedMods = wantedMods(~cellfun('isempty', wantedMods)); %remove empty
+
+wantedMods = params.mods;
 
 if ~isfolder(fullfile('Results', params.name))
     disp(['Missing HeatMap for ' params.name '. combinedHM_v2 must be run on the dataset before linear regression analysis can be done.']);
