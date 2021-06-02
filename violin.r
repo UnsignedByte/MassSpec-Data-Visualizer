@@ -43,7 +43,7 @@ if (length(dataset.groupids) > 50){
 for(hmid in 1:length(hms)){
 	hm <- hms[hmid];
 	hmname <- unlist(strsplit(hm, ".", fixed=TRUE))[1];
-	f <- read.csv(file.path("HeatMap", "TestGroups", hm));
+	f <- read.csv(file.path("HeatMap", "Files", hm));
 	significance <- read.csv(file.path("Significance", hmname, "raw.csv"), stringsAsFactors=FALSE);
 	significance[is.na(significance)] <- "";
 	dir.create(file.path("Violin", hmname))
@@ -54,6 +54,9 @@ for(hmid in 1:length(hms)){
 		if (f$Row_Type[[idx]] == 1)
 		{
 			rank <- f$Rank[[idx]];
+
+			nname = gsub("/", ",", significance$Gene_Name[rank]);
+
 			dataset <- data.frame(count=NA, group=NA);
 			for(fidx in 1:NROW(fids))
 			{
@@ -63,14 +66,16 @@ for(hmid in 1:length(hms)){
 			if (any(nchar(as.character(significance[rank,-(1:3)]))))
 			{
 				dataset$group = as.factor(dataset$group)
-				dir.create(file.path("Violin", hmname, gsub("/", ",", significance$Gene_Name[rank])), recursive=TRUE);
-				outsvg <- file.path("Violin", hmname, gsub("/", ",", significance$Gene_Name[rank]), "plot.svg");
+				dir.create(file.path("Violin", hmname, nname), recursive=TRUE);
+				outsvg <- file.path("Violin", hmname, nname, "plot.svg");
 				# print(dataset);
+				ymax <- dynamicCeil(max(dataset$count, na.rm=TRUE));
 				ggsave(
 					file=outsvg,
 					plot=ggplot(data=dataset, aes(x=group, y=count))
 							+geom_violin(trim=FALSE)
-							+scale_y_continuous(limits=c(0,dynamicCeil(max(dataset$count, na.rm=TRUE))),expand=c(0,0))
+							+geom_dotplot(binaxis='y', stackdir='center', binwidth = 1, dotsize=0.3)
+							+scale_y_continuous(limits=c(0,ymax),expand=c(0,0))
 							# +scale_x_discrete(limits=c(0,length(dataset.groupids)))
 				)
 				jsonData$Violin[[hmid]]$graph[[significance$Gene_Name[rank]]] <- readChar(outsvg, file.info(outsvg)$size);
