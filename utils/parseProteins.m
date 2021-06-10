@@ -32,6 +32,11 @@ function parsed = parseProteins(proteins, fmts) %return info about each protein 
                     p = rmfield(p, fld);
                 end
                 p.fullname = x;
+
+                % set genename to protein name
+                if ~isfield(p, 'genename')
+                    p.genename = p.proteinname;
+                end
                 return;
             end
         end

@@ -78,6 +78,7 @@ Venn diagrams and set overlap calculations between data sets, as well as cluster
 
 ## Changelog
 
+* 2021/06/01: Fixed Violin plots to show individual dots.
 * 2021/04/13: Updated protein name parsing to include new formats.
 * 2021/03/28: Added volcano plot support
 * 2020/12/02: Fixed StatTests to include HeatMap information.

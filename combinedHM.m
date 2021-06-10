@@ -29,6 +29,7 @@ params = mergeStruct(parseParams([mfilename '.m']), params);
 
 %select data files
 folder = fullfile('Results', params.name, 'Data');
+disp(dir(fullfile(folder, '*.xlsx')));
 TempFiles = extractfield(dir(fullfile(folder, '*.xlsx')), 'name');
 TempFiles = TempFiles(~startsWith(TempFiles(:),'~$')); %Ignore tempsave files
 
@@ -175,6 +176,7 @@ end
 ProteinNames = unique(ProteinNames); % get only unique
 
 parsedProteins = generateParsedProteins(ProteinNames);
+% disp(parsedProteins);
 
 disp('Protein names parsed');
 toc;
