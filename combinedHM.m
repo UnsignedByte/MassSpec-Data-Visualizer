@@ -24,6 +24,7 @@ params.singleClassFunctions = {'max'}; %functions to use for each dataset when c
 params.proteins = {};
 params.significantProteins = {};
 params.mods = {'All'};
+params.wantedCol="x_OfSpectra";
 
 params = mergeStruct(parseParams([mfilename '.m']), params);
 

@@ -6,6 +6,7 @@ install_missing(list.packages)
 sourceCpp('utils/parseParams.cpp')
 
 params <- list(
+	wantedCol="x_OfSpectra",
 	foldchangethreshold = 1,
 	pthreshold = 0.05
 )
@@ -60,7 +61,7 @@ for(hmid in 1:length(hms)){
 			dataset <- data.frame(count=NA, group=NA);
 			for(fidx in 1:NROW(fids))
 			{
-				dataset[fidx,] <- c(f[idx, paste("x_OfSpectra", fidx, sep="_")], fids$Test_Group[[fidx]]);
+				dataset[fidx,] <- c(f[idx, paste(params$wantedCol, fidx, sep="_")], fids$Test_Group[[fidx]]);
 			}
 
 			if (any(nchar(as.character(significance[rank,-(1:3)]))))

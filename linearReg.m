@@ -11,7 +11,11 @@ mex CXXFLAGS="\$CXXFLAGS -std=c++17" utils/parseParams.cpp
 % params = struct;
 % params = mergeStruct(parseParams([mfilename '.m']), params);
 
-params = parseParams([mfilename '.m']);
+params = struct;
+
+params.wantedCol="x_OfSpectra";
+
+params = mergeStruct(parseParams([mfilename '.m']), params);
 
 if ~isfield(params, "name")
     params.name = input('Dataset Name:', 's');
@@ -45,7 +49,7 @@ for i = 1:numel(wantedMods)
     % parse out only classes with no contaminant
     sumdat = sumdat(((sumdat.Row_Type-sumdat.Contaminant) == 1),1:end-5);
     % save only data columns
-    sumdat = sumdat(:,cellfun(@(x) startsWith(x, 'x_OfSpectra_'), sumdat.Properties.VariableNames)); % # spectra from each file
+    sumdat = sumdat(:,cellfun(@(x) startsWith(x, [params.wantedCol '_']), sumdat.Properties.VariableNames)); % # spectra from each file
     mkdir(fullfile(parentF, wantedMods{i}));
     disp(['Parsing mod ' wantedMods{i}]);
     cfig = figure('visible', 'off');

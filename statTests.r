@@ -5,7 +5,7 @@ install_missing(list.packages)
 
 sourceCpp('utils/parseParams.cpp')
 
-params <- list()
+params <- list(wantedCol="x_OfSpectra");
 
 params$twoStats <- list( # stats comparing 2 test groups
 	"wilcoxon"=function(x,y) tryCatch(wilcox.test(x,y)$p.value, error=function(cond) return(NaN))
@@ -54,12 +54,12 @@ for(hmid in 1:length(hms)){
 
 	for(x in 1:length(dataset.groupids)){
 		fnames <- fids$ID[fids$Test_Group==dataset.groupids[x]] # get file ids in this group
-		colnames <- paste("x_OfSpectra", fnames, sep="_");
+		colnames <- paste(params$wantedCol, fnames, sep="_");
 		selected <- f[,colnames];
 		groups[[x]] <- as.data.frame(selected);
 	}
 
-	colnames <- paste("x_OfSpectra", 1:length(fids$ID), sep="_")
+	colnames <- paste(params$wantedCol, 1:length(fids$ID), sep="_")
 	ungrouped <- f[,colnames];
 	colnames(ungrouped) <- fids$Test_Group;
 

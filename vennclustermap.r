@@ -8,6 +8,7 @@ sourceCpp('utils/parseParams.cpp')
 mm2in <- 0.0393701;
 
 params <- list(
+	wantedCol="x_OfSpectra",
 	vennImgSize = 2800,
 	heatmapcount = 64,
 	linespacing = 1.5,
@@ -150,7 +151,7 @@ for(hmid in 1:length(hms)){
 
 	rownames(f) <- f$Rank_Number #save ranks of each
 	f.geneNames <- f[,c("Rank_Number", "Gene_Name")] #save gene names
-	f <- f[,paste("x_OfSpectra", fids$ID, sep="_")]
+	f <- f[,paste(params$wantedCol, fids$ID, sep="_")]
 	colnames(f) <- fids$ID;
 
 	colnames(groups) <- dataset.groupids;

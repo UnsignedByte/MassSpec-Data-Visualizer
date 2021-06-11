@@ -6,6 +6,7 @@ install_missing(list.packages)
 sourceCpp('utils/parseParams.cpp')
 
 params <- list(
+	wantedCol="x_OfSpectra",
 	foldchangethreshold = 1,
 	pthreshold = 0.05
 )
@@ -75,7 +76,7 @@ for(hmid in 1:length(hms)){
 		message(paste("Generating raws for groups", cnames[1,pairI], "and", cnames[2,pairI]));
 		dir.create(file.path("Volcano", hmname, pairname))
 		group <- data.frame(matrix(NA, nrow=NROW(f), ncol=6))
-		group[,1:2] <- f[,paste("x_OfSpectra", cnames[,pairI], sep="_")]
+		group[,1:2] <- f[,paste(params$wantedCol, cnames[,pairI], sep="_")]
 		group[,3] <- sapply(1:NROW(f), function(i) log2(group[i,2]/group[i,1]))
 		group[which(!is.finite(group[,3])),3] <- NA;
 		group[,4] <- pvals[,paste("X", pairname, sep="")]
@@ -90,7 +91,7 @@ for(hmid in 1:length(hms)){
 				), sep="");
 		}
 
-		names(group) <- c(paste("x_OfSpectra", cnames[,pairI], sep="_"), "log2foldchange", params$statTest, paste("-log10(", params$statTest, ")", sep=""), "significance")
+		names(group) <- c(paste(params$wantedCol, cnames[,pairI], sep="_"), "log2foldchange", params$statTest, paste("-log10(", params$statTest, ")", sep=""), "significance")
 		message("Creating plot")
 		outsvg <- file.path("Volcano", hmname, pairname, "plot.svg");
 		ggsave(
@@ -100,6 +101,7 @@ for(hmid in 1:length(hms)){
 					+scale_y_continuous(limits=c(0,dynamicCeil(max(group[,5], na.rm=TRUE))),expand=c(0,0))
 					+scale_x_continuous(limits=c(dynamicFloor(min(group[,3], na.rm=TRUE)), dynamicCeil(max(group[,3], na.rm=TRUE))),expand=c(0,0))
 					+scale_colour_manual(values = c("#69a048","red","#999998","#69a048"))
+					+ggtitle(paste("Volcano plot comparing", params$wantedCol, "for test groups", cnames[1,pairI], "and", cnames[2,pairI]))
 		)
 		jsonData$Volcano[[hmid]]$graph[[pairname]] <- readChar(outsvg, file.info(outsvg)$size)
 		write.csv(group, file=file.path("Volcano", hmname, pairname, "raw.csv"), row.names=FALSE)
