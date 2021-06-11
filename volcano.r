@@ -101,7 +101,7 @@ for(hmid in 1:length(hms)){
 					+scale_y_continuous(limits=c(0,dynamicCeil(max(group[,5], na.rm=TRUE))),expand=c(0,0))
 					+scale_x_continuous(limits=c(dynamicFloor(min(group[,3], na.rm=TRUE)), dynamicCeil(max(group[,3], na.rm=TRUE))),expand=c(0,0))
 					+scale_colour_manual(values = c("#69a048","red","#999998","#69a048"))
-					+ggtitle(paste("Volcano plot comparing", params$wantedCol, "for test groups", cnames[1,pairI], "and", cnames[2,pairI]))
+					+ggtitle(paste(params$wantedCol, "for test groups", cnames[1,pairI], "and", cnames[2,pairI]))
 		)
 		jsonData$Volcano[[hmid]]$graph[[pairname]] <- readChar(outsvg, file.info(outsvg)$size)
 		write.csv(group, file=file.path("Volcano", hmname, pairname, "raw.csv"), row.names=FALSE)

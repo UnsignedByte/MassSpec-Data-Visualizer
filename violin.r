@@ -75,8 +75,9 @@ for(hmid in 1:length(hms)){
 					file=outsvg,
 					plot=ggplot(data=dataset, aes(x=group, y=count))
 							+geom_violin(trim=FALSE)
-							+geom_dotplot(binaxis='y', stackdir='center', binwidth = 1, dotsize=0.3)
+							+geom_dotplot(binaxis='y', stackdir='center', binwidth = ymax/50, dotsize=0.5)
 							+scale_y_continuous(limits=c(0,ymax),expand=c(0,0))
+							+ggtitle(paste(params$wantedCol, "for protein", nname))
 							# +scale_x_discrete(limits=c(0,length(dataset.groupids)))
 				)
 				jsonData$Violin[[hmid]]$graph[[significance$Gene_Name[rank]]] <- readChar(outsvg, file.info(outsvg)$size);
