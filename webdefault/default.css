@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:53:46, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 18:22:54, 02-Nov-2020
+* @Last Modified time: 2021-06-13 15:39:20
 */
 
 :root {
@@ -98,8 +98,9 @@ tbody {
 input, select, #submenu > div, #menu > div{
   border: none;
   min-width: 100px;
+  max-width: 150px;
   height: 100%;
-  outline:none;
+  outline: none;
 }
 
 #menu {

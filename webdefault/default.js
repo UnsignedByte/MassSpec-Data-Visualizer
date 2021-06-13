@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 2021-04-18 21:05:14
+* @Last Modified time: 2021-06-13 15:36:31
 */
 
 data = $$datainput$$;
@@ -298,6 +298,29 @@ function createGenerator(button, type){
               break;
           }
 
+        }).appendTo(submenu)
+        break;
+      case 'Violin':
+        $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"mod"}).appendTo(submenu);
+        data.Violin.map((x, i)=>{
+          $('<option/>', {value:i, text:x.name}).appendTo(sel);
+        })
+        $('<div/>', {text:"Selected Protein:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"protein"}).appendTo(submenu);
+        data.Violin[0].data.map((x,i)=>{
+          $('<option/>', {value:i, text:x.name}).appendTo(sel);
+        })
+
+        longButton("Generate Sheet", ()=>{
+          let index = $('#submenu select[name="mod"] option:selected').val(); // index of selected gene
+          let protein = $('#submenu select[name="protein"] option:selected').val(); // raws or graphs
+          $("#tables").empty()
+          let sheets = data.Violin[index].data[protein];
+          generateSheet(
+            [sheets.graph],
+            ['graph'],
+            ['html']) // all html sheet
         }).appendTo(submenu)
         break;
     }

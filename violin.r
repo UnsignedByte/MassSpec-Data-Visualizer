@@ -48,8 +48,9 @@ for(hmid in 1:length(hms)){
 	significance <- read.csv(file.path("Significance", hmname, "raw.csv"), stringsAsFactors=FALSE);
 	significance[is.na(significance)] <- "";
 	dir.create(file.path("Violin", hmname))
-	jsonData$Violin[[hmid]] <- list(name = hmname, graph=list(), raw=list());
+	jsonData$Violin[[hmid]] <- list(name = hmname, data=list());
 
+	ri <- 1;
 	for(idx in 1:NROW(f))
 	{
 		if (f$Row_Type[[idx]] == 1)
@@ -80,7 +81,8 @@ for(hmid in 1:length(hms)){
 							+ggtitle(paste(params$wantedCol, "for protein", nname))
 							# +scale_x_discrete(limits=c(0,length(dataset.groupids)))
 				)
-				jsonData$Violin[[hmid]]$graph[[significance$Gene_Name[rank]]] <- readChar(outsvg, file.info(outsvg)$size);
+				jsonData$Violin[[hmid]]$data[[ri]] <- list(name=significance$Gene_Name[rank], graph=readChar(outsvg, file.info(outsvg)$size), raw=dataset);
+				ri <- ri + 1;
 			}
 		}
 	}

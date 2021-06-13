@@ -2,7 +2,7 @@
 # @Author: UnsignedByte
 # @Date:   18:37:12, 28-Jan-2020
 # @Last Modified by:   UnsignedByte
-# @Last Modified time: 2021-03-23 09:00:40
+# @Last Modified time: 2021-06-13 11:47:29
 
 import csv
 import json
@@ -42,32 +42,21 @@ with open(os.path.join(root, 'webdefault', 'default.css')) as f:
 
 # Read in js/css tools
 
-with open(os.path.join(root, 'webtools', 'jquery-3.4.1.min.js')) as f:
-	default = default.replace("$$JQUERY$$", f.read())
+replacementMap = {
+	'JQUERY': 'jquery-3.4.1.min.js',
+	'PICKRJS': 'pickr.min.js',
+	'PICKRCSS': 'monolith.min.css',
+	'FONTAWESOME': 'font-awesome.min.css',
+	'BOOTSTRAPJS': 'bootstrap.min.js',
+	'BOOTSTRAPTHEMECSS': 'bootstrap-theme.min.css',
+	'BOOTSTRAPCSS': 'bootstrap.min.css',
+	'CLUSTERIZEJS': 'clusterize.min.js',
+	'CLUSTERIZECSS': 'clusterize.css'
+}
 
-with open(os.path.join(root, 'webtools', 'pickr.min.js')) as f:
-	default = default.replace("$$PICKRJS$$", f.read())
-
-with open(os.path.join(root, 'webtools', 'monolith.min.css')) as f:
-	default = default.replace("$$PICKRCSS$$", f.read())
-
-with open(os.path.join(root, 'webtools', 'font-awesome.min.css')) as f:
-	default = default.replace("$$FONTAWESOME$$", f.read())
-
-with open(os.path.join(root, 'webtools', 'bootstrap.min.js')) as f:
-	default = default.replace("$$BOOTSTRAPJS$$", f.read())
-
-with open(os.path.join(root, 'webtools', 'bootstrap-theme.min.css')) as f:
-	default = default.replace("$$BOOTSTRAPTHEMECSS$$", f.read())
-
-with open(os.path.join(root, 'webtools', 'bootstrap.min.css')) as f:
-	default = default.replace("$$BOOTSTRAPCSS$$", f.read())
-
-with open(os.path.join(root, 'webtools', 'clusterize.min.js')) as f:
-	default = default.replace("$$CLUSTERIZEJS$$", f.read())
-
-with open(os.path.join(root, 'webtools', 'clusterize.css')) as f:
-	default = default.replace("$$CLUSTERIZECSS$$", f.read())
+for k in replacementMap.keys():
+	with open(os.path.join(root, 'webtools', replacementMap[k])) as f:
+		default = default.replace(f"$${k}$$", f.read())
 
 # with open(os.path.join(root, 'jquery-ui.min.js')) as f:
 # 	jqueryui = f.read()
@@ -109,7 +98,7 @@ def insertData(name):
 					loaded = {title(filename.rsplit('.',1)[0]):loaded}
 				data = {**data, **loaded};
 
-	data["Instructions"] = f"<div class=markdown-body>{''.join(documentation[x] for x in data.keys())}</div>";
+	data["Instructions"] = f"<div class=markdown-body>{''.join(documentation[x] if x in documentation else '' for x in data.keys())}</div>";
 
 	return default.replace('$$datainput$$', json.dumps(data)) # Place data into html file
 
