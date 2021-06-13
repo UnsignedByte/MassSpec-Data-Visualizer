@@ -4,15 +4,16 @@ function parsed = parseProteins(proteins, fmts) %return info about each protein 
     end
     fmts = [fmts,...
             {
-            '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}\|(?<dbname>.+?)\|(?<proteinname>.+?){_(?<organism>.+?)}\s(?<type>.+?){\sOS=(?<os>.+?)}{\sOX=(?<ox>.+?)}{\sGN=(?<genename>.+?)}{\sPE=(?<pe>.+?)}{\sSV=(?<sv>.+?)}$',...
-            '^{>(?<reverse>Reverse)\s*}>(?<proteinname>.+?(?:\.\d+)?){\s(?<proteindescription>.+?)}{\s\[(?<organism>(?:.|\s)+)\]}$',...
-            '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}>?\|?(?<proteinname>.+?)$'
+            '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}\|(?<dbname>.+?)\|(?<proteinname>[^\s\|\;]+?)_(?<organism>[^\s\|\;]+?)\s(?<type>.+?){\sOS=(?<os>.+?)}{\sOX=(?<ox>.+?)}{\sGN=(?<genename>.+?)}{\sPE=(?<pe>.+?)}{\sSV=(?<sv>.+?)}$',...
+            '^{>(?<reverse>Reverse)\s*}>(?<proteinname>[^\s\|\;]+?(?:\.\d+)?){\s(?<proteindescription>[^\|\;]+?)}{\s\[(?<organism>(?:.|\s)+)\]}$',...
+            '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}>?\|?(?<proteinname>.+?){\|(?<proteindescription>.+)}$'
             }];
             % '^>(?<proteinname>.+?){\stype=(?<type>.+?);}{\sloc=(?<loc>.+?);?}{\s}'
 
     function m = gparse(x)
         rng(0, 'twister'); % reset rng seed so we can use this later
         m = regexprep(x, '{(.+?)}', '(?<generated_${num2str(floor(rand()*1e6))}>$1)?');
+        disp(m);
     end
 
     fmtsR = cellfun(@(x) gparse(x), fmts, 'UniformOutput', false); % Convert custom regex to usable regex
