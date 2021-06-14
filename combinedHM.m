@@ -30,7 +30,7 @@ params = mergeStruct(parseParams([mfilename '.m']), params);
 
 %select data files
 folder = fullfile('Results', params.name, 'Data');
-disp(dir(fullfile(folder, '*.xlsx')));
+% disp(dir(fullfile(folder, '*.xlsx')));
 TempFiles = extractfield(dir(fullfile(folder, '*.xlsx')), 'name');
 TempFiles = TempFiles(~startsWith(TempFiles(:),'~$')); %Ignore tempsave files
 
