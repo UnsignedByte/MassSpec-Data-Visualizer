@@ -142,11 +142,13 @@ function FinalFileOut = getCombined(datasets, datasetnames, parsedProteins, Uniq
         fnames = found(:,2); %take out names
         pranks =arrayfun(@(x) parsedProteinsMap(x), string(fnames));
 
-        found = [found(:,2) cellstr(parsedProteins.genename(pranks)) found(:,3:end)];
+
+
+        found = [found(:,2) cellstr(getfieldifexists(parsedProteins, 'genename', pranks)) found(:,3:end)];
         found(:,1) = num2cell(1:size(found,1));
         found = sortrows(found, sortOrd); %sort by rows
-        CombinedRes{realI,2} = char(strjoin(unique(parsedProteins.proteinname(pranks(~cellfun('isempty',parsedProteins.proteinname(pranks))))), '/')); %name of class
-        CombinedRes{realI,3} = char(strjoin(unique(parsedProteins.proteinname(pranks(~cellfun('isempty',parsedProteins.genename(pranks))))), '/')); %name of class
+        CombinedRes{realI,2} = char(strjoin(unique(getfieldifexists(parsedProteins, 'proteinname', pranks(~cellfun('isempty',getfieldifexists(parsedProteins, 'proteinname', pranks))))), '/')); %name of class
+        CombinedRes{realI,3} = char(strjoin(unique(getfieldifexists(parsedProteins, 'genename', pranks(~cellfun('isempty',getfieldifexists(parsedProteins, 'genename', pranks))))), '/')); %name of class
         % disp(found)
         found(:,1) = fnames(cell2mat(found(:,1))); %replace names
         CombinedRes(realI+1:realI+size(found,1),2:end-1) = found;

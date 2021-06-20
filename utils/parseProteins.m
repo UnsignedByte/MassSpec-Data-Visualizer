@@ -5,9 +5,10 @@ function parsed = parseProteins(proteins, fmts) %return info about each protein 
     fmts = [fmts,...
             {
             '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}\|(?<dbname>.+?)\|(?<proteinname>[^\s\|\;]+?)_(?<organism>[^\s\|\;]+?)\s(?<type>.+?){\sOS=(?<os>.+?)}{\sOX=(?<ox>.+?)}{\sGN=(?<genename>.+?)}{\sPE=(?<pe>.+?)}{\sSV=(?<sv>.+?)}$',...
-            '^{>(?<reverse>Reverse)\s*}>(?<proteinname>[^\s\|\;]+?(?:\.\d+)?){\s(?<proteindescription>[^\|\;]+?)}{\s\[(?<organism>(?:.|\s)+)\]}$',...
-            '^{>(?<reverse>Reverse)\s*}>(?<proteinname>[^\s\|\;]+?){\stype=(?<type>.+?)(?:;|$)}{\sloc=(?<loc>.+?)(?:;|$)}{\sID=(?<ID>.+?)(?:;|$)}{\sname=(?<genename>.+?)(?:;|$)}{\sparent=(?<parent>.+?)(?:;|$)}{\sdbxref=(?<dbref>.+?)(?:;|$)}$',...
-            '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}>?\|?(?<proteinname>.+?){\|(?<proteindescription>.+)}$'
+            '^{>(?<reverse>Reverse)\s*}>(?<genename>[^\s\|\;]+?(?:\.\d+)?){\s(?<proteindescription>[^\|\;]+?)}{\s\[(?<organism>(?:.|\s)+)\]}$',...
+            '^{>(?<reverse>Reverse)\s*}>(?<proteinname>[^\s\|\;]+?){\stype=(?<type>.+?)(?:;|$)}{\sloc=(?<loc>.+?)(?:;|$)}{\sID=(?<ID>.+?)(?:;|$)}{\sname=(?<genename>.+?)(?:;|$)}{\sparent=(?<parent>.+?)(?:;|$)}{\sdbxref=(?<dbref>.+?)(?:;|$)}{\sMD5=(?<MD5>.+?)(?:;|$)}$',...
+            '^{>(?<reverse>Reverse)\s*}{>(?<tr>tr)\s*}{>(?<sp>sp)}>?\|?(?<genename>.+?){_(?<organism>[^\s\|\;]+?)}{\|(?<proteindescription>.+)}$',...
+            '^(?<genename>.*)$'
             }];
             % '^>(?<proteinname>.+?){\stype=(?<type>.+?);}{\sloc=(?<loc>.+?);?}{\s}'
 
@@ -35,10 +36,10 @@ function parsed = parseProteins(proteins, fmts) %return info about each protein 
                 end
                 p.fullname = x;
 
-                % set genename to protein name
-                if ~isfield(p, 'genename')
-                    p.genename = p.proteinname;
-                end
+                % % set genename to protein name
+                % if ~isfield(p, 'genename')
+                %     p.genename = p.proteinname;
+                % end
                 return;
             end
         end
