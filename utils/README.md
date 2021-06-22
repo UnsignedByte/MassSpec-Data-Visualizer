@@ -124,3 +124,11 @@ Volcano plots comparing data across test groups.
 ### Details
 
 Custom function for `p` values can be defined in `params.p`.
+
+## Violin
+
+Violin plots automatically generated for proteins labeled as significant from other analyses.
+
+### Details
+
+Each selected protein will have violin plots for each test group.
