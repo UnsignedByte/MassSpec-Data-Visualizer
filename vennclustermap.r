@@ -13,7 +13,7 @@ params <- list(
 	heatmapcount = 64,
 	linespacing = 1.5,
 	heatmapcolors = list("blue", "white", "red"),
-	vennCutoff = 0.8 # the proportion of the max in the test groups at which it cuts off including the other rows; threshold between counted/not in venn
+	vennCutoff = 0.05 # the proportion of the max in the test groups at which it cuts off including the other rows; threshold between counted/not in venn
 )
 
 params <- mergeList(parseParams('vennclustermap.r'), params);
