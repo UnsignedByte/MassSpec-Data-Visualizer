@@ -57,6 +57,8 @@ classify <- function(foldchange,pval){ # filter out up/downregulated
 	return("none")
 }
 
+significanceJSON = list()
+
 for(hmid in 1:length(hms)){
 	hm <- hms[hmid];
 	hmname <- unlist(strsplit(hm, ".", fixed=TRUE))[1];
@@ -109,5 +111,7 @@ for(hmid in 1:length(hms)){
 		message("Finished")
 	}
 	write.csv(significance, file=file.path("Significance", hmname, "raw.csv"), row.names=FALSE);
+	significanceJSON[[hmid]] = list(name=hmname, data=significance);
 }
+write(toJSON(list(Significance=significanceJSON), auto_unbox=TRUE), file=file.path("Raws", "significance.json"));
 write(toJSON(jsonData, auto_unbox=TRUE), file=file.path("Raws", "volcano.json"));

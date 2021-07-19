@@ -49,6 +49,8 @@ jsonData <- list()
 # all pairs of files
 cnames <- combn(dataset.groupids, 2)
 
+significanceJSON = list()
+
 for(hmid in 1:length(hms)){
 	hm <- hms[hmid]
 	hmname <- unlist(strsplit(hm, ".", fixed=TRUE))[1];
@@ -81,7 +83,7 @@ for(hmid in 1:length(hms)){
 				statTables[[stat]][row,col] <- params$twoStats[[stat]](p[[1]], p[[2]]);
 				if (f$Row_Type[row] == 1 && !is.nan(statTables[[stat]][row,col]) && statTables[[stat]][row,col] < params$pthreshold) {
 					significance[significance$Rank_Number==f$Rank_Number[[row]],"statTests"] = paste(significance[significance$Rank_Number==f$Rank_Number[[row]],"statTests"], 
-						"P value of ", statTables[[stat]][row,col], " for 2D test ", stat, " between groups ", pair[1], "&", pair[2], "\n", sep="");
+						"P value of ", formatSig(statTables[[stat]][row,col], 4), " for 2D test ", stat, " between groups ", pair[1], "&", pair[2], "\n", sep="");
 				}
 			}
 		}
@@ -99,7 +101,7 @@ for(hmid in 1:length(hms)){
 			statTables[[multiName]][row,col] <- params$multiStats[[stat]](as.numeric(colnames(ungrouped)), as.numeric(ungrouped[row,]));
 			if (f$Row_Type[row] == 1 && !is.nan(statTables[[multiName]][row,col]) && statTables[[multiName]][row,col] < params$pthreshold) {
 					significance[significance$Rank_Number==f$Rank_Number[[row]],"statTests"] = paste(significance[significance$Rank_Number==f$Rank_Number[[row]],"statTests"], 
-						"P value of ", statTables[[stat]][row,col], " for MultiDim test ", stat, "\n", sep="");
+						"P value of ", formatSig(statTables[[multiName]][row,col], 4), " for MultiDim test ", stat, "\n", sep="");
 			}
 		}
 	}
@@ -109,5 +111,7 @@ for(hmid in 1:length(hms)){
 	jsonData$StatTests[[hmid]] <- list(name=hmname, data=statTables);
 	# print(statTables);
 	write.csv(significance, file=file.path("Significance", hmname, "raw.csv"), row.names=FALSE);
+	significanceJSON[[hmid]] = list(name=hmname, data=significance);
 }
+write(toJSON(list(Significance=significanceJSON), auto_unbox=TRUE), file=file.path("Raws", "significance.json"));
 write(toJSON(jsonData, auto_unbox=TRUE), file=file.path("Raws", "statTests.json"));

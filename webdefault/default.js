@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 2021-06-13 15:36:31
+* @Last Modified time: 2021-07-13 16:02:57
 */
 
 data = $$datainput$$;
@@ -321,6 +321,22 @@ function createGenerator(button, type){
             [sheets.graph],
             ['graph'],
             ['html']) // all html sheet
+        }).appendTo(submenu)
+        break;
+      case 'Significance':
+        $('<div/>', {text:"Selected Modification:"}).appendTo(submenu);
+        sel = $('<select/>', {name:"mod"}).appendTo(submenu);
+        data.Significance.map((x, i)=>{
+          $('<option/>', {value:i, text:x.name}).appendTo(sel);
+        })
+
+        longButton("Generate Sheet", ()=>{
+          let index = $('#submenu select[name="mod"] option:selected').val(); // index of selected gene
+          $("#tables").empty()
+          generateSheet(
+            [data.Significance[index].data],
+            [data.Significance[index].name],
+            ['basic']) // all html sheet
         }).appendTo(submenu)
         break;
     }

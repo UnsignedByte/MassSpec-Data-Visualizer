@@ -118,3 +118,9 @@ dynamicFloor <- function(x) { # Rounds all numbers down, keeping 1 significant f
 	factor = 10^floor(log10(abs(x))) #smallest power of 10 larger than x
 	return(floor(x/factor)*factor)
 }
+
+
+# format numbers to a set number of significant digits
+formatSig <- function(n, d) {
+	return(formatC(signif(n,digits=d), digits=d,format="fg", flag="#"))
+}
