@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 2021-07-13 16:02:57
+* @Last Modified time: 2021-07-18 23:03:57
 */
 
 data = $$datainput$$;
@@ -92,7 +92,11 @@ function classTableCreate(dat){
 //populate table row from data
 $.fn.extend({addRow: function(type, headers, dat) {
   for(let i = 0; i < headers.length; i++){
-    $(`<${type}/>`, {text:dat[headers[i]]}).appendTo(this);
+    let v = dat[headers[i]];
+    if (typeof v === "string") {
+      v = v.replace(/\r?\n|\r/gm, '<br/>');
+    }
+    $(`<${type}/>`, {html:v}).appendTo(this)
   }
   return this;
 }});

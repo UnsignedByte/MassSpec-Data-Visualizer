@@ -2,17 +2,17 @@ clear all;
 % allow access to utils functions
 addpath('utils')
 
-% Add parse parameters thing
-mex -setup c++
-mex CXXFLAGS="\$CXXFLAGS -std=c++17" utils/parseParams.cpp
-
-params = struct;
-
 % turn off table reading warning
 warning('OFF', 'MATLAB:table:ModifiedAndSavedVarnames')
 
 % used for debug purposes (saves console output to a file)
 diary on
+
+% Initialize parameter parsing script
+mex -setup c++
+mex CXXFLAGS="\$CXXFLAGS -std=c++17" utils/parseParams.cpp
+
+params = struct;
 
 %% Preference Variables
 params.uniqueColumns = [7]; %Columns to take from each dataset (sorted by max and sum of first elem)
@@ -101,6 +101,7 @@ for kk = 1:NumFilesRead
     dat = origsdats{kk}; %spectra tab
     summarydat = origsumdats{kk}; %summary data
     for i = 1:length(params.proteins)
+        % disp(i);
         if kk == 1
             resTables{i} = struct;
             resTables{i}.Summary = table('Size', [1,3], 'VariableTypes', {'uint32', 'string', 'string'}, 'VariableNames', {'SheetNumber', 'Filenames', 'Protein_Name'});
