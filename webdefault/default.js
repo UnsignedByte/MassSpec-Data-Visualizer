@@ -2,7 +2,7 @@
 * @Author: UnsignedByte
 * @Date:   14:51:38, 09-Jun-2020
 * @Last Modified by:   UnsignedByte
-* @Last Modified time: 2021-07-18 23:03:57
+* @Last Modified time: 2021-07-21 15:38:33
 */
 
 data = $$datainput$$;
@@ -89,12 +89,14 @@ function classTableCreate(dat){
   return table;
 }
 
+let newlineRep = new RegExp('\r?\n|\r', "gm");
+
 //populate table row from data
 $.fn.extend({addRow: function(type, headers, dat) {
   for(let i = 0; i < headers.length; i++){
     let v = dat[headers[i]];
     if (typeof v === "string") {
-      v = v.replace(/\r?\n|\r/gm, '<br/>');
+      v = v.replace(newlineRep, '<br/>');
     }
     $(`<${type}/>`, {html:v}).appendTo(this)
   }
